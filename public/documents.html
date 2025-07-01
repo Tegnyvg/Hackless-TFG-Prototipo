@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Documentos - Hackless</title>
+    <link rel="stylesheet" href="css/styles.css"> </head>
+<body>
+    <div class="container">
+        <h1>Gestión de Documentos del Personal</h1>
+
+        <section class="upload-section">
+            <h2>Cargar Nuevo Documento</h2>
+            <form id="documentUploadForm">
+                <div class="form-group">
+                    <label for="id_usuario">ID de Usuario Asociado:</label>
+                    <input type="number" id="id_usuario" name="id_usuario" value="1" required>
+                    <small>Usa el ID de un usuario existente (ej. 1 para el usuario registrado).</small>
+                </div>
+                <div class="form-group">
+                    <label for="tipo_documento">Tipo de Documento:</label>
+                    <input type="text" id="tipo_documento" name="tipo_documento" placeholder="Ej: Certificado ART, Examen Médico" required>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_emision">Fecha de Emisión:</label>
+                    <input type="date" id="fecha_emision" name="fecha_emision">
+                </div>
+                <div class="form-group">
+                    <label for="fecha_vencimiento">Fecha de Vencimiento:</label>
+                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" required>
+                </div>
+                <div class="form-group">
+                    <label for="archivo_digital">Ruta/Nombre del Archivo Digital:</label>
+                    <input type="text" id="archivo_digital" name="archivo_digital" placeholder="Ej: uploads/doc_veronica_2025.pdf" required>
+                </div>
+                <button type="submit">Cargar Documento</button>
+                <p id="uploadMessage" class="message"></p>
+            </form>
+        </section>
+
+        <section class="list-section">
+            <h2>Documentos Cargados</h2>
+            <button id="refreshDocuments">Actualizar Lista de Documentos</button>
+            <div id="documentsList" class="document-list">
+                <p>Cargando documentos...</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/script.js"></script> </body>
+</html>
