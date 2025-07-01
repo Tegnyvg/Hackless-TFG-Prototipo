@@ -1,0 +1,35 @@
+// hackless-backend/models/Capacitacion.js
+// Definición del modelo Capacitacion para la tabla 'capacitaciones'.
+
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
+
+const Capacitacion = sequelize.define('Capacitacion', {
+  id_capacitacion: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false
+  },
+  titulo: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  fecha_realizacion: {
+    type: DataTypes.DATEONLY, // Fecha en que se realizó la capacitación
+    allowNull: false
+  },
+  responsable: { // Quién dictó o es responsable de la capacitación
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  descripcion: { // Puedes agregar una descripción más detallada de la capacitación
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, {
+  tableName: 'capacitaciones',
+  timestamps: false
+});
+
+module.exports = Capacitacion;

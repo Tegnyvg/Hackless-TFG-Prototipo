@@ -1,0 +1,31 @@
+// hackless-backend/models/Auditoria.js
+// Definición del modelo Auditoria para la tabla 'auditorias'.
+
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
+
+const Auditoria = sequelize.define('Auditoria', {
+  id_auditoria: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false
+  },
+  fecha: {
+    type: DataTypes.DATEONLY, // Fecha de la auditoría
+    allowNull: false
+  },
+  responsable: { // Quién realizó la auditoría o es responsable de ella
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  observaciones: {
+    type: DataTypes.TEXT, // Campo para observaciones o comentarios extensos
+    allowNull: true
+  }
+}, {
+  tableName: 'auditorias',
+  timestamps: false
+});
+
+module.exports = Auditoria;

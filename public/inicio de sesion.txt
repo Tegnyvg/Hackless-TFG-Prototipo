@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Inicio de Sesión - Hacklees</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px;
+      width: 360px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #34495e;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .login-button:hover {
+      background-color: #2980b9;
+    }
+
+    .footer-text {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Iniciar Sesión - Hacklees</h2>
+    <form>
+      <label for="usuario">Usuario</label>
+      <input type="text" id="usuario" name="usuario" placeholder="Ingrese su usuario">
+
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" placeholder="Ingrese su contraseña">
+
+      <button class="login-button" type="submit">Ingresar</button>
+    </form>
+    <p class="footer-text">© 2025 Hacklees - Seguridad para PyMEs</p>
+  </div>
+
+</body>
+</html>

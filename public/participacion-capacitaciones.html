@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Participación en Capacitaciones - Hackless</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/participacion-capacitaciones.js" defer></script>
+  <style>
+    /* Estilos específicos para esta página si los necesitas */
+    .participacion-table-container {
+        max-width: 900px;
+        margin: 30px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+
+    .participacion-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .participacion-table th,
+    .participacion-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .participacion-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .participacion-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .participacion-table tr:hover {
+        background-color: #f0f0f0;
+    }
+
+    .participacion-table .status-toggle {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+    }
+    .participacion-table .status-toggle.completed {
+        background-color: #28a745; /* Verde para completado */
+    }
+    .participacion-table .status-toggle.pending {
+        background-color: #ffc107; /* Amarillo/Naranja para pendiente */
+        color: #333;
+    }
+    .message-container {
+        margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    <header>
+      <div class="logo-brand">
+        <img src="images/logoescudo.png" alt="Hackless Logo">
+        <span>HACKLESS</span>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="user-info">Hola,<br>Analista Seguridad</div>
+      <nav>
+        <ul>
+          <li><a href="/escritorio.html">🏠 Escritorio</a></li>
+          <li><a href="/hallazgos.html">⚠️ Gestión de Hallazgos</a></li>
+          <li><a href="/capacitacion.html">🎓 Capacitación</a></li>
+          <li><a href="/participacion-capacitaciones.html">👥 Participación Capacitaciones</a></li> <li><a href="#">📝 Auditorías</a></li>
+          <li><a href="#">📁 Documentos</a></li>
+          <li><a href="#">⚙️ Configuración</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="main-content">
+      <div class="welcome">
+        <h2>Gestión de Participación en Capacitaciones</h2>
+        <p>Visualiza y actualiza el estado de participación y certificación del personal en las capacitaciones.</p>
+      </div>
+
+      <div class="participacion-table-container">
+        <p id="participacionMessage" class="message message-container"></p>
+        <table class="participacion-table" id="participacionTable">
+          <thead>
+            <tr>
+              <th>ID Participación</th>
+              <th>Usuario</th>
+              <th>Capacitación</th>
+              <th>Fecha Inscripción</th>
+              <th>Certificado Emitido</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

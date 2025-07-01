@@ -1,0 +1,326 @@
+/* hackless-backend/public/css/styles.css */
+/* Este archivo contiene todos los estilos CSS para la aplicación Hackless.
+   Se recomienda enlazarlo en todas las páginas HTML para mantener una estética unificada. */
+
+/* ------------------------------------------------------------------------- */
+/* Estilos Globales y Resets Básicos */
+/* ------------------------------------------------------------------------- */
+* {
+  box-sizing: border-box; /* Incluye padding y border en el ancho/alto total de un elemento */
+}
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif; /* Usamos Arial como base para mantener la estética previa */
+  background-color: #e9f0f5; /* Color de fondo claro y consistente en toda la app */
+  color: #2c3e50; /* Color de texto oscuro principal */
+  line-height: 1.6; /* Espaciado de línea para mejor legibilidad */
+}
+
+/* Contenedor centralizado para formularios y cajas similares (ej. login, hallazgos, capacitacion) */
+.container-box {
+  background: white; /* Fondo blanco */
+  padding: 40px;
+  width: 100%;
+  max-width: 400px; /* Ancho máximo para formularios de login */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  border-radius: 10px;
+  text-align: center; /* Centra el contenido por defecto */
+  margin: 0 auto; /* Centra el bloque horizontalmente */
+}
+
+/* Estilos para el logo y nombre de la marca */
+.logo-brand {
+  margin-bottom: 20px;
+  display: flex; /* Permite alinear imagen y texto */
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+}
+
+.logo-brand img {
+  height: 40px;
+  margin-right: 8px;
+}
+
+.logo-brand span {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Títulos de sección */
+h2 {
+  color: #2c3e50;
+  margin-bottom: 25px;
+  text-align: center; /* Asegura que todos los h2 estén centrados */
+}
+
+/* Etiquetas de formulario */
+label {
+  display: block;
+  text-align: left;
+  margin-bottom: 5px;
+  color: #34495e;
+  font-weight: bold;
+}
+
+/* Campos de entrada de texto, contraseña, select y textarea */
+input[type="text"],
+input[type="password"],
+input[type="date"], /* Agregado para el input de fecha */
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box; /* Incluye padding y border en el ancho total */
+  color: #34495e; /* Color del texto dentro del input */
+  background-color: white; /* Fondo blanco para los inputs */
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #3498db; /* Borde azul al enfocar */
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); /* Sombra suave al enfocar */
+}
+
+textarea {
+  resize: vertical; /* Permite redimensionar verticalmente */
+  min-height: 80px; /* Altura mínima para textareas */
+}
+
+/* Botones principales de acción */
+button[type="submit"], .main-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3498db; /* Azul consistente */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Transición suave para el hover */
+}
+
+button[type="submit"]:hover, .main-button:hover {
+  background-color: #2980b9; /* Azul más oscuro al pasar el ratón */
+}
+
+/* Pie de página común */
+.footer-text {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* Mensajes de feedback (éxito/error) */
+.message {
+    margin-top: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+    text-align: center;
+}
+.message.success {
+    color: green;
+}
+.message.error {
+    color: red;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* Estilos Específicos para el Login */
+/* ------------------------------------------------------------------------- */
+.login-wrapper { /* Envoltura para centrar la caja de login en la pantalla */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* Estilos Específicos para el Escritorio (Dashboard) */
+/* ------------------------------------------------------------------------- */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la ventana */
+}
+
+header {
+  background-color: #ffffff;
+  padding: 15px 30px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  position: fixed; /* Header fijo arriba */
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Asegura que el header esté por encima de otros elementos */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Sombra ligera */
+}
+
+header .logo-brand { /* Reutiliza la clase logo-brand */
+    margin-bottom: 0; /* Elimina el margen inferior del logo-brand en el header */
+}
+
+.sidebar {
+  width: 220px; /* Ancho ajustado de la sidebar */
+  background-color: #ffffff;
+  height: calc(100vh - 70px); /* Ajusta altura para empezar debajo del header */
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  position: fixed;
+  top: 70px; /* Empieza debajo del header */
+  left: 0;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.02); /* Sombra ligera */
+}
+
+.sidebar .user-info {
+  margin-bottom: 30px;
+  font-weight: bold;
+  color: #2c3e50;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee; /* Separador */
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 10px;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: #34495e; /* Color de los enlaces de la sidebar */
+  padding: 8px 10px;
+  display: block; /* Para que el área clicable sea más grande */
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar nav ul li a:hover {
+  background-color: #f0f0f0; /* Fondo gris claro al pasar el ratón */
+  color: #3498db; /* Color de texto azul al pasar el ratón */
+}
+
+.main-content {
+  margin-left: 220px; /* Espacio para la sidebar */
+  padding: 40px;
+  padding-top: 110px; /* Ajusta el padding superior para el header fijo */
+  flex-grow: 1; /* Ocupa el espacio restante */
+}
+
+.welcome {
+  margin-bottom: 30px;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* Alinea las tarjetas al inicio */
+}
+
+.card {
+  width: 220px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid #eee; /* Borde sutil */
+}
+
+.card:hover {
+  background-color: #f5f5f5;
+  transform: translateY(-5px);
+}
+
+.card-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: #3498db; /* Iconos azules */
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.card-description {
+  font-size: 14px;
+  color: #555;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Estilos Específicos para el Módulo de Capacitación */
+/* ------------------------------------------------------------------------- */
+.course-container {
+  max-width: 700px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.05);
+  margin: 0 auto; /* Centra el contenedor del curso */
+}
+
+.module {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f9fbfc;
+}
+
+.module span {
+  font-weight: bold;
+  color: #34495e;
+}
+
+.complete-button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background-color: #2ecc71; /* Verde para el botón de completar */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.complete-button:hover {
+  background-color: #27ae60;
+}
+/* Ajustes en styles.css para inputs más estéticos */
+input[type="text"],
+input[type="password"],
+input[type="email"], /* Añadido para ser explícito con inputs de tipo email */
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px; /* Aumentado de 10px a 12px */
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px; /* Aumentado de 14px a 16px para mejor legibilidad */
+  box-sizing: border-box;
+  color: #34495e;
+  background-color: white;
+}

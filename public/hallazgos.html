@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Hallazgos - Hackless</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: #f4f6f8;
+      padding: 40px;
+    }
+
+    .form-container {
+      background: white;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #34495e;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="logoescudo.png" alt="Hackless Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+<span style="font-size: 22px; font-weight: bold; color: #2c3e50;">HACKLESS</span>
+
+</div>
+
+    <h2>Registrar Hallazgo de Seguridad</h2>
+    <form>
+      <label for="descripcion">Descripción del hallazgo</label>
+      <textarea id="descripcion" placeholder="Describa brevemente el incidente detectado"></textarea>
+
+      <label for="severidad">Nivel de severidad</label>
+      <select id="severidad">
+        <option value="baja">Baja</option>
+        <option value="media">Media</option>
+        <option value="alta">Alta</option>
+      </select>
+
+      <label for="fecha">Fecha de detección</label>
+      <input type="date" id="fecha">
+
+      <label for="responsable">Responsable asignado</label>
+      <input type="text" id="responsable" placeholder="Nombre o rol del responsable">
+
+      <button type="submit">Guardar Hallazgo</button>
+    </form>
+
+    <div class="footer">© 2025 Hackless - Sistema conceptual para PyMEs</div>
+  </div>
+
+</body>
+</html>

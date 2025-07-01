@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Escritorio Hacklees</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
+
+    header {
+      background-color: #ffffff;
+      padding: 15px 30px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 22px;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      height: 100vh;
+      padding: 20px;
+      border-right: 1px solid #ddd;
+      position: fixed;
+      top: 60px;
+    }
+
+    .sidebar .user-info {
+      margin-bottom: 30px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .main-content {
+      margin-left: 220px;
+      padding: 40px;
+    }
+
+    .welcome {
+      margin-bottom: 30px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      width: 220px;
+      background-color: #e8f0fe;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      background-color: #d0e2fd;
+    }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+      color: #2c80b4;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .card-description {
+      font-size: 14px;
+      color: #555;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="logoescudo.png" alt="Hackless Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+<span style="font-size: 22px; font-weight: bold; color: #2c3e50;">HACKLESS</span>
+  </header>
+
+  <aside class="sidebar">
+    <div class="user-info">Hola,<br>Analista Seguridad</div>
+    <nav>
+      <ul style="list-style: none; padding-left: 0;">
+        <li><strong>🔐 Tralarero</strong></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <div class="welcome">
+      <h2>Escritorio de Seguridad Hacklees</h2>
+      <p>Desde aquí puedes acceder a las funciones principales del sistema.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📝</div>
+        <div class="card-title">Auditorías</div>
+        <div class="card-description">Administrar auditorías internas</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">⚠️</div>
+        <div class="card-title">Hallazgos</div>
+        <div class="card-description">Ver y gestionar hallazgos</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🎓</div>
+        <div class="card-title">Capacitación</div>
+        <div class="card-description">Acceder a recursos formativos</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

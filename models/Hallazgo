@@ -1,0 +1,38 @@
+// hackless-backend/models/Hallazgo.js
+// Definición del modelo Hallazgo para la tabla 'hallazgos'.
+
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
+// const Auditoria = require('./Auditoria'); // No se importa aquí, la relación se hace en app.js
+
+const Hallazgo = sequelize.define('Hallazgo', {
+  id_hallazgo: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false
+  },
+  id_auditoria: { // Clave foránea que se relacionará con el modelo Auditoria
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    // La relación se define en app.js, Sequelize gestionará la clave foránea.
+  },
+  descripcion: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  gravedad: {
+    type: DataTypes.ENUM('baja', 'media', 'alta', 'critica'), // Valores posibles para la gravedad
+    allowNull: false
+  },
+  estado: {
+    type: DataTypes.ENUM('abierto', 'en progreso', 'cerrado', 'verificado'), // Estados del hallazgo
+    defaultValue: 'abierto',
+    allowNull: false
+  }
+}, {
+  tableName: 'hallazgos',
+  timestamps: false
+});
+
+module.exports = Hallazgo;
