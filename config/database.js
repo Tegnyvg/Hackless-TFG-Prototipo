@@ -8,21 +8,22 @@ const { Sequelize, DataTypes } = require('sequelize'); // Importa Sequelize y Da
 
 // Detectar el entorno y configurar el dialecto apropiado
 const isProduction = process.env.NODE_ENV === 'production';
-const isRailway = process.env.RAILWAY_ENVIRONMENT === 'production' || process.env.DATABASE_URL;
+const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.DATABASE_URL;
 
 let sequelize;
 
 if (isRailway || process.env.DATABASE_URL) {
   // Configuración para Railway (PostgreSQL)
+  console.log('🚀 Configurando base de datos PostgreSQL para Railway...');
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     dialectOptions: {
-      ssl: {
+      ssl: process.env.NODE_ENV === 'production' ? {
         require: true,
         rejectUnauthorized: false
-      }
+      } : false
     },
-    logging: false,
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
       max: 10,
       min: 0,
@@ -32,6 +33,7 @@ if (isRailway || process.env.DATABASE_URL) {
   });
 } else {
   // Configuración para desarrollo local (MySQL)
+  console.log('🛠️ Configurando base de datos MySQL para desarrollo local...');
   sequelize = new Sequelize(
     process.env.DB_NAME,      // Nombre de la base de datos (hackless_db)
     process.env.DB_USER,      // Usuario de la base de datos (root)

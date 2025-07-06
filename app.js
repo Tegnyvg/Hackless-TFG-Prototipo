@@ -65,6 +65,48 @@ function verificarAdministrador(req, res, next) {
 
 // === ENDPOINTS DE PRUEBA Y CONECTIVIDAD ===
 
+// Endpoint raíz para healthcheck y página de bienvenida
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hackless - Sistema de Gestión Documental</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            h1 { color: #2c3e50; margin-bottom: 20px; }
+            .status { color: #27ae60; font-size: 24px; margin: 20px 0; }
+            .links { margin-top: 30px; }
+            .links a { display: inline-block; margin: 10px; padding: 12px 24px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; }
+            .links a:hover { background: #2980b9; }
+            .info { color: #7f8c8d; margin-top: 20px; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🛡️ Hackless</h1>
+            <h2>Sistema de Gestión Documental y Ciberseguridad</h2>
+            <div class="status">✅ Servidor funcionando correctamente</div>
+            <p>Prototipo desarrollado como Trabajo Final de Grado</p>
+            <div class="links">
+                <a href="/login.html">🔐 Acceso al Sistema</a>
+                <a href="/index.html">🏠 Página Principal</a>
+                <a href="/registro.html">📝 Registro</a>
+            </div>
+            <div class="info">
+                <p><strong>Desarrollado por:</strong> Verónica García - VINF01264</p>
+                <p><strong>Universidad:</strong> Siglo 21</p>
+                <p><strong>Año:</strong> 2025</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `);
+});
+
 // Endpoint de prueba para verificar conectividad
 app.post('/test', (req, res) => {
   console.log('📨 Datos recibidos en test:', req.body);
@@ -930,18 +972,41 @@ app.get('/admin/2fa/status', verificarAdministrador, async (req, res) => {
 if (require.main === module) {
   async function iniciarServidor() {
     try {
-      await connectDB();
-      await sequelize.sync({ force: false });
-      console.log('📦 Base de datos sincronizada correctamente.');
+      console.log('🚀 Iniciando servidor Hackless...');
+      console.log(`🔒 Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
+      console.log(`📡 Puerto: ${process.env.PORT || 3000}`);
       
+      // Intentar conectar a la base de datos
+      console.log('🔌 Conectando a la base de datos...');
+      await connectDB();
+      
+      // Sincronizar modelos
+      console.log('📦 Sincronizando modelos de base de datos...');
+      await sequelize.sync({ force: false });
+      console.log('✅ Base de datos sincronizada correctamente.');
+      
+      // Iniciar servidor
       const puerto = process.env.PORT || 3000;
-      app.listen(puerto, '0.0.0.0', () => {
-        console.log(`🚀 Servidor Hackless ejecutándose en http://localhost:${puerto}`);
-        console.log(`🔒 Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
+      const servidor = app.listen(puerto, '0.0.0.0', () => {
+        console.log(`🎉 Servidor Hackless ejecutándose exitosamente!`);
+        console.log(`🌐 URL: http://localhost:${puerto}`);
+        console.log(`� Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
+        console.log(`🛡️ Sistema listo para recibir conexiones`);
+      });
+
+      // Manejo graceful shutdown
+      process.on('SIGTERM', () => {
+        console.log('⏹️ Cerrando servidor...');
+        servidor.close(() => {
+          console.log('✅ Servidor cerrado correctamente');
+          process.exit(0);
+        });
       });
 
     } catch (error) {
       console.error('❌ Error crítico al iniciar servidor Hackless:', error);
+      console.error('🔍 Detalles del error:', error.message);
+      console.error('📍 Stack trace:', error.stack);
       process.exit(1);
     }
   }
