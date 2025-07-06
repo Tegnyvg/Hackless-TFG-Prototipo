@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackless - Sistema de Gestión Documental</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .demo-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .demo-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-primary {
+            background: #28a745;
+        }
+
+        .btn-primary:hover {
+            background: #218838;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .credentials {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Hackless</h1>
+            <p>Sistema de Gestión Documental y Ciberseguridad para PyMEs del Sector Hidrocarburífero</p>
+            <p><strong>TFG - Universidad Siglo 21</strong></p>
+        </div>
+
+        <!-- Demo en Vivo -->
+        <div class="card">
+            <h2>🚀 Demo en Vivo</h2>
+            <p>Prueba la aplicación completa desplegada en Railway:</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://hackless-backend-production.up.railway.app" class="btn btn-primary" target="_blank">
+                    🌐 Acceder a la Aplicación
+                </a>
+            </div>
+            <div class="status-badge">✅ Activo</div>
+            <div class="status-badge">🔒 Seguro</div>
+            <div class="status-badge">📱 Responsive</div>
+        </div>
+
+        <!-- Credenciales de Acceso -->
+        <div class="credentials">
+            <h3>🔑 Credenciales para Demo</h3>
+            <div class="features-grid">
+                <div>
+                    <strong>👑 Administrador</strong><br>
+                    Usuario: <code>admin@hackless.com</code><br>
+                    Contraseña: <code>Admin2024!</code>
+                </div>
+                <div>
+                    <strong>👥 RRHH</strong><br>
+                    Usuario: <code>rrhh@hackless.com</code><br>
+                    Contraseña: <code>Rrhh2024!</code>
+                </div>
+                <div>
+                    <strong>👨‍💼 Supervisor</strong><br>
+                    Usuario: <code>supervisor@hackless.com</code><br>
+                    Contraseña: <code>Supervisor2024!</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Funcionalidades Principales -->
+        <div class="demo-section">
+            <div class="demo-card">
+                <div class="demo-icon">🔐</div>
+                <h3>Autenticación Segura</h3>
+                <p>Sistema de login con validaciones, recuperación de contraseñas y autenticación de dos factores (2FA)</p>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">👥</div>
+                <h3>Gestión RRHH</h3>
+                <p>Carga masiva y manual de empleados con validaciones automáticas y gestión de credenciales</p>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">📄</div>
+                <h3>Gestión Documental</h3>
+                <p>Subida, categorización y control de acceso a documentos con metadatos y archivos adjuntos</p>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">🔍</div>
+                <h3>Auditorías HSE</h3>
+                <p>Registro y seguimiento de hallazgos de seguridad, salud y ambiente con clasificación de riesgos</p>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">📚</div>
+                <h3>Capacitaciones</h3>
+                <p>Gestión de programas de formación y seguimiento de participación de empleados</p>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">📊</div>
+                <h3>Dashboards</h3>
+                <p>Interfaces intuitivas con métricas y reportes específicos para el sector hidrocarburífero</p>
+            </div>
+        </div>
+
+        <!-- Tecnologías -->
+        <div class="card">
+            <h2>🛠️ Stack Tecnológico</h2>
+            <div class="tech-stack">
+                <span class="tech-badge">Node.js</span>
+                <span class="tech-badge">Express.js</span>
+                <span class="tech-badge">MySQL</span>
+                <span class="tech-badge">PostgreSQL</span>
+                <span class="tech-badge">Sequelize ORM</span>
+                <span class="tech-badge">bcrypt</span>
+                <span class="tech-badge">Multer</span>
+                <span class="tech-badge">XLSX</span>
+                <span class="tech-badge">HTML5</span>
+                <span class="tech-badge">CSS3</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">Railway</span>
+            </div>
+        </div>
+
+        <!-- Características Técnicas -->
+        <div class="card">
+            <h2>⚡ Características Técnicas</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <h4>🔒 Seguridad</h4>
+                    <p>Encriptación bcrypt, validaciones robustas, sanitización de datos</p>
+                </div>
+                <div class="feature">
+                    <h4>🗄️ Base de Datos</h4>
+                    <p>MySQL local, PostgreSQL en producción, migraciones automáticas</p>
+                </div>
+                <div class="feature">
+                    <h4>📱 Responsive</h4>
+                    <p>Diseño adaptativo para escritorio, tablet y móvil</p>
+                </div>
+                <div class="feature">
+                    <h4>📊 Gestión de Archivos</h4>
+                    <p>Subida de Excel, PDF, validaciones de formato y tamaño</p>
+                </div>
+                <div class="feature">
+                    <h4>🚀 Deployment</h4>
+                    <p>CI/CD con Railway, variables de entorno, logs centralizados</p>
+                </div>
+                <div class="feature">
+                    <h4>🔍 Validaciones</h4>
+                    <p>Frontend y backend, manejo de errores, feedback visual</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Código Fuente -->
+        <div class="card">
+            <h2>📂 Código Fuente</h2>
+            <p>El proyecto completo está disponible en GitHub con documentación detallada:</p>
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://github.com/vgarciagonzalez/hackless-backend" class="btn" target="_blank">
+                    📱 Ver en GitHub
+                </a>
+                <a href="https://github.com/vgarciagonzalez/hackless-backend/archive/refs/heads/main.zip" class="btn">
+                    💾 Descargar ZIP
+                </a>
+            </div>
+        </div>
+
+        <!-- Autor -->
+        <div class="card">
+            <h2>👩‍🎓 Información del TFG</h2>
+            <div class="features-grid">
+                <div>
+                    <strong>📚 Universidad:</strong><br>
+                    Universidad Siglo 21
+                </div>
+                <div>
+                    <strong>👩‍💼 Autora:</strong><br>
+                    Verónica García
+                </div>
+                <div>
+                    <strong>🆔 Legajo:</strong><br>
+                    VINF01264
+                </div>
+                <div>
+                    <strong>📧 Contacto:</strong><br>
+                    vgarciagonzalez@estudiantes.ues21.edu.ar
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: white; margin-top: 40px; opacity: 0.8;">
+            <p>© 2025 - Sistema Hackless - TFG Universidad Siglo 21</p>
+            <p>Desarrollado para PyMEs del sector hidrocarburífero argentino</p>
+        </div>
+    </div>
+</body>
+</html>
