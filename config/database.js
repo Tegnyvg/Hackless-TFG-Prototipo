@@ -1,33 +1,59 @@
 // hackless-backend/config/database.js
-// Configuración de la conexión a la base de datos MySQL utilizando Sequelize.
+// Configuración de la conexión a la base de datos utilizando Sequelize.
+// Soporta tanto MySQL (desarrollo local) como PostgreSQL (producción en Railway)
 
 require('dotenv').config(); // Carga las variables de entorno desde el archivo .env
 
 const { Sequelize, DataTypes } = require('sequelize'); // Importa Sequelize y DataTypes
 
-// Crea una nueva instancia de Sequelize para conectar a la base de datos.
-// Los parámetros se obtienen de las variables de entorno para mayor seguridad y flexibilidad.
-const sequelize = new Sequelize(
-  process.env.DB_NAME,      // Nombre de la base de datos (hackless_db)
-  process.env.DB_USER,      // Usuario de la base de datos (root)
-  process.env.DB_PASSWORD,  // Contraseña del usuario de la base de datos
-  {
-    host: process.env.DB_HOST, // Host de la base de datos (localhost)
-    port: process.env.DB_PORT || 3306, // Puerto de MySQL, por defecto 3306
-    dialect: 'mysql', // Especifica el dialecto de la base de datos a usar
-    logging: false, // Desactiva los logs SQL en la consola para un output más limpio (puedes poner 'true' para depurar)
+// Detectar el entorno y configurar el dialecto apropiado
+const isProduction = process.env.NODE_ENV === 'production';
+const isRailway = process.env.RAILWAY_ENVIRONMENT === 'production' || process.env.DATABASE_URL;
+
+let sequelize;
+
+if (isRailway || process.env.DATABASE_URL) {
+  // Configuración para Railway (PostgreSQL)
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
     dialectOptions: {
-      charset: 'utf8mb4',
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     },
-    // Opciones adicionales para el pool de conexiones (recomendado para producción)
+    logging: false,
     pool: {
-      max: 10,  // Número máximo de conexiones en el pool
-      min: 0,   // Número mínimo de conexiones en el pool
-      acquire: 30000, // Tiempo máximo, en ms, que el pool intentará obtener una conexión antes de lanzar un error
-      idle: 10000 // Tiempo máximo, en ms, que una conexión puede estar inactiva antes de ser liberada
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
-  }
-);
+  });
+} else {
+  // Configuración para desarrollo local (MySQL)
+  sequelize = new Sequelize(
+    process.env.DB_NAME,      // Nombre de la base de datos (hackless_db)
+    process.env.DB_USER,      // Usuario de la base de datos (root)
+    process.env.DB_PASSWORD,  // Contraseña del usuario de la base de datos
+    {
+      host: process.env.DB_HOST, // Host de la base de datos (localhost)
+      port: process.env.DB_PORT || 3306, // Puerto de MySQL, por defecto 3306
+      dialect: 'mysql', // Especifica el dialecto de la base de datos a usar
+      logging: false, // Desactiva los logs SQL en la consola para un output más limpio
+      dialectOptions: {
+        charset: 'utf8mb4',
+      },
+      // Opciones adicionales para el pool de conexiones
+      pool: {
+        max: 10,  // Número máximo de conexiones en el pool
+        min: 0,   // Número mínimo de conexiones en el pool
+        acquire: 30000, // Tiempo máximo, en ms, que el pool intentará obtener una conexión antes de lanzar un error
+        idle: 10000 // Tiempo máximo, en ms, que una conexión puede estar inactiva antes de ser liberada
+      }
+    }
+  );
+}
 
 // Función asíncrona para probar la conexión a la base de datos.
 async function connectDB() {

@@ -935,7 +935,7 @@ if (require.main === module) {
       console.log('📦 Base de datos sincronizada correctamente.');
       
       const puerto = process.env.PORT || 3000;
-      app.listen(puerto, () => {
+      app.listen(puerto, '0.0.0.0', () => {
         console.log(`🚀 Servidor Hackless ejecutándose en http://localhost:${puerto}`);
         console.log(`🔒 Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
       });
