@@ -121,7 +121,7 @@ app.post('/test', (req, res) => {
 
 // Registro de nuevos usuarios
 app.post('/register', async (req, res) => {
-  const { nombre, correo_electronico, password, confirm_password, rol } = req.body;
+  const { nombre, correo_electronico, password, confirm_password, rol, puesto, area, telefono } = req.body;
 
   // Validación de campos obligatorios
   if (!nombre || !correo_electronico || !password || !confirm_password || !rol) {
@@ -161,20 +161,27 @@ app.post('/register', async (req, res) => {
 
     // Crear nuevo usuario con contraseña encriptada
     const contrasenaEncriptada = await bcrypt.hash(password, 12);
-    const nuevoUsuario = await Usuario.create({ 
+    const datosUsuario = { 
       nombre, 
       correo_electronico, 
       contraseña: contrasenaEncriptada, 
       rol 
-    });
+    };
+
+    // Agregar campos opcionales si están presentes
+    if (puesto && puesto.trim()) datosUsuario.puesto = puesto.trim();
+    if (area && area.trim()) datosUsuario.area = area.trim();
+    if (telefono && telefono.trim()) datosUsuario.telefono = telefono.trim();
+
+    const nuevoUsuario = await Usuario.create(datosUsuario);
 
     // Respuesta sin datos sensibles
-    const datosUsuario = nuevoUsuario.toJSON();
-    delete datosUsuario.contraseña;
+    const respuestaUsuario = nuevoUsuario.toJSON();
+    delete respuestaUsuario.contraseña;
 
     res.status(201).json({ 
       message: 'Usuario registrado exitosamente en el sistema Hackless.', 
-      usuario: datosUsuario 
+      usuario: respuestaUsuario 
     });
 
   } catch (error) {
@@ -286,6 +293,9 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
         const nombre = fila['Nombre'] || fila['nombre'] || fila['Name'];
         const correo_electronico = fila['Email'] || fila['Correo'] || fila['correo_electronico'] || fila['Correo Electrónico'];
         const rol = fila['Rol'] || fila['rol'] || fila['Role'] || 'empleado';
+        const puesto = fila['Puesto'] || fila['puesto'] || fila['Position'] || '';
+        const area = fila['Area'] || fila['Área'] || fila['area'] || fila['Department'] || '';
+        const telefono = fila['Telefono'] || fila['Teléfono'] || fila['telefono'] || fila['Phone'] || '';
         
         // Validar campos obligatorios
         if (!nombre || !correo_electronico) {
@@ -314,13 +324,21 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
         const contrasenaTemp = `Hackless${new Date().getFullYear()}!`;
         const contrasenaEncriptada = await bcrypt.hash(contrasenaTemp, 12);
 
-        // Crear nuevo usuario
-        await Usuario.create({
+        // Preparar datos del usuario
+        const datosUsuario = {
           nombre: nombre.trim(),
           correo_electronico: correo_electronico.toLowerCase().trim(),
           contraseña: contrasenaEncriptada,
           rol: rol.toLowerCase().trim()
-        });
+        };
+
+        // Agregar campos opcionales si están presentes
+        if (puesto && puesto.trim()) datosUsuario.puesto = puesto.trim();
+        if (area && area.trim()) datosUsuario.area = area.trim();
+        if (telefono && telefono.trim()) datosUsuario.telefono = telefono.trim();
+
+        // Crear nuevo usuario
+        await Usuario.create(datosUsuario);
 
         usuariosCreados++;
 

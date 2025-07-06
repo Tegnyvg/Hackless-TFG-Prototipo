@@ -28,8 +28,20 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false
   },
   rol: {
-    type: DataTypes.ENUM('administrador', 'operativo', 'auditor', 'supervisor', 'rrhh', 'seguridad_higiene'), // Roles definidos
+    type: DataTypes.ENUM('administrador', 'operativo', 'auditor', 'supervisor', 'rrhh', 'seguridad_higiene', 'empleado'), // Roles definidos
     allowNull: false
+  },
+  puesto: {
+    type: DataTypes.STRING(100),
+    allowNull: true // Campo opcional
+  },
+  area: {
+    type: DataTypes.STRING(100),
+    allowNull: true // Campo opcional
+  },
+  telefono: {
+    type: DataTypes.STRING(20),
+    allowNull: true // Campo opcional
   },
   twofa_secret: {
     type: DataTypes.STRING(255),

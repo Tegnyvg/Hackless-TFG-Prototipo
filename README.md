@@ -134,20 +134,29 @@ Desarrollar un sistema web funcional que demuestre las capacidades core de una s
 
 ### 👥 Gestión de Usuarios
 - ✅ Perfiles de usuario diferenciados
-- ✅ Roles y permisos (admin/usuario)
+- ✅ Roles y permisos (admin/empleado/supervisor)
 - ✅ Listado y administración de usuarios
 - ✅ Edición de información personal
 
-### 📄 Gestión Documental
+### �‍♀️ Sistema RRHH - Gestión de Empleados
+- ✅ **Carga Masiva**: Subida de empleados vía Excel/CSV
+- ✅ **Carga Manual**: Formulario individual con validaciones
+- ✅ **Plantillas**: Descarga de formato estándar y ejemplos
+- ✅ **Validaciones**: Email único, campos obligatorios
+- ✅ **Feedback**: Estadísticas detalladas y manejo de errores
+- ✅ **Campos**: Nombre, Email, Rol, Puesto, Área, Teléfono
+- ✅ **Contraseñas**: Generación automática de credenciales temporales
+
+### �📄 Gestión Documental
 - ✅ Carga de documentos con archivos adjuntos
 - ✅ Listado y visualización de documentos
 - ✅ Categorización y metadatos
 - ✅ Control de acceso por usuario
 
 ### 📊 Gestión de Nóminas
-- ✅ Carga de archivos Excel de empleados
-- ✅ Procesamiento y validación de datos
-- ✅ Visualización tabular de información
+- ✅ Visualización tabular de empleados
+- ✅ Integración con sistema de carga RRHH
+- ✅ Datos completos: contacto, rol, área, puesto
 - ✅ Exportación de reportes
 
 ### 🌐 Interfaz Web

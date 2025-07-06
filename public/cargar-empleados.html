@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga de Empleados - RRHH - Hackless</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Estilos específicos para la carga de empleados */
+        .upload-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .header-section h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header-section p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 2px dashed #bdc3c7;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #3498db;
+            background: #ecf0f1;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-input {
+            opacity: 0;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px 20px;
+            background: #3498db;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            transition: background 0.3s ease;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .file-input-label:hover {
+            background: #2980b9;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e8f6f3;
+            border-radius: 6px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .template-download {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .btn-template {
+            background: #17a2b8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-template:hover {
+            background: #138496;
+        }
+
+        .upload-btn {
+            background: #27ae60;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .upload-btn:hover {
+            background: #219a52;
+        }
+
+        .upload-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .results-section {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .results-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .results-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .top-nav {
+            background-color: #2c3e50;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .top-nav .logo-area {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .top-nav .logo-area img {
+            height: 35px;
+            margin-right: 12px;
+        }
+
+        .top-nav .logo-area span {
+            color: white;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .top-nav a:hover {
+            background: #34495e;
+        }
+
+        .error-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .error-item {
+            padding: 5px;
+            border-bottom: 1px solid #f8f9fa;
+            font-size: 14px;
+        }
+
+        /* Estilos para pestañas */
+        .tabs-container {
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: #495057;
+            background: #f8f9fa;
+        }
+
+        .tab-button.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilos para formulario manual */
+        .manual-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .manual-submit-btn {
+            background: #27ae60;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        .manual-submit-btn:hover {
+            background: #219a52;
+        }
+
+        .manual-submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .form-instructions {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .employee-preview {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .preview-label {
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .preview-value {
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+<!-- Copilot: Página de carga masiva de empleados para RRHH - Permite subir archivos Excel
+     con datos de empleados y procesar la información para registro automático en el sistema. -->
+
+    <div class="top-nav">
+        <div class="logo-area" onclick="window.location.href='index.html'">
+            <img src="images/logoescudo.png" alt="Hackless Logo">
+            <span>HACKLESS</span>
+        </div>
+        <div>
+            <a href="escritorio.html">📊 Escritorio</a>
+            <a href="nomina.html">👥 Ver Nómina</a>
+        </div>
+    </div>
+
+    <div class="upload-container">
+        <div class="header-section">
+            <h1>🏢 Gestión de Empleados - RRHH</h1>
+            <p>Carga masiva desde Excel o registro manual individual</p>
+        </div>
+
+        <!-- Pestañas para alternar entre carga masiva y manual -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('masiva')">📤 Carga Masiva (Excel)</button>
+                <button class="tab-button" onclick="showTab('manual')">✏️ Carga Manual</button>
+            </div>
+        </div>
+
+        <!-- TAB: CARGA MASIVA -->
+        <div id="tab-masiva" class="tab-content active">
+
+        <div class="template-download">
+            <h3>📋 Descargar Plantilla</h3>
+            <p>Utiliza nuestra plantilla para asegurar el formato correcto de los datos</p>
+            <a href="#" class="btn-template" onclick="downloadTemplate()">📥 Descargar Plantilla Excel</a>
+            <a href="#" class="btn-template" onclick="downloadSample()">👥 Datos de Ejemplo</a>
+        </div>
+
+        <div class="instructions">
+            <h3>📝 Instrucciones de Uso</h3>
+            <ul>
+                <li><strong>Formato requerido:</strong> Archivo Excel (.xlsx) o CSV</li>
+                <li><strong>Columnas obligatorias:</strong> Nombre, Email, Rol</li>
+                <li><strong>Columnas opcionales:</strong> Puesto, Area, Telefono</li>
+                <li><strong>Validaciones:</strong> Email único, formato válido</li>
+                <li><strong>Contraseña temporal:</strong> Se asigna automáticamente (Hackless2025!)</li>
+            </ul>
+        </div>
+
+        <div class="upload-section">
+            <h3>📤 Seleccionar Archivo</h3>
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls,.csv" onchange="handleFileSelect(event)">
+                <label for="fileInput" class="file-input-label">
+                    📁 Hacer clic para seleccionar archivo Excel
+                </label>
+            </div>
+            <div id="fileInfo" class="file-info" style="display: none;"></div>
+            <button id="uploadBtn" class="upload-btn" onclick="uploadFile()" disabled>
+                🚀 Procesar y Cargar Empleados
+            </button>
+        </div>
+
+        <div id="progressSection" class="progress-section">
+            <h4>⏳ Procesando archivo...</h4>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <p id="progressText">Preparando...</p>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <h3 id="resultsTitle">📊 Resultados de la Carga</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div id="totalProcessed" class="stat-number">0</div>
+                    <div class="stat-label">Total Procesados</div>
+                </div>
+                <div class="stat-item">
+                    <div id="successCount" class="stat-number">0</div>
+                    <div class="stat-label">Empleados Creados</div>
+                </div>
+                <div class="stat-item">
+                    <div id="existingCount" class="stat-number">0</div>
+                    <div class="stat-label">Ya Existían</div>
+                </div>
+                <div class="stat-item">
+                    <div id="errorCount" class="stat-number">0</div>
+                    <div class="stat-label">Errores</div>
+                </div>
+            </div>
+            <div id="resultsDetails"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="nomina.html" class="btn-template">👥 Ver Nómina Actualizada</a>
+            </div>
+        </div>
+
+        <!-- TAB: CARGA MANUAL -->
+        <div id="tab-manual" class="tab-content">
+            <div class="form-instructions">
+                <h3>✏️ Registro Manual de Empleado</h3>
+                <p>Complete los datos del nuevo empleado. Los campos marcados con <span class="required">*</span> son obligatorios.</p>
+                <p><strong>Contraseña temporal:</strong> Se asignará automáticamente (Hackless2025!) y podrá ser cambiada en el primer login.</p>
+            </div>
+
+            <form id="manualEmployeeForm" class="manual-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo <span class="required">*</span></label>
+                        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Juan Carlos Pérez">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required placeholder="empleado@empresa.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rol">Rol en el Sistema <span class="required">*</span></label>
+                        <select id="rol" name="rol" required>
+                            <option value="">Seleccionar rol...</option>
+                            <option value="empleado">Empleado</option>
+                            <option value="supervisor">Supervisor</option>
+                            <option value="administrador">Administrador</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="puesto">Puesto de Trabajo</label>
+                        <input type="text" id="puesto" name="puesto" placeholder="Ej: Ingeniero de Producción">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area">Área/Departamento</label>
+                        <select id="area" name="area">
+                            <option value="">Seleccionar área...</option>
+                            <option value="Operaciones">Operaciones</option>
+                            <option value="HSE">HSE (Salud, Seguridad y Ambiente)</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Administración">Administración</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Ingeniería">Ingeniería</option>
+                            <option value="Legal">Legal y Compliance</option>
+                            <option value="Auditoría">Auditoría</option>
+                            <option value="Logística">Logística</option>
+                            <option value="Finanzas">Finanzas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" placeholder="+54 9 11 1234-5678">
+                    </div>
+                </div>
+
+                <div id="manualPreview" class="employee-preview" style="display: none;">
+                    <div class="preview-title">👤 Vista Previa del Empleado</div>
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <span class="preview-label">Nombre:</span>
+                            <span class="preview-value" id="preview-nombre">-</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Email:</span>
+                            <span class="preview-value" id="preview-email">-</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Rol:</span>
+                            <span class="preview-value" id="preview-rol">-</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Puesto:</span>
+                            <span class="preview-value" id="preview-puesto">-</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Área:</span>
+                            <span class="preview-value" id="preview-area">-</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Teléfono:</span>
+                            <span class="preview-value" id="preview-telefono">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="manualSubmitBtn" class="manual-submit-btn">
+                    👤 Crear Empleado
+                </button>
+            </form>
+
+            <div id="manualResultsSection" class="results-section">
+                <h3 id="manualResultsTitle">📊 Resultado del Registro</h3>
+                <div id="manualResultsDetails"></div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="resetManualForm()" class="btn-template">➕ Registrar Otro Empleado</button>
+                    <a href="nomina.html" class="btn-template">👥 Ver Nómina</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        // === FUNCIONES PARA PESTAÑAS ===
+        function showTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Quitar clase active de todos los botones
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar tab seleccionado
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Activar botón correspondiente
+            event.target.classList.add('active');
+        }
+
+        // === FUNCIONES PARA CARGA MASIVA (Excel) ===
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            if (selectedFile) {
+                fileInfo.style.display = 'block';
+                fileInfo.innerHTML = `
+                    <strong>📄 Archivo seleccionado:</strong> ${selectedFile.name}<br>
+                    <strong>📏 Tamaño:</strong> ${(selectedFile.size / 1024).toFixed(2)} KB<br>
+                    <strong>📅 Última modificación:</strong> ${new Date(selectedFile.lastModified).toLocaleString('es-AR')}
+                `;
+                uploadBtn.disabled = false;
+            } else {
+                fileInfo.style.display = 'none';
+                uploadBtn.disabled = true;
+            }
+        }
+
+        async function uploadFile() {
+            if (!selectedFile) {
+                alert('Por favor selecciona un archivo primero');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('excelFile', selectedFile);
+
+            // Mostrar progreso
+            showProgress();
+
+            try {
+                const response = await fetch('/users/upload-excel', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                hideProgress();
+                showResults(result, response.ok);
+
+            } catch (error) {
+                hideProgress();
+                showResults({
+                    message: 'Error de conexión: ' + error.message,
+                    resumen: { totalFilas: 0, usuariosCreados: 0, usuariosExistentes: 0, errores: 1 }
+                }, false);
+            }
+        }
+
+        function showProgress() {
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            let progress = 0;
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                
+                progressFill.style.width = progress + '%';
+                
+                if (progress < 30) {
+                    progressText.textContent = 'Leyendo archivo Excel...';
+                } else if (progress < 60) {
+                    progressText.textContent = 'Validando datos...';
+                } else {
+                    progressText.textContent = 'Creando usuarios...';
+                }
+                
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+
+        function hideProgress() {
+            document.getElementById('progressSection').style.display = 'none';
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = '100%';
+        }
+
+        function showResults(result, success) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsTitle = document.getElementById('resultsTitle');
+            
+            resultsSection.style.display = 'block';
+            resultsSection.className = 'results-section ' + (success ? 'results-success' : 'results-error');
+            
+            if (success) {
+                resultsTitle.textContent = '✅ Carga Completada Exitosamente';
+            } else {
+                resultsTitle.textContent = '❌ Error en la Carga';
+            }
+
+            // Actualizar estadísticas
+            if (result.resumen) {
+                document.getElementById('totalProcessed').textContent = result.resumen.totalFilas || 0;
+                document.getElementById('successCount').textContent = result.resumen.usuariosCreados || 0;
+                document.getElementById('existingCount').textContent = result.resumen.usuariosExistentes || 0;
+                document.getElementById('errorCount').textContent = result.resumen.errores || 0;
+            }
+
+            // Mostrar detalles
+            const resultsDetails = document.getElementById('resultsDetails');
+            let detailsHTML = `<p><strong>Mensaje:</strong> ${result.message}</p>`;
+            
+            if (result.contrasenaTemporalInfo) {
+                detailsHTML += `
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin: 10px 0;">
+                        <strong>🔑 Información importante:</strong><br>
+                        ${result.contrasenaTemporalInfo}
+                    </div>
+                `;
+            }
+
+            if (result.detalleErrores && result.detalleErrores.length > 0) {
+                detailsHTML += `
+                    <div style="margin-top: 15px;">
+                        <strong>📋 Detalles de errores:</strong>
+                        <div class="error-list">
+                            ${result.detalleErrores.map(error => `<div class="error-item">⚠️ ${error}</div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsDetails.innerHTML = detailsHTML;
+
+            // Limpiar formulario
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('uploadBtn').disabled = true;
+            selectedFile = null;
+        }
+
+        // === FUNCIONES PARA CARGA MANUAL ===
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('manualEmployeeForm');
+            const inputs = form.querySelectorAll('input, select');
+            
+            // Actualizar vista previa en tiempo real
+            inputs.forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+            
+            // Manejar envío del formulario
+            form.addEventListener('submit', handleManualSubmit);
+        });
+
+        function updatePreview() {
+            const form = document.getElementById('manualEmployeeForm');
+            const preview = document.getElementById('manualPreview');
+            const formData = new FormData(form);
+            
+            // Mostrar preview solo si hay algún dato
+            const hasData = Array.from(formData.values()).some(value => value.trim() !== '');
+            
+            if (hasData) {
+                preview.style.display = 'block';
+                
+                document.getElementById('preview-nombre').textContent = formData.get('nombre') || '-';
+                document.getElementById('preview-email').textContent = formData.get('email') || '-';
+                document.getElementById('preview-rol').textContent = formData.get('rol') || '-';
+                document.getElementById('preview-puesto').textContent = formData.get('puesto') || '-';
+                document.getElementById('preview-area').textContent = formData.get('area') || '-';
+                document.getElementById('preview-telefono').textContent = formData.get('telefono') || '-';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        async function handleManualSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = document.getElementById('manualSubmitBtn');
+            const formData = new FormData(form);
+            
+            // Validar campos requeridos
+            if (!formData.get('nombre') || !formData.get('email') || !formData.get('rol')) {
+                alert('Por favor complete todos los campos obligatorios (Nombre, Email, Rol)');
+                return;
+            }
+            
+            // Deshabilitar botón durante el envío
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Creando empleado...';
+            
+            try {
+                // Preparar datos para el endpoint de registro
+                const employeeData = {
+                    nombre: formData.get('nombre'),
+                    correo_electronico: formData.get('email'),
+                    password: 'Hackless2025!', // Contraseña temporal
+                    confirm_password: 'Hackless2025!',
+                    rol: formData.get('rol'),
+                    puesto: formData.get('puesto') || '',
+                    area: formData.get('area') || '',
+                    telefono: formData.get('telefono') || ''
+                };
+                
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(employeeData)
+                });
+                
+                const result = await response.json();
+                showManualResults(result, response.ok);
+                
+            } catch (error) {
+                showManualResults({
+                    message: 'Error de conexión: ' + error.message
+                }, false);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '👤 Crear Empleado';
+            }
+        }
+
+        function showManualResults(result, success) {
+            const resultsSection = document.getElementById('manualResultsSection');
+            const resultsTitle = document.getElementById('manualResultsTitle');
+            const resultsDetails = document.getElementById('manualResultsDetails');
+            
+            resultsSection.style.display = 'block';
+            resultsSection.className = 'results-section ' + (success ? 'results-success' : 'results-error');
+            
+            if (success) {
+                resultsTitle.textContent = '✅ Empleado Creado Exitosamente';
+                resultsDetails.innerHTML = `
+                    <p><strong>Mensaje:</strong> ${result.message}</p>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin: 10px 0;">
+                        <strong>🔑 Información importante:</strong><br>
+                        El empleado ha sido registrado con la contraseña temporal: <strong>Hackless2025!</strong><br>
+                        El empleado deberá cambiar esta contraseña en su primer login.
+                    </div>
+                    <div style="background: #d4edda; padding: 15px; border-radius: 6px; margin: 10px 0;">
+                        <strong>👤 Empleado registrado:</strong><br>
+                        <strong>Nombre:</strong> ${result.usuario?.nombre || 'N/A'}<br>
+                        <strong>Email:</strong> ${result.usuario?.correo_electronico || 'N/A'}<br>
+                        <strong>Rol:</strong> ${result.usuario?.rol || 'N/A'}
+                    </div>
+                `;
+            } else {
+                resultsTitle.textContent = '❌ Error al Crear Empleado';
+                resultsDetails.innerHTML = `
+                    <p><strong>Error:</strong> ${result.message}</p>
+                    <p>Por favor verifique los datos e intente nuevamente.</p>
+                `;
+            }
+            
+            // Ocultar formulario y preview
+            document.getElementById('manualEmployeeForm').style.display = 'none';
+            document.getElementById('manualPreview').style.display = 'none';
+        }
+
+        function resetManualForm() {
+            // Mostrar formulario
+            document.getElementById('manualEmployeeForm').style.display = 'block';
+            document.getElementById('manualEmployeeForm').reset();
+            
+            // Ocultar resultados y preview
+            document.getElementById('manualResultsSection').style.display = 'none';
+            document.getElementById('manualPreview').style.display = 'none';
+        }
+
+        // === FUNCIONES PARA DESCARGA DE PLANTILLAS ===
+        function downloadTemplate() {
+            // Crear CSV de plantilla
+            const template = `Nombre,Email,Rol,Puesto,Area,Telefono
+Juan Pérez,jperez@empresa.com,empleado,Ingeniero de Producción,Operaciones,+54 9 11 1234-5678
+María González,mgonzalez@empresa.com,empleado,Técnica en Seguridad,HSE,+54 9 11 2345-6789`;
+            
+            downloadCSV(template, 'plantilla_empleados.csv');
+        }
+
+        function downloadSample() {
+            // Descargar el archivo de ejemplo que creamos
+            fetch('/empleados_ejemplo.csv')
+                .then(response => response.text())
+                .then(data => downloadCSV(data, 'empleados_ejemplo.csv'))
+                .catch(() => {
+                    // Si no existe, crear uno simple
+                    const sample = `Nombre,Email,Rol,Puesto,Area,Telefono
+Carlos Rodríguez,crodriguez@ejemplo.com,empleado,Supervisor de Campo,Operaciones,+54 9 11 3456-7890
+Ana Martínez,amartinez@ejemplo.com,empleado,Coordinadora de Documentación,Administración,+54 9 11 4567-8901
+Luis Fernández,lfernandez@ejemplo.com,empleado,Técnico en Mantenimiento,Mantenimiento,+54 9 11 5678-9012`;
+                    downloadCSV(sample, 'empleados_ejemplo.csv');
+                });
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
