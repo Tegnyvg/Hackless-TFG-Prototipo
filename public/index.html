@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackless - Solución de Ciberseguridad para PyMEs Petroleras</title>
+    <link rel="stylesheet" href="css/marketing.css">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <img src="images/logoescudo.png" alt="Hackless Logo">
+            <span>HACKLESS</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#hero">Inicio</a></li>
+                <li><a href="#features">Características</a></li>
+                <li><a href="#solutions">Soluciones</a></li>
+                <li><a href="#clients">Clientes</a></li>
+                <li><a href="#pricing">Precios</a></li>
+                <li><a href="#contact">Contacto</a></li>
+                <li><a href="login.html" class="btn-primary">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero-section" id="hero">
+        <div class="hero-content">
+            <h1>Automatiza tu Ciberseguridad y Gestión Documental para PyMEs Petroleras.</h1>
+            <p>Hackless simplifica el cumplimiento normativo y protege tu información crítica en entornos de alta exigencia, permitiéndote enfocarte en lo esencial.</p>
+            <a href="#contact" class="btn-primary btn-large">Solicitar Demo</a>
+        </div>
+        <div class="hero-image">
+            <img src="images/hero-illustration.png" alt="Ilustración de seguridad y gestión">
+        </div>
+    </section>
+
+    <section class="features-section" id="features">
+        <h2>Nuestras Soluciones Clave</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="icon fas fa-file-alt"></i>
+                <h3>Gestión Documental Inteligente</h3>
+                <p>Centraliza, valida y controla la documentación técnica y operativa del personal, reduciendo errores y agilizando auditorías.</p>
+            </div>
+            <div class="feature-item">
+                <i class="icon fas fa-shield-alt"></i>
+                <h3>Ciberseguridad Simplificada</h3>
+                <p>Incorpora principios de ISO/IEC 27001 y OWASP Top 10 para proteger tu información más sensible.</p>
+            </div>
+            <div class="feature-item">
+                <i class="icon fas fa-chart-line"></i>
+                <h3>Trazabilidad y Cumplimiento</h3>
+                <p>Mejora la visibilidad operativa y facilita el cumplimiento de exigencias de operadoras y gremios.</p>
+            </div>
+            <div class="feature-item">
+                <i class="icon fas fa-users"></i>
+                <h3>Capacitación y Hallazgos</h3>
+                <p>Gestiona formaciones obligatorias y registra hallazgos de seguridad para una mejora continua.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2>¿Listo para Optimizar la Gestión de tu PyME?</h2>
+        <p>Descubre cómo Hackless puede transformar tu operación y asegurar tu tranquilidad.</p>
+        <a href="#contact" class="btn-primary btn-large">Comienza Ahora</a>
+    </section>
+
+    <footer class="footer" id="contact">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/logoescudo.png" alt="Hackless Logo">
+                <span>HACKLESS</span>
+            </div>
+            <div class="footer-links">
+                <h3>Enlaces Rápidos</h3>
+                <ul>
+                    <li><a href="#">Inicio</a></li>
+                    <li><a href="#">Soluciones</a></li>
+                    <li><a href="#">Contacto</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contacto</h3>
+                <p>Email: info@hackless.com</p>
+                <p>Tel: +54 9 299 123 4567</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Hackless. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal Solicitar Demo -->
+    <div id="demoModal" class="modal-demo" style="display:none;">
+        <div class="modal-demo-content">
+            <button id="closeDemoModal" class="modal-demo-close" title="Cerrar">&times;</button>
+            <h2>Solicitar Demo</h2>
+            <form id="demoForm" class="demo-form">
+                <label for="demoNombre">Nombre completo</label>
+                <input type="text" id="demoNombre" name="nombre" required>
+                <label for="demoEmpresa">Empresa</label>
+                <input type="text" id="demoEmpresa" name="empresa" required>
+                <label for="demoEmail">Email</label>
+                <input type="email" id="demoEmail" name="email" required>
+                <label for="demoTelefono">Teléfono</label>
+                <input type="text" id="demoTelefono" name="telefono">
+                <label for="demoMensaje">Mensaje</label>
+                <textarea id="demoMensaje" name="mensaje" rows="3" placeholder="¿En qué podemos ayudarte?"></textarea>
+                <button type="submit" class="btn-primary btn-large" style="width:100%;margin-top:18px;">Enviar solicitud</button>
+                <div class="demo-form-msg" style="margin-top:12px;font-weight:bold;"></div>
+            </form>
+        </div>
+    </div>
+    <!-- Fin Modal Solicitar Demo -->
+
+    <div style="position:fixed;bottom:24px;right:24px;z-index:999;">
+      <a href="demo-guia.html" target="_blank" style="background:#0074d9;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.08);">Guía de Demo ▶</a>
+    </div>
+
+    <script>
+    // Configura aquí la URL del backend si frontend y backend están en dominios distintos
+    // window.HACKLESS_API_BASE = 'https://tu-backend.com';
+    // Si frontend y backend están juntos, deja comentado
+
+    // Mostrar y ocultar el modal de demo
+    document.addEventListener('DOMContentLoaded', function() {
+      const demoModal = document.getElementById('demoModal');
+      const openDemoBtns = document.querySelectorAll('a[href="#contact"], .btn-primary.btn-large');
+      const closeDemoBtn = document.getElementById('closeDemoModal');
+      const demoForm = document.getElementById('demoForm');
+      const demoFormMsg = document.querySelector('.demo-form-msg');
+
+      function openModal(e) {
+        if (e) e.preventDefault();
+        demoModal.style.display = 'block';
+      }
+      function closeModal() {
+        demoModal.style.display = 'none';
+        demoForm.reset();
+        demoFormMsg.textContent = '';
+      }
+      openDemoBtns.forEach(btn => {
+        btn.addEventListener('click', openModal);
+      });
+      closeDemoBtn.addEventListener('click', closeModal);
+      window.onclick = function(event) {
+        if (event.target === demoModal) closeModal();
+      };
+      // Enviar solicitud de demo
+      demoForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        demoFormMsg.textContent = 'Enviando...';
+        demoFormMsg.style.color = '#333';
+        const data = {
+          nombre: demoForm.demoNombre.value,
+          empresa: demoForm.demoEmpresa.value,
+          email: demoForm.demoEmail.value,
+          telefono: demoForm.demoTelefono.value,
+          mensaje: demoForm.demoMensaje.value
+        };
+        const API_BASE = window.HACKLESS_API_BASE || '';
+        if (!API_BASE && location.protocol === 'file:') {
+          demoFormMsg.textContent = 'Debes abrir la web desde un servidor (http://localhost:3000 o dominio) para enviar la solicitud.';
+          demoFormMsg.style.color = '#c0392b';
+          return;
+        }
+        try {
+          const res = await fetch(`${API_BASE}/solicitar-demo`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          let result = {};
+          try { result = await res.json(); } catch { result = {}; }
+          if (res.ok) {
+            demoFormMsg.textContent = '¡Solicitud enviada! Nos contactaremos pronto.';
+            demoFormMsg.style.color = '#27ae60';
+            demoForm.reset();
+          } else {
+            demoFormMsg.textContent = result.message || 'Error al enviar la solicitud.';
+            demoFormMsg.style.color = '#c0392b';
+          }
+        } catch (err) {
+          demoFormMsg.textContent = 'No se pudo conectar con el servidor. Verifica la URL del backend o contacta soporte.';
+          demoFormMsg.style.color = '#c0392b';
+        }
+      });
+    });
+    </script>
+
+</body>
+</html>

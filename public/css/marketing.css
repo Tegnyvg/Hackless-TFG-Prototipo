@@ -1,0 +1,370 @@
+/* public/css/marketing.css */
+
+/* Copilot: Estilos CSS para una página de presentación (landing page) de Hackless.
+   Utilizar una paleta de colores profesionales (ej. azul primario, gris neutro, blanco).
+   Definir estilos para:
+   - Body (fuente general, color de fondo).
+   - Navbar (header, logo, enlaces de navegación a la derecha, botón de login).
+   - Hero Section (título grande, subtítulo, botón CTA, imagen al lado).
+   - Features Section (grid de 3-4 columnas, iconos, títulos, descripciones).
+   - Final Call to Action Section (texto centrado, botón grande).
+   - Footer (varias columnas, enlaces, redes sociales, derechos de autor).
+   - Botones generales (.btn-primary, .btn-large) con efecto hover.
+   - Estilos responsivos básicos para móviles.
+*/
+
+body, h1, h2, h3, p, ul, li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.navbar .logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo img {
+    height: 35px;
+    margin-right: 10px;
+}
+
+.navbar .logo span {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links li a:hover {
+    color: #007bff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+}
+
+.hero-section {
+    background-color: #e8f0fe;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 40px;
+    min-height: 500px;
+    text-align: left;
+}
+
+.hero-content {
+    max-width: 50%;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.hero-image {
+    max-width: 45%;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+}
+
+.features-section {
+    padding: 80px 40px;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.features-section h2 {
+    font-size: 2.2rem;
+    color: #2c3e50;
+    margin-bottom: 50px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.feature-item {
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    background-color: #fefefe;
+}
+
+.feature-item .icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.feature-item h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.feature-item p {
+    color: #555;
+}
+
+.cta-section {
+    background-color: #007bff;
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+}
+
+.cta-section h2 {
+    font-size: 2.5rem;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+}
+
+.footer {
+    background-color: #333;
+    color: white;
+    padding: 40px 40px;
+    font-size: 0.9rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+}
+
+.footer-logo img {
+    height: 30px;
+    margin-right: 10px;
+}
+
+.footer-logo span {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.footer-links h3, .footer-contact h3 {
+    color: #007bff;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.footer-links ul li a, .footer-contact p, .footer-contact a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.footer-links ul li a:hover, .footer-contact a:hover {
+    text-decoration: underline;
+}
+
+.social-links a {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    color: white;
+}
+
+.social-links a:hover {
+    color: #007bff;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #555;
+}
+
+/* Modal Solicitar Demo */
+.modal-demo {
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0; right: 0; bottom: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(44,62,80,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.modal-demo-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(31,78,121,0.18);
+  padding: 38px 32px 28px 32px;
+  max-width: 400px;
+  width: 95vw;
+  position: relative;
+  font-family: 'Inter', 'Montserrat', Arial, sans-serif;
+  animation: modalIn 0.25s cubic-bezier(.4,1.6,.6,1) 1;
+}
+@keyframes modalIn {
+  from { transform: translateY(40px) scale(0.97); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+.modal-demo-close {
+  position: absolute;
+  top: 16px; right: 18px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-demo-close:hover {
+  color: #e63946;
+}
+.demo-form label {
+  display: block;
+  margin-bottom: 6px;
+  color: #1F4E79;
+  font-weight: 600;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.demo-form input[type="text"],
+.demo-form input[type="email"],
+.demo-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1.5px solid #ADB5BD;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-family: 'Inter', Arial, sans-serif;
+  color: #212529;
+  background: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.demo-form input:focus, .demo-form textarea:focus {
+  border-color: #1F4E79;
+  box-shadow: 0 0 0 2px rgba(31,78,121,0.13);
+}
+.demo-form button[type="submit"] {
+  margin-top: 10px;
+}
+@media (max-width: 600px) {
+  .modal-demo-content {
+    padding: 18px 4vw 18px 4vw;
+    max-width: 98vw;
+  }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .nav-links {
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 15px;
+        width: 100%;
+        align-items: flex-start;
+    }
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+        padding: 50px 20px;
+    }
+    .hero-content, .hero-image {
+        max-width: 100%;
+    }
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .footer-logo, .footer-links, .footer-contact {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .social-links {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+}

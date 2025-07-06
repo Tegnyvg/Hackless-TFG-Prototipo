@@ -307,6 +307,7 @@ header .logo-brand { /* Reutiliza la clase logo-brand */
 .complete-button:hover {
   background-color: #27ae60;
 }
+
 /* Ajustes en styles.css para inputs más estéticos */
 input[type="text"],
 input[type="password"],
@@ -323,4 +324,392 @@ textarea {
   box-sizing: border-box;
   color: #34495e;
   background-color: white;
+}
+
+/* Estilos para el campo de subida de archivo como botón */
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.custom-file-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-button:hover {
+    background-color: #0056b3;
+}
+
+#fileName {
+    margin-left: 10px;
+    color: #f0f0f0;
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 140px);
+}
+
+/* Estilos para la tabla de documentos */
+.documents-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+.documents-table thead tr {
+    background-color: #007bff;
+    color: white;
+    text-align: left;
+}
+.documents-table th, 
+.documents-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+.documents-table.striped-table tbody tr:nth-child(odd) {
+    background-color: #f2f2f2;
+}
+.documents-table tbody tr:hover {
+    background-color: #e0e0e0;
+}
+.documents-table td a {
+    color: #007bff;
+    text-decoration: none;
+}
+.documents-table td a:hover {
+    text-decoration: underline;
+}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap');
+
+:root {
+  --color-primary: #1F4E79;
+  --color-secondary: #F4A261;
+  --color-accent: #2A9D8F;
+  --color-neutral-light: #F0F4F8;
+  --color-neutral-medium: #ADB5BD;
+  --color-text: #212529;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background-color: var(--color-neutral-light);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', Arial, sans-serif;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.container, .container-box, .course-container, .main-content, .card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(31, 78, 121, 0.07);
+  padding: 32px;
+}
+
+button, .main-button, .custom-file-button {
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(31, 78, 121, 0.08);
+  margin-bottom: 10px;
+}
+button:hover, .main-button:hover, .custom-file-button:hover {
+  background-color: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(42, 157, 143, 0.12);
+}
+
+input[type="text"], input[type="password"], input[type="email"], input[type="date"], select, textarea {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border: 1.5px solid var(--color-neutral-medium);
+  border-radius: 7px;
+  font-size: 1rem;
+  font-family: 'Inter', Arial, sans-serif;
+  color: var(--color-text);
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(31, 78, 121, 0.13);
+}
+
+label {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.file-input-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.custom-file-button {
+  background-color: var(--color-secondary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+.custom-file-button:hover {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+#fileName {
+  margin-left: 10px;
+  color: var(--color-primary);
+  font-weight: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 140px);
+}
+
+/* Tabla de documentos */
+.documents-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 0.98rem;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(31, 78, 121, 0.07);
+}
+.documents-table thead tr {
+  background-color: var(--color-primary);
+  color: #fff;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+.documents-table th, .documents-table td {
+  padding: 14px 18px;
+  border: 1px solid var(--color-neutral-medium);
+}
+.documents-table.striped-table tbody tr:nth-child(odd) {
+  background-color: var(--color-neutral-light);
+}
+.documents-table tbody tr:hover {
+  background-color: #e0e0e0;
+  transition: background 0.2s;
+}
+.documents-table td a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.documents-table td a:hover {
+  text-decoration: underline;
+}
+
+/* Sombra y transición para tarjetas y cajas */
+.card, .container-box, .main-content, .course-container {
+  box-shadow: 0 4px 16px rgba(31, 78, 121, 0.07);
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+.card:hover {
+  box-shadow: 0 8px 24px rgba(31, 78, 121, 0.13);
+}
+
+/* Mensajes de feedback */
+.message {
+  margin-top: 15px;
+  font-size: 0.98em;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'Inter', Arial, sans-serif;
+}
+.message.success {
+  color: var(--color-accent);
+}
+.message.error {
+  color: #e63946;
+}
+
+/* ------------------------------------------------------------------------- */
+/* Estilos para el formulario de Orden de Compra (Purchase Order Form) */
+/* ------------------------------------------------------------------------- */
+.purchase-order-card {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 32px rgba(31, 78, 121, 0.13);
+  padding: 40px 32px 32px 32px;
+  font-family: 'Inter', 'Montserrat', Arial, sans-serif;
+}
+.purchase-order-title {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 2rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.po-section {
+  margin-bottom: 32px;
+}
+.po-section-title {
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  margin-bottom: 18px;
+  letter-spacing: 0.2px;
+}
+.po-form-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 18px 24px;
+  align-items: center;
+}
+.po-form-grid label {
+  justify-self: end;
+  font-family: 'Montserrat', Arial, sans-serif;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 0;
+  text-align: right;
+}
+.po-form-grid input[type="text"],
+.po-form-grid input[type="email"],
+.po-form-grid input[type="date"],
+.po-form-grid textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-neutral-medium);
+  border-radius: 7px;
+  font-size: 1rem;
+  font-family: 'Inter', Arial, sans-serif;
+  color: var(--color-text);
+  background-color: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.po-form-grid input:focus, .po-form-grid textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(31, 78, 121, 0.13);
+}
+/* Switch elegante para sí/no */
+.po-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.po-switch-label {
+  font-family: 'Inter', Arial, sans-serif;
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: 1rem;
+}
+.po-switch input[type="checkbox"] {
+  display: none;
+}
+.po-switch-slider {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--color-neutral-medium);
+  border-radius: 12px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.po-switch-slider:before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(31, 78, 121, 0.10);
+}
+.po-switch input[type="checkbox"]:checked + .po-switch-slider {
+  background: var(--color-accent);
+}
+.po-switch input[type="checkbox"]:checked + .po-switch-slider:before {
+  transform: translateX(20px);
+}
+/* Responsive para móviles */
+@media (max-width: 600px) {
+  .purchase-order-card {
+    padding: 18px 6vw;
+  }
+  .po-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .po-form-grid label {
+    justify-self: start;
+    text-align: left;
+    margin-bottom: 4px;
+  }
 }

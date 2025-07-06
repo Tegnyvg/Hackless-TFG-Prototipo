@@ -32,11 +32,22 @@ document.addEventListener('DOMContentLoaded', () => {
             loginMessage.textContent = ''; // Limpia cualquier mensaje anterior
             loginMessage.style.color = 'black'; // Restablece el color del mensaje por defecto
 
-            // Validación básica para asegurar que los campos no estén vacíos
+            // Validación básica para asegurar que los campos no estén vacíos y formato de correo
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!correo_electronico || !password) {
                 loginMessage.textContent = 'Por favor, ingresa tu correo electrónico y contraseña.';
                 loginMessage.style.color = 'red';
                 return; // Detiene la ejecución si los campos están vacíos
+            }
+            if (!emailRegex.test(correo_electronico)) {
+                loginMessage.textContent = 'Por favor, ingresa un correo electrónico válido.';
+                loginMessage.style.color = 'red';
+                return;
+            }
+            if (password.length < 8) {
+                loginMessage.textContent = 'La contraseña debe tener al menos 8 caracteres.';
+                loginMessage.style.color = 'red';
+                return;
             }
 
             try {
@@ -76,4 +87,59 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mensaje de error si el formulario de login no se encuentra en el HTML
         console.error('El formulario de login (ID "loginForm") no fue encontrado en el DOM. Asegúrate de que tu HTML tiene <form id="loginForm">.');
     }
+
+    // --- 2FA dinámico para admins ---
+    let twofaRequired = false;
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const correo_electronico = document.getElementById('correo_electronico').value;
+        const password = document.getElementById('password').value;
+        const twofa_token = document.getElementById('twofa_token') ? document.getElementById('twofa_token').value : undefined;
+        loginMessage.textContent = '';
+        loginMessage.style.color = 'black';
+        // Validación básica para asegurar que los campos no estén vacíos y formato de correo
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!correo_electronico || !password) {
+            loginMessage.textContent = 'Por favor, ingresa tu correo electrónico y contraseña.';
+            loginMessage.style.color = 'red';
+            return; // Detiene la ejecución si los campos están vacíos
+        }
+        if (!emailRegex.test(correo_electronico)) {
+            loginMessage.textContent = 'Por favor, ingresa un correo electrónico válido.';
+            loginMessage.style.color = 'red';
+            return;
+        }
+        if (password.length < 8) {
+            loginMessage.textContent = 'La contraseña debe tener al menos 8 caracteres.';
+            loginMessage.style.color = 'red';
+            return;
+        }
+
+        try {
+            const body = { correo_electronico, password };
+            if (twofaRequired && twofa_token) body.twofa_token = twofa_token;
+            const response = await fetch('/admin-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await response.json();
+            if (response.ok) {
+                loginMessage.textContent = data.message;
+                loginMessage.style.color = 'green';
+                window.location.href = '/solicitudes-demo.html';
+            } else {
+                loginMessage.textContent = data.message || 'Error en el inicio de sesión. Inténtalo de nuevo.';
+                loginMessage.style.color = 'red';
+                // Si el error es 2FA requerido, mostrar campo
+                if (data.message && data.message.includes('2FA')) {
+                  twofaRequired = true;
+                  document.getElementById('twofaContainer').style.display = 'block';
+                }
+            }
+        } catch (error) {
+            loginMessage.textContent = 'Error de conexión con el servidor. Por favor, verifica que el servidor esté activo.';
+            loginMessage.style.color = 'red';
+        }
+    });
 });

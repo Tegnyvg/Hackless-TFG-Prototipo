@@ -2,7 +2,9 @@
 // Definición del modelo Documentacion para la tabla 'documentos'.
 
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database'); // Importa la instancia de Sequelize
+const { sequelize } = require('../config/database'); 
+// Importa el modelo Usuario. Es crucial que Usuario esté definido antes de que Documentacion se asocie a él.
+const Usuario = require('./Usuario.js'); 
 
 const Documentacion = sequelize.define('Documentacion', {
   id_documento: {
@@ -14,7 +16,10 @@ const Documentacion = sequelize.define('Documentacion', {
   id_usuario: { // Clave foránea que se relacionará con el modelo Usuario
     type: DataTypes.INTEGER,
     allowNull: false,
-    // La relación se define en app.js, Sequelize gestionará la clave foránea.
+    references: { 
+      model: Usuario, 
+      key: 'id_usuario'
+    }
   },
   tipo_documento: {
     type: DataTypes.STRING(50),
@@ -36,5 +41,18 @@ const Documentacion = sequelize.define('Documentacion', {
   tableName: 'documentos', // Nombre de la tabla en la base de datos
   timestamps: false
 });
+
+// --- Definir las relaciones AQUI, DESPUÉS de que AMBOS modelos estén definidos ---
+// Esto es muy importante para Sequelize: las asociaciones deben hacerse una vez que ambos modelos existan.
+// Aunque ya lo tenías, a veces el orden de importación/ejecución afecta.
+Usuario.hasMany(Documentacion, { 
+  foreignKey: 'id_usuario', 
+  as: 'documentos' // Alias usado cuando consultas desde Usuario (ej. Usuario.findAll({ include: Documentacion.documentos }))
+});
+Documentacion.belongsTo(Usuario, { 
+  foreignKey: 'id_usuario', 
+  as: 'usuarioInfo' // Alias usado cuando consultas desde Documentacion (ej. Documentacion.findAll({ include: Documentacion.usuarioInfo }))
+});
+// --------------------------------------------------------------------------------
 
 module.exports = Documentacion;

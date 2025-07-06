@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Documentos - Hackless</title>
     <link rel="stylesheet" href="css/styles.css"> </head>
-<body>
+<body onload="setTodayDate()">
     <div class="container">
         <h1>Gestión de Documentos del Personal</h1>
 
@@ -19,7 +19,16 @@
                 </div>
                 <div class="form-group">
                     <label for="tipo_documento">Tipo de Documento:</label>
-                    <input type="text" id="tipo_documento" name="tipo_documento" placeholder="Ej: Certificado ART, Examen Médico" required>
+                    <select id="tipo_documento" name="tipo_documento" required>
+                        <option value="">-- Seleccione un tipo --</option>
+                        <option value="Certificado ART">Certificado ART</option>
+                        <option value="Examen Médico">Examen Médico</option>
+                        <option value="Constancia Capacitación">Constancia Capacitación</option>
+                        <option value="Contrato de Servicio">Contrato de Servicio</option>
+                        <option value="Póliza de Seguro">Póliza de Seguro</option>
+                        <option value="Constancia Gremial">Constancia Gremial</option>
+                        <option value="Permiso de Acceso Yacimiento">Permiso de Acceso Yacimiento</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="fecha_emision">Fecha de Emisión:</label>
@@ -27,11 +36,18 @@
                 </div>
                 <div class="form-group">
                     <label for="fecha_vencimiento">Fecha de Vencimiento:</label>
-                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" required>
+                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento">
                 </div>
                 <div class="form-group">
-                    <label for="archivo_digital">Ruta/Nombre del Archivo Digital:</label>
-                    <input type="text" id="archivo_digital" name="archivo_digital" placeholder="Ej: uploads/doc_veronica_2025.pdf" required>
+                    <label>Seleccionar Archivo (PDF, DOCX, etc.):</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="archivoPdf" name="archivoPdf" accept=".pdf,.doc,.docx" required>
+                        <label for="archivoPdf" class="custom-file-button">
+                            Adjuntar Documento
+                            <span id="fileName"></span>
+                        </label>
+                    </div>
+                    <small>Solo se permiten archivos PDF, DOC o DOCX.</small>
                 </div>
                 <button type="submit">Cargar Documento</button>
                 <p id="uploadMessage" class="message"></p>

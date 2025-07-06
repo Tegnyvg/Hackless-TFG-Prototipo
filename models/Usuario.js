@@ -30,6 +30,22 @@ const Usuario = sequelize.define('Usuario', {
   rol: {
     type: DataTypes.ENUM('administrador', 'operativo', 'auditor', 'supervisor', 'rrhh', 'seguridad_higiene'), // Roles definidos
     allowNull: false
+  },
+  twofa_secret: {
+    type: DataTypes.STRING(255),
+    allowNull: true // Solo si el admin activa 2FA
+  },
+  twofa_enabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  reset_token: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  reset_token_expires: {
+    type: DataTypes.BIGINT,
+    allowNull: true
   }
 }, {
   tableName: 'usuarios', // Nombre de la tabla en la base de datos

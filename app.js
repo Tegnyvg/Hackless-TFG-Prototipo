@@ -1,344 +1,457 @@
-// hackless-backend/app.js
-// Archivo principal del backend de Hackless.
-// Configura el servidor Express, la conexión a la base de datos,
-// define los modelos y sus relaciones, y expone las rutas API.
-
-// -----------------------------------------------------------------------------
-// 1. Carga de módulos y configuración inicial
-// -----------------------------------------------------------------------------
-
-// Carga las variables de entorno desde el archivo .env al inicio de la aplicación.
 require('dotenv').config();
+const express = require('express');
+const app = express();
+const path = require('path');
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const fs = require('fs');
+const session = require('express-session');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 
-const express = require('express'); // Importa el framework Express.js
-const app = express(); // Crea una instancia de la aplicación Express
-
-const bcrypt = require('bcryptjs'); // Importa la librería para cifrado y comparación de contraseñas
-
-// Define el puerto en el que el servidor escuchará.
-// Toma el valor de la variable de entorno PORT o usa 3000 por defecto.
-const PORT = process.env.PORT || 3000;
-
-// Importa la configuración de la base de datos y la instancia de Sequelize.
-// 'sequelize' es la instancia de conexión configurada en database.js.
-// 'connectDB' es la función que se encarga de probar y establecer la conexión a la BD.
+// Models & DB
 const { connectDB, sequelize } = require('./config/database');
-
-// Importa todos los modelos de la base de datos.
-// Estos modelos definen la estructura de las tablas y cómo Sequelize interactúa con ellas.
 const Usuario = require('./models/Usuario');
 const Documentacion = require('./models/Documentacion');
-const Auditoria = require('./models/Auditoria');
-const Hallazgo = require('./models/Hallazgo');
-const Capacitacion = require('./models/Capacitacion');
-const ParticipacionCapacitacion = require('./models/ParticipacionCapacitacion'); // Modelo para la tabla de unión
+const SolicitudDemo = require('./models/SolicitudDemo');
 
-// -----------------------------------------------------------------------------
-// 2. Definición de relaciones entre modelos de Sequelize (Asociaciones)
-// -----------------------------------------------------------------------------
-// Es fundamental definir estas relaciones para que Sequelize entienda cómo las tablas
-// están conectadas lógicamente. Esto permite usar métodos como `include` para
-// obtener datos relacionados fácilmente.
+// Middlewares
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'hackless_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
 
-// Relación Usuario - Documentacion: Un Usuario puede tener muchos Documentos.
-Usuario.hasMany(Documentacion, { foreignKey: 'id_usuario', as: 'documentos' });
-// Relación Documentacion - Usuario: Un Documento pertenece a un Usuario.
-Documentacion.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
-
-// Relación Auditoria - Hallazgo: Una Auditoria puede tener muchos Hallazgos.
-Auditoria.hasMany(Hallazgo, { foreignKey: 'id_auditoria', as: 'hallazgos' });
-// Relación Hallazgo - Auditoria: Un Hallazgo pertenece a una Auditoria.
-Hallazgo.belongsTo(Auditoria, { foreignKey: 'id_auditoria', as: 'auditoria' });
-
-// Relación Usuario - Capacitacion (Muchos a Muchos):
-// Un Usuario puede participar en muchas Capacitaciones, y una Capacitación puede tener muchos Usuarios.
-// Esto se gestiona a través de la tabla intermedia ParticipacionCapacitacion.
-Usuario.belongsToMany(Capacitacion, {
-  through: ParticipacionCapacitacion,
-  foreignKey: 'id_usuario', // Clave foránea en la tabla intermedia que apunta a Usuario
-  otherKey: 'id_capacitacion', // Clave foránea en la tabla intermedia que apunta a Capacitacion
-  as: 'capacitacionesInscritas' // Alias para cuando consultamos las capacitaciones de un usuario
+// --- Multer config ---
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
-Capacitacion.belongsToMany(Usuario, {
-  through: ParticipacionCapacitacion,
-  foreignKey: 'id_capacitacion', // Clave foránea en la tabla intermedia que apunta a Capacitacion
-  otherKey: 'id_usuario', // Clave foránea en la tabla intermedia que apunta a Usuario
-  as: 'participantes' // Alias para cuando consultamos los participantes de una capacitación
-});
+const upload = multer({ storage });
 
-// Relaciones para la tabla intermedia ParticipacionCapacitacion misma:
-// Una fila en ParticipacionCapacitacion pertenece a un Usuario.
-ParticipacionCapacitacion.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuarioParticipante' });
-// Una fila en ParticipacionCapacitacion pertenece a una Capacitacion.
-ParticipacionCapacitacion.belongsTo(Capacitacion, { foreignKey: 'id_capacitacion', as: 'capacitacionRealizada' });
+// --- Verificar y crear carpeta uploads si no existe ---
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
-// --- Fin de definición de relaciones ---
+// --- Middleware simple de autenticación por sesión para admin ---
+function requireAdmin(req, res, next) {
+  if (req.session && req.session.user && req.session.user.rol === 'admin') {
+    return next();
+  }
+  res.status(401).json({ message: 'No autorizado. Debe iniciar sesión como admin.' });
+}
 
-// -----------------------------------------------------------------------------
-// 3. Middlewares de Express
-// -----------------------------------------------------------------------------
-
-// Sirve archivos estáticos (HTML, CSS, JS, imágenes) desde la carpeta 'public'.
-// Esta línea es fundamental y debe ir al principio de los middlewares,
-// ANTES de cualquier otra ruta o middleware. Permite que el navegador acceda
-// directamente a tus archivos del frontend como 'login.html', 'css/style.css', 'js/login.js'.
-app.use(express.static('public'));
-
-// IMPORTANTE: Middlewares para parsear el cuerpo de las solicitudes HTTP (JSON y URL-encoded)
-// DEBEN IR ANTES de CUALQUIER middleware o ruta que intente acceder a req.body.
-app.use(express.json()); // Para solicitudes con cuerpo en formato JSON (Content-Type: application/json)
-app.use(express.urlencoded({ extended: true })); // Para solicitudes con cuerpo en formato URL-encoded (Content-Type: application/x-www-form-urlencoded).
-
-// Middleware de depuración (opcional, útil para ver el cuerpo de la solicitud)
-// Ahora este middleware se ejecuta DESPUÉS de que express.json() y express.urlencoded()
-// hayan parseado el cuerpo de la solicitud, por lo que req.body ya tendrá contenido.
-app.use((req, res, next) => {
-  // console.log('--- DEBUG INFO DESPUÉS DE PARSEAR BODY (Middleware) ---');
-  // console.log('Método:', req.method, 'URL:', req.url);
-  // console.log('Headers recibidos (Middleware):', req.headers);
-  // console.log('Cuerpo PARSEADO (req.body):', req.body); // req.body ahora debería tener contenido
-  // console.log('----------------------------------------------------');
-  next(); // Pasa el control al siguiente middleware o ruta
+// --- Ruta Test ---
+app.post('/test', (req, res) => {
+  console.log('Body recibido:', req.body);
+  res.json({ recibido: req.body });
 });
 
-
-// -----------------------------------------------------------------------------
-// 4. Rutas API (Endpoints del Backend)
-// -----------------------------------------------------------------------------
-
-// Ruta de prueba inicial: Responde a una solicitud GET a la raíz del servidor.
-app.get('/', (req, res) => {
-  res.send('¡Bienvenido al backend de Hackless! Autenticación, documentos y más listos.');
-});
-
-// RUTA: REGISTRAR UN NUEVO USUARIO (POST /register)
-// Permite crear una nueva cuenta de usuario en el sistema con validaciones.
+// --- Registro de Usuario ---
 app.post('/register', async (req, res) => {
-  // console.log('Contenido de req.body recibido en /register (después de body-parser):', req.body); // Debugging
-
-  // Extrae los datos del cuerpo de la solicitud (desestructuración de objetos)
   const { nombre, correo_electronico, password, confirm_password, rol } = req.body;
 
-  // 4.1. Validaciones de entrada de datos
   if (!nombre || !correo_electronico || !password || !confirm_password || !rol) {
     return res.status(400).json({ message: 'Todos los campos son obligatorios.' });
   }
+
   if (password !== confirm_password) {
     return res.status(400).json({ message: 'Las contraseñas no coinciden.' });
   }
-  // Validación de complejidad de la contraseña (mín. 8 caracteres, mayúscula, minúscula, número, carácter especial)
-  if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-    return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y un carácter especial.' });
+
+  if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    return res.status(400).json({ message: 'La contraseña debe tener mínimo 8 caracteres con mayúsculas, minúsculas, números y símbolo.' });
   }
 
   try {
-    // 4.2. Verifica si el correo electrónico ya está registrado en la base de datos
-    const usuarioExistente = await Usuario.findOne({ where: { correo_electronico: correo_electronico } });
-    if (usuarioExistente) {
-      return res.status(409).json({ message: 'El correo electrónico ya está registrado.' });
-    }
+    const existe = await Usuario.findOne({ where: { correo_electronico } });
+    if (existe) return res.status(409).json({ message: 'El correo ya está registrado.' });
 
-    // 4.3. Cifra la contraseña antes de almacenarla por seguridad
-    const hashedPassword = await bcrypt.hash(password, 10); // '10' es el costo del salt (número de rondas de hash), un valor recomendado.
+    const hash = await bcrypt.hash(password, 10);
+    const nuevo = await Usuario.create({ nombre, correo_electronico, contraseña: hash, rol });
 
-    // 4.4. Crea el nuevo usuario en la base de datos utilizando el modelo de Sequelize
-    const nuevoUsuario = await Usuario.create({
-      nombre,
-      correo_electronico,
-      contraseña: hashedPassword, // Almacena la contraseña cifrada
-      rol
-    });
+    const user = nuevo.toJSON();
+    delete user.contraseña;
 
-    // 4.5. Prepara la respuesta para el cliente: elimina la contraseña del objeto antes de enviarla por seguridad.
-    const userResponse = nuevoUsuario.toJSON(); // Convierte el objeto Sequelize a un objeto JavaScript plano
-    delete userResponse.contraseña; // Elimina la propiedad de la contraseña
-
-    // 4.6. Envía una respuesta exitosa al cliente
-    res.status(201).json({
-      message: 'Usuario registrado exitosamente.',
-      usuario: userResponse // Envía los datos del nuevo usuario (sin contraseña)
-    });
-
+    res.status(201).json({ message: 'Usuario registrado exitosamente.', usuario: user });
   } catch (error) {
-    // 4.7. Manejo de errores
-    console.error('Error al registrar usuario:', error);
-    // Manejo específico para errores de restricción única (ej. correo duplicado detectado por la BD)
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(409).json({ message: 'El correo electrónico ya está registrado.' });
-    }
-    res.status(500).json({ message: 'Error interno del servidor al registrar usuario.' });
+    console.error('Error al registrar:', error);
+    res.status(500).json({ message: 'Error interno al registrar usuario.' });
   }
 });
 
-// RUTA: INICIO DE SESIÓN (LOGIN) (POST /login)
-// Autentica a un usuario y, si es exitoso, permite el acceso al sistema.
+// --- Login de Usuario ---
 app.post('/login', async (req, res) => {
-  // console.log('--- DEBUG INFO FOR /login (AFTER BODY-PARSER) ---');
-  // console.log('Headers en /login:', req.headers);
-  // console.log('Contenido de req.body recibido en /login (después de body-parser):', req.body);
-  // console.log('----------------------------------------------------');
-
   const { correo_electronico, password } = req.body;
 
-  // 4.1. Validaciones básicas de entrada
   if (!correo_electronico || !password) {
-    return res.status(400).json({ message: 'Correo electrónico y contraseña son obligatorios.' });
+    return res.status(400).json({ message: 'Correo y contraseña son obligatorios.' });
   }
 
   try {
-    // 4.2. Busca al usuario en la base de datos por su correo electrónico
-    const usuario = await Usuario.findOne({ where: { correo_electronico: correo_electronico } });
+    const usuario = await Usuario.findOne({ where: { correo_electronico } });
+    if (!usuario) return res.status(401).json({ message: 'Credenciales inválidas.' });
 
-    // 4.3. Si el usuario no se encuentra, las credenciales son inválidas
-    if (!usuario) {
-      return res.status(401).json({ message: 'Credenciales inválidas.' });
-    }
+    const match = await bcrypt.compare(password, usuario.contraseña);
+    if (!match) return res.status(401).json({ message: 'Contraseña incorrecta.' });
 
-    // 4.4. Compara la contraseña proporcionada por el usuario con la contraseña cifrada almacenada
-    const passwordValida = await bcrypt.compare(password, usuario.contraseña);
+    const data = usuario.toJSON();
+    delete data.contraseña;
 
-    // 4.5. Si las contraseñas no coinciden, las credenciales son inválidas
-    if (!passwordValida) {
-      return res.status(401).json({ message: 'Credenciales inválidas.' });
-    }
-
-    // 4.6. Prepara la respuesta: elimina la contraseña del objeto antes de enviarla.
-    const userResponse = usuario.toJSON();
-    delete userResponse.contraseña;
-
-    // 4.7. Envía una respuesta de éxito con los datos del usuario (sin contraseña)
-    res.status(200).json({
-      message: 'Inicio de sesión exitoso.',
-      usuario: userResponse // Envía los datos del usuario logueado
-    });
-
+    res.status(200).json({ message: 'Inicio de sesión exitoso.', usuario: data });
   } catch (error) {
-    // 4.8. Manejo de errores
-    console.error('Error durante el inicio de sesión:', error);
-    res.status(500).json({ message: 'Error interno del servidor al iniciar sesión.' });
+    console.error('Error en login:', error);
+    res.status(500).json({ message: 'Error interno al iniciar sesión.' });
   }
 });
 
-// RUTA: CARGAR DOCUMENTACIÓN (POST /documents/upload)
-// Permite subir un nuevo documento asociado a un usuario existente.
-app.post('/documents/upload', async (req, res) => {
-  // console.log('Contenido de req.body recibido en /documents/upload (después de body-parser):', req.body); // Debugging
+// --- Subir Documento ---
+app.post('/documents/upload', upload.single('archivoPdf'), async (req, res) => {
+  const { id_usuario, tipo_documento, fecha_emision, fecha_vencimiento } = req.body;
+  // El archivo se sube y se guarda en uploads/, Multer lo pone en req.file
+  const archivo_digital = req.file ? req.file.filename : null; // Solo el nombre del archivo
 
-  const { id_usuario, tipo_documento, fecha_emision, fecha_vencimiento, archivo_digital } = req.body;
-
-  // Validaciones de campos obligatorios para el documento
   if (!id_usuario || !tipo_documento || !fecha_vencimiento || !archivo_digital) {
-    return res.status(400).json({ message: 'Faltan campos obligatorios para el documento: id_usuario, tipo_documento, fecha_vencimiento, archivo_digital.' });
-  }
-
-  // Asegura que id_usuario sea un número entero válido
-  const parsedId = parseInt(id_usuario, 10);
-  if (isNaN(parsedId)) {
-    return res.status(400).json({ message: 'El ID de usuario debe ser un número válido.' });
+    return res.status(400).json({ message: 'Faltan datos o archivo.' });
   }
 
   try {
-    // Verifica que el usuario al que se va a asociar el documento realmente exista en la base de datos
-    const usuarioExistente = await Usuario.findByPk(parsedId);
-    if (!usuarioExistente) {
-      return res.status(404).json({ message: 'Usuario no encontrado para asociar el documento.' });
-    }
+    const usuario = await Usuario.findByPk(parseInt(id_usuario));
+    if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado.' });
 
-    // Crea el nuevo documento en la base de datos
-    const nuevoDocumento = await Documentacion.create({
-      id_usuario: parsedId,
+    const doc = await Documentacion.create({
+      id_usuario,
       tipo_documento,
-      fecha_emision, // Este campo puede ser null si no se proporciona, según el modelo
+      fecha_emision,
       fecha_vencimiento,
-      archivo_digital // En un sistema real, esto almacenaría la URL o el nombre del archivo subido físicamente.
+      archivo_digital // Solo el nombre, no la ruta completa
     });
 
-    res.status(201).json({
-      message: 'Documento cargado exitosamente.',
-      documento: nuevoDocumento // Devuelve el objeto del documento creado
-    });
-
+    res.status(201).json({ message: 'Documento cargado exitosamente.', documento: doc });
   } catch (error) {
     console.error('Error al cargar documento:', error);
-    res.status(500).json({ message: 'Error interno del servidor al cargar el documento.' });
+    res.status(500).json({ message: 'Error interno al cargar documento.' });
   }
 });
 
-// RUTA: OBTENER LISTADO DE DOCUMENTOS (GET /documents)
-// Permite obtener todos los documentos registrados, incluyendo información del usuario asociado.
+// --- Listar Documentos ---
 app.get('/documents', async (req, res) => {
   try {
-    // Busca todos los documentos y, gracias a las asociaciones, incluye la información del usuario relacionado.
     const documentos = await Documentacion.findAll({
       include: [{
-        model: Usuario, // Incluye el modelo Usuario
-        as: 'usuario', // Utiliza el alias definido en la asociación (Documentacion.belongsTo(Usuario, { as: 'usuario' }))
-        attributes: ['id_usuario', 'nombre', 'correo_electronico', 'rol'] // Selecciona solo los atributos necesarios del usuario
+        model: Usuario,
+        as: 'usuarioInfo',
+        attributes: ['id_usuario', 'nombre', 'correo_electronico', 'rol']
       }]
     });
 
-    if (documentos.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron documentos.' });
-    }
-
-    res.status(200).json({
-      message: 'Documentos recuperados exitosamente.',
-      total: documentos.length,
-      documentos: documentos // Devuelve la lista de documentos con la info del usuario
-    });
-
+    res.status(200).json({ total: documentos.length, documentos });
   } catch (error) {
     console.error('Error al obtener documentos:', error);
-    res.status(500).json({ message: 'Error interno del servidor al obtener documentos.' });
+    res.status(500).json({ message: 'Error al obtener documentos.' });
   }
 });
 
-// -----------------------------------------------------------------------------
-// 5. Lógica para iniciar el servidor y conectar a la base de datos
-// -----------------------------------------------------------------------------
+// --- Obtener documento por ID ---
+app.get('/documents/:id', async (req, res) => {
+  const id = req.params.id;
 
-// Función asíncrona principal para iniciar la aplicación.
-async function startServer() {
-  // Primero, intenta establecer la conexión a la base de datos.
-  await connectDB(); // Llama a la función de database.js para conectar.
+  if (isNaN(id)) return res.status(400).json({ message: 'ID inválido.' });
+
   try {
-    // Sincroniza los modelos de Sequelize con la base de datos.
-    // 'alter: true' intentará realizar los cambios en la BD para que coincida con los modelos (añadir columnas, crear tablas).
-    // Es útil en desarrollo, pero requiere precaución en entornos de producción.
-    await sequelize.sync({ alter: true });
-    console.log('Todas las tablas de la base de datos sincronizadas (creadas/actualizadas).');
-  } catch (error) {
-    console.error('Error al sincronizar las tablas de la base de datos:', error);
-    // Si la sincronización falla, el proceso de la aplicación se termina.
-    process.exit(1);
-  }
+    const doc = await Documentacion.findByPk(id, {
+      include: [{
+        model: Usuario,
+        as: 'usuarioInfo',
+        attributes: ['id_usuario', 'nombre', 'correo_electronico', 'rol']
+      }]
+    });
 
-  // Inicia el servidor Express para escuchar las peticiones HTTP en el puerto definido.
-  app.listen(PORT, () => {
-    console.log(`Servidor de Hackless ejecutándose en http://localhost:${PORT}`);
+    if (!doc) return res.status(404).json({ message: 'Documento no encontrado.' });
+
+    res.status(200).json({ documento: doc });
+  } catch (error) {
+    console.error('Error al buscar documento por ID:', error);
+    res.status(500).json({ message: 'Error al buscar documento.' });
+  }
+});
+
+// --- Solicitar Demo (guardar en BD) ---
+app.post('/solicitar-demo', async (req, res) => {
+  const { nombre, empresa, email, telefono, mensaje } = req.body;
+  if (!nombre || !empresa || !email) {
+    return res.status(400).json({ message: 'Nombre, empresa y email son obligatorios.' });
+  }
+  try {
+    const nuevaSolicitud = await SolicitudDemo.create({ nombre, empresa, email, telefono, mensaje });
+    res.status(200).json({ message: 'Solicitud recibida. ¡Gracias!', solicitud: nuevaSolicitud });
+  } catch (error) {
+    console.error('Error al procesar solicitud de demo:', error);
+    res.status(500).json({ message: 'Error interno al procesar la solicitud.' });
+  }
+});
+
+// --- Consultar solicitudes de demo (desde BD) ---
+app.get('/solicitudes-demo', requireAdmin, async (req, res) => {
+  try {
+    const solicitudes = await SolicitudDemo.findAll({ order: [['createdAt', 'DESC']] });
+    res.status(200).json({ total: solicitudes.length, solicitudes });
+  } catch (error) {
+    console.error('Error al leer solicitudes de demo:', error);
+    res.status(500).json({ message: 'Error al leer solicitudes.' });
+  }
+});
+
+// --- Exportar solicitudes de demo a Excel ---
+app.get('/solicitudes-demo/export', requireAdmin, async (req, res) => {
+  try {
+    const solicitudes = await SolicitudDemo.findAll({ order: [['createdAt', 'DESC']] });
+    const fields = ['id', 'nombre', 'empresa', 'email', 'telefono', 'mensaje', 'createdAt'];
+    const header = fields.join(',') + '\n';
+    const rows = solicitudes.map(s => fields.map(f => '"' + (s[f] ? String(s[f]).replace(/"/g, '""') : '') + '"').join(',')).join('\n');
+    const csv = header + rows;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="solicitudes_demo.csv"');
+    res.send(csv);
+  } catch (error) {
+    console.error('Error al exportar solicitudes:', error);
+    res.status(500).json({ message: 'Error al exportar.' });
+  }
+});
+
+// --- Endpoint de login de admin que guarda sesión ---
+app.post('/admin-login', async (req, res) => {
+  const { correo_electronico, password, twofa_token } = req.body;
+  if (!correo_electronico || !password) {
+    return res.status(400).json({ message: 'Correo y contraseña requeridos.' });
+  }
+  try {
+    const usuario = await Usuario.findOne({ where: { correo_electronico } });
+    if (!usuario || usuario.rol !== 'admin') {
+      return res.status(401).json({ message: 'No autorizado.' });
+    }
+    const match = await bcrypt.compare(password, usuario.contraseña);
+    if (!match) return res.status(401).json({ message: 'Contraseña incorrecta.' });
+    if (usuario.twofa_enabled) {
+      if (!twofa_token) return res.status(401).json({ message: 'Se requiere código 2FA.' });
+      const verified = speakeasy.totp.verify({
+        secret: usuario.twofa_secret,
+        encoding: 'base32',
+        token: twofa_token,
+        window: 1
+      });
+      if (!verified) return res.status(401).json({ message: 'Código 2FA inválido.' });
+    }
+    req.session.user = { id: usuario.id_usuario, rol: usuario.rol, nombre: usuario.nombre };
+    res.status(200).json({ message: 'Login exitoso.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno.' });
+  }
+});
+
+// --- Endpoint para cerrar sesión ---
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.status(200).json({ message: 'Sesión cerrada.' });
   });
+});
+
+// --- Recuperación de contraseña (solicitud) ---
+app.post('/admin/forgot-password', async (req, res) => {
+  const { correo_electronico } = req.body;
+  if (!correo_electronico) return res.status(400).json({ message: 'Correo requerido.' });
+  try {
+    const usuario = await Usuario.findOne({ where: { correo_electronico, rol: 'admin' } });
+    if (!usuario) return res.status(404).json({ message: 'No existe admin con ese correo.' });
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 1000 * 60 * 30; // 30 minutos
+    usuario.reset_token = token;
+    usuario.reset_token_expires = expires;
+    await usuario.save();
+    // --- Enviar email (simulado en consola si no hay SMTP) ---
+    if (process.env.SMTP_HOST) {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        }
+      });
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM || 'no-reply@hackless.com',
+        to: usuario.correo_electronico,
+        subject: 'Recuperación de contraseña',
+        text: `Para restablecer tu contraseña, visita: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password.html?token=${token}`
+      });
+    } else {
+      console.log('Enlace de recuperación:', `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password.html?token=${token}`);
+    }
+    res.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al solicitar recuperación.' });
+  }
+});
+
+// --- Recuperación de contraseña (reset) ---
+app.post('/admin/reset-password', async (req, res) => {
+  const { token, password, confirm_password } = req.body;
+  if (!token || !password || !confirm_password) return res.status(400).json({ message: 'Datos incompletos.' });
+  if (password !== confirm_password) return res.status(400).json({ message: 'Las contraseñas no coinciden.' });
+  if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    return res.status(400).json({ message: 'La contraseña debe tener mínimo 8 caracteres con mayúsculas, minúsculas, números y símbolo.' });
+  }
+  try {
+    const usuario = await Usuario.findOne({ where: { reset_token: token, rol: 'admin' } });
+    if (!usuario || !usuario.reset_token_expires || usuario.reset_token_expires < Date.now()) {
+      return res.status(400).json({ message: 'Token inválido o expirado.' });
+    }
+    usuario.contraseña = await bcrypt.hash(password, 10);
+    usuario.reset_token = null;
+    usuario.reset_token_expires = null;
+    await usuario.save();
+    res.status(200).json({ message: 'Contraseña restablecida correctamente.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al restablecer contraseña.' });
+  }
+});
+
+// --- 2FA: Generar secreto y QR para activar 2FA (solo admin autenticado) ---
+app.post('/admin/2fa/setup', requireAdmin, async (req, res) => {
+  try {
+    const usuario = await Usuario.findByPk(req.session.user.id);
+    if (!usuario || usuario.rol !== 'admin') return res.status(401).json({ message: 'No autorizado.' });
+    if (usuario.twofa_enabled) return res.status(400).json({ message: '2FA ya está activado.' });
+    // Generar secreto TOTP
+    const secret = speakeasy.generateSecret({
+      name: `Hackless (${usuario.correo_electronico})`,
+      length: 20
+    });
+    usuario.twofa_secret = secret.base32;
+    await usuario.save();
+    // Generar QR para Google Authenticator
+    const otpauth = secret.otpauth_url;
+    QRCode.toDataURL(otpauth, (err, qr) => {
+      if (err) return res.status(500).json({ message: 'Error generando QR.' });
+      res.json({ qr, secret: secret.base32 });
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al generar secreto 2FA.' });
+  }
+});
+
+// --- 2FA: Verificar código y activar 2FA ---
+app.post('/admin/2fa/verify', requireAdmin, async (req, res) => {
+  const { token } = req.body;
+  try {
+    const usuario = await Usuario.findByPk(req.session.user.id);
+    if (!usuario || usuario.rol !== 'admin' || !usuario.twofa_secret) return res.status(401).json({ message: 'No autorizado.' });
+    const verified = speakeasy.totp.verify({
+      secret: usuario.twofa_secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+    if (!verified) return res.status(400).json({ message: 'Código inválido.' });
+    usuario.twofa_enabled = true;
+    await usuario.save();
+    res.json({ message: '2FA activado correctamente.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al verificar 2FA.' });
+  }
+});
+
+// --- 2FA: Desactivar 2FA (requiere código válido) ---
+app.post('/admin/2fa/disable', requireAdmin, async (req, res) => {
+  const { token } = req.body;
+  try {
+    const usuario = await Usuario.findByPk(req.session.user.id);
+    if (!usuario || usuario.rol !== 'admin' || !usuario.twofa_secret) return res.status(401).json({ message: 'No autorizado.' });
+    const verified = speakeasy.totp.verify({
+      secret: usuario.twofa_secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+    if (!verified) return res.status(400).json({ message: 'Código inválido.' });
+    usuario.twofa_enabled = false;
+    usuario.twofa_secret = null;
+    await usuario.save();
+    res.json({ message: '2FA desactivado.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al desactivar 2FA.' });
+  }
+});
+
+// --- Estado de 2FA para frontend admin ---
+app.get('/admin/2fa/status', requireAdmin, async (req, res) => {
+  try {
+    const usuario = await Usuario.findByPk(req.session.user.id);
+    if (!usuario || usuario.rol !== 'admin') return res.status(401).json({ message: 'No autorizado.' });
+    res.json({ enabled: !!usuario.twofa_enabled });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al consultar estado 2FA.' });
+  }
+});
+
+// --- Iniciar servidor ---
+if (require.main === module) {
+  // Solo inicia el servidor si este archivo es ejecutado directamente
+  async function startServer() {
+    try {
+      await connectDB();
+      await sequelize.sync({ alter: true });
+      console.log('📦 Base de datos sincronizada.');
+      app.listen(process.env.PORT || 3000, () => {
+        console.log(`🚀 Servidor ejecutándose en http://localhost:${process.env.PORT || 3000}`);
+      });
+    } catch (err) {
+      console.error('❌ Error al iniciar servidor:', err);
+      process.exit(1);
+    }
+  }
+  startServer();
 }
 
-// Llama a la función para iniciar el servidor cuando el script se ejecuta.
-startServer();
+module.exports = app;
 
-// -----------------------------------------------------------------------------
-// 6. Manejo de errores globales (para promesas no manejadas y excepciones no capturadas)
-// -----------------------------------------------------------------------------
-// Estos "listeners" ayudan a capturar y registrar errores que no fueron manejados
-// explícitamente en bloques try-catch, evitando que la aplicación se caiga silenciosamente.
-
-// Captura y registra promesas que fueron rechazadas pero no tuvieron un manejador de catch.
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // En una aplicación de producción, podrías querer registrar esto en un sistema de logs
-  // o notificar a los administradores.
+// RUTA: ACTUALIZAR UN DOCUMENTO (PUT /documents/:id)
+// Recibe datos en req.body y actualiza un documento existente por ID.
+app.put('/documents/:id', async (req, res) => {
+    // ...
 });
 
-// Captura y registra excepciones síncronas que no fueron capturadas (errores inesperados).
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  // Es crítico para la estabilidad de la aplicación manejar estas excepciones.
-  // A menudo, se recomienda terminar el proceso y usar un gestor de procesos (como PM2) para reiniciarlo.
-  process.exit(1);
+// RUTA: ELIMINAR UN DOCUMENTO (DELETE /documents/:id)
+// Elimina un documento por su ID.
+app.delete('/documents/:id', async (req, res) => {
+    const id = req.params.id;
+
+    if (isNaN(id)) return res.status(400).json({ message: 'ID inválido.' });
+
+    try {
+        const doc = await Documentacion.findByPk(id);
+        if (!doc) return res.status(404).json({ message: 'Documento no encontrado.' });
+
+        await doc.destroy();
+        res.status(200).json({ message: 'Documento eliminado exitosamente.' });
+    } catch (error) {
+        console.error('Error al eliminar documento:', error);
+        res.status(500).json({ message: 'Error al eliminar documento.' });
+    }
 });

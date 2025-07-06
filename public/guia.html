@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de Usuario/Admin – Hackless</title>
+  <link rel="stylesheet" href="css/marketing.css">
+  <style>
+    .guia-container { max-width: 800px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 2rem; }
+    .guia-container h1, .guia-container h2 { color: #1a237e; }
+    .guia-container ul, .guia-container ol { margin-left: 1.5em; }
+    .guia-container li { margin-bottom: 0.5em; }
+    .guia-container code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="guia-container">
+    <h1>Guía de Usuario y Administrador – Sistema Hackless</h1>
+    <h2>1. Acceso de Administrador</h2>
+    <ul>
+      <li>Ingresa a la página de login de administrador (<code>login.html</code>).</li>
+      <li>Introduce tu correo y contraseña.</li>
+      <li>Si tienes 2FA activado, se te pedirá el código generado por tu app de autenticación (Google Authenticator, Authy, etc.).</li>
+      <li>Si los datos son correctos, accederás al panel de administración.</li>
+    </ul>
+    <h2>2. Activar o Desactivar 2FA (Doble Factor de Autenticación)</h2>
+    <ul>
+      <li>Desde el panel admin, accede a la sección de seguridad/2FA.</li>
+      <li>Para activar:
+        <ol>
+          <li>Haz clic en “Activar 2FA”.</li>
+          <li>Escanea el QR con tu app de autenticación.</li>
+          <li>Ingresa el código generado para confirmar.</li>
+          <li>Verás un mensaje de éxito.</li>
+        </ol>
+      </li>
+      <li>Para desactivar:
+        <ol>
+          <li>Haz clic en “Desactivar 2FA”.</li>
+          <li>Ingresa el código actual de tu app.</li>
+          <li>Verás confirmación de desactivación.</li>
+        </ol>
+      </li>
+    </ul>
+    <h2>3. Recuperar Contraseña de Administrador</h2>
+    <ul>
+      <li>En la pantalla de login, haz clic en “¿Olvidaste tu contraseña?”.</li>
+      <li>Ingresa tu correo de administrador.</li>
+      <li>Recibirás un enlace de recuperación (por email o en consola si no hay SMTP configurado).</li>
+      <li>Accede al enlace, ingresa y confirma tu nueva contraseña.</li>
+      <li>Cumple con los requisitos de seguridad (mínimo 8 caracteres, mayúsculas, minúsculas, número y símbolo).</li>
+    </ul>
+    <h2>4. Gestión de Solicitudes de Demo</h2>
+    <ul>
+      <li>Accede al panel de solicitudes (<code>solicitudes-demo.html</code>) tras iniciar sesión como admin.</li>
+      <li>Verás una tabla con todas las solicitudes recibidas.</li>
+      <li>Puedes filtrar por nombre, empresa, email, etc.</li>
+      <li>Para exportar a Excel, haz clic en el botón “Exportar a Excel” y se descargará un archivo CSV.</li>
+    </ul>
+    <h2>5. Seguridad</h2>
+    <ul>
+      <li>Todas las rutas de administración están protegidas por login y, si está activo, por 2FA.</li>
+      <li>Las sesiones se pueden cerrar desde el panel o con el botón “Cerrar sesión”.</li>
+    </ul>
+    <h2>6. Personalización Visual</h2>
+    <ul>
+      <li>Todos los formularios, tablas y botones siguen la estética definida: paleta de colores, fuentes, estilos de botones e inputs coherentes en todas las vistas.</li>
+      <li>El feedback visual (mensajes de éxito/error, loaders) te guiará en cada acción.</li>
+    </ul>
+    <h2>7. Recomendaciones</h2>
+    <ul>
+      <li>Usa siempre contraseñas seguras.</li>
+      <li>Activa 2FA para mayor protección.</li>
+      <li>Si tienes problemas de acceso, utiliza la recuperación de contraseña.</li>
+      <li>Exporta periódicamente las solicitudes de demo para respaldo.</li>
+    </ul>
+    <hr>
+    <p style="font-size:0.95em;color:#555;">Para soporte adicional, contacta al equipo de Hackless.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitudes de Demo - Admin</title>
+  <link rel="stylesheet" href="css/marketing.css">
+  <style>
+    .login-box { max-width: 350px; margin: 60px auto 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(31,78,121,0.09); padding: 32px; }
+    .login-title { font-family: 'Montserrat', Arial, sans-serif; color: #1F4E79; font-size: 1.5rem; margin-bottom: 18px; text-align: center; }
+    .login-box label { font-weight: 600; color: #1F4E79; margin-bottom: 6px; display: block; }
+    .login-box input { width: 100%; padding: 10px 12px; margin-bottom: 16px; border: 1.5px solid #ADB5BD; border-radius: 6px; font-size: 1rem; }
+    .login-box button { width: 100%; padding: 12px; background: #1F4E79; color: #fff; border: none; border-radius: 7px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .login-box button:hover { background: #2A9D8F; }
+    .login-error { color: #e63946; text-align: center; margin-bottom: 10px; font-weight: 600; }
+    .logout-btn { float: right; margin-bottom: 10px; }
+    .demo-table-container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(31,78,121,0.09); padding: 32px; }
+    .demo-table-title { font-family: 'Montserrat', Arial, sans-serif; color: #1F4E79; font-size: 2rem; margin-bottom: 28px; text-align: center; }
+    .demo-table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+    .demo-table th, .demo-table td { padding: 12px 14px; border: 1px solid #ADB5BD; }
+    .demo-table th { background: #1F4E79; color: #fff; font-family: 'Montserrat', Arial, sans-serif; }
+    .demo-table tbody tr:nth-child(odd) { background: #F0F4F8; }
+    .demo-table tbody tr:hover { background: #e0e0e0; }
+    .demo-table td { font-family: 'Inter', Arial, sans-serif; }
+    .demo-table .mensaje { max-width: 320px; white-space: pre-line; }
+    @media (max-width: 700px) {
+      .demo-table-container { padding: 10px 2vw; }
+      .demo-table th, .demo-table td { font-size: 0.95rem; padding: 8px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="adminApp"></div>
+  <footer style="text-align:center;margin:32px 0 12px 0;font-size:1.05rem;">
+    <a href="guia.html" style="color:#1F4E79;text-decoration:underline;font-weight:600;">Guía de Usuario/Admin</a>
+  </footer>
+  <script>
+    let isLogged = false;
+    let allSolicitudes = [];
+    function renderLogin() {
+      document.getElementById('adminApp').innerHTML = `
+        <div class="login-box">
+          <h2 class="login-title">Acceso Admin</h2>
+          <form id="adminLoginForm">
+            <label for="correo">Email</label>
+            <input type="email" id="correo" name="correo" required autocomplete="username">
+            <label for="pass">Contraseña</label>
+            <input type="password" id="pass" name="pass" required autocomplete="current-password">
+            <div id="loginError" class="login-error"></div>
+            <button type="submit">Ingresar</button>
+          </form>
+        </div>
+      `;
+      document.getElementById('adminLoginForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const correo = document.getElementById('correo').value;
+        const password = document.getElementById('pass').value;
+        const res = await fetch('/admin-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ correo_electronico: correo, password })
+        });
+        if (res.ok) {
+          isLogged = true;
+          renderSolicitudesDemo();
+        } else {
+          const data = await res.json();
+          document.getElementById('loginError').textContent = data.message || 'Error de autenticación';
+        }
+      };
+    }
+    function renderSolicitudesDemo() {
+      document.getElementById('adminApp').innerHTML = `
+        <button class="btn-primary logout-btn" onclick="logoutAdmin()">Cerrar sesión</button>
+        <div class="demo-table-container">
+          <h1 class="demo-table-title">Solicitudes de Demo Recibidas</h1>
+          <div id="twofaSection" style="margin-bottom:32px;"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+            <input id="filtroNombre" type="text" placeholder="Filtrar por nombre, empresa, email..." style="padding:8px 12px;border:1.5px solid #ADB5BD;border-radius:6px;font-size:1rem;max-width:260px;">
+            <input id="filtroFecha" type="date" style="padding:8px 12px;border:1.5px solid #ADB5BD;border-radius:6px;font-size:1rem;">
+            <button id="btnExportar" class="btn-primary" style="padding:8px 18px;">Exportar a Excel</button>
+          </div>
+          <div id="solicitudesTable">Cargando...</div>
+        </div>
+      `;
+      renderTwofaSection();
+      fetchSolicitudes();
+    }
+
+    async function renderTwofaSection() {
+      const div = document.getElementById('twofaSection');
+      div.innerHTML = '<div style="text-align:center;color:#888;">Cargando estado de 2FA...</div>';
+      // Consultar estado actual
+      let estado = null;
+      try {
+        const res = await fetch('/admin/2fa/status', { method: 'GET' });
+        estado = await res.json();
+      } catch (e) { div.innerHTML = '<span style="color:#e63946;">Error al consultar 2FA</span>'; return; }
+      if (estado.enabled) {
+        div.innerHTML = `
+          <div style="background:#e8f0fe;padding:18px 16px;border-radius:10px;margin-bottom:10px;">
+            <b>Autenticación en dos pasos (2FA) activada</b><br>
+            <span style="color:#1F4E79;">Protege tu cuenta con Google Authenticator o similar.</span><br>
+            <form id="disable2faForm" style="margin-top:10px;display:inline-block;">
+              <input type="text" id="disable2faToken" placeholder="Código 2FA" style="padding:7px 10px;border-radius:5px;border:1.2px solid #ADB5BD;max-width:120px;">
+              <button type="submit" class="btn-primary" style="padding:7px 18px;">Desactivar 2FA</button>
+            </form>
+            <div id="disable2faMsg" style="margin-top:6px;font-size:0.98rem;"></div>
+          </div>
+        `;
+        document.getElementById('disable2faForm').onsubmit = async function(e) {
+          e.preventDefault();
+          const token = document.getElementById('disable2faToken').value;
+          const msg = document.getElementById('disable2faMsg');
+          msg.textContent = '';
+          const res = await fetch('/admin/2fa/disable', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            msg.style.color = '#2A9D8F';
+            msg.textContent = data.message + ' (Se actualizará la página...)';
+            setTimeout(() => { renderTwofaSection(); location.reload(); }, 1800);
+          }
+          else { msg.style.color = '#e63946'; msg.textContent = data.message || 'Error.'; }
+        };
+      } else {
+        div.innerHTML = `
+          <div style="background:#f8fafc;padding:18px 16px;border-radius:10px;margin-bottom:10px;">
+            <b>¿Quieres más seguridad?</b> Activa la autenticación en dos pasos (2FA) para tu cuenta admin.<br>
+            <button id="setup2faBtn" class="btn-primary" style="margin-top:10px;">Activar 2FA</button>
+            <div id="setup2faBox"></div>
+          </div>
+        `;
+        document.getElementById('setup2faBtn').onclick = async function() {
+          const box = document.getElementById('setup2faBox');
+          box.innerHTML = '<div style="color:#888;">Generando QR...</div>';
+          const res = await fetch('/admin/2fa/setup', { method: 'POST' });
+          const data = await res.json();
+          if (res.ok && data.qr) {
+            box.innerHTML = `
+              <div style="margin-top:10px;">
+                <b>Escanea este QR con Google Authenticator:</b><br>
+                <img src="${data.qr}" alt="QR 2FA" style="margin:10px auto;display:block;max-width:180px;">
+                <form id="verify2faForm" style="margin-top:10px;">
+                  <input type="text" id="verify2faToken" placeholder="Código 2FA" style="padding:7px 10px;border-radius:5px;border:1.2px solid #ADB5BD;max-width:120px;">
+                  <button type="submit" class="btn-primary" style="padding:7px 18px;">Verificar y Activar</button>
+                </form>
+                <div id="verify2faMsg" style="margin-top:6px;font-size:0.98rem;"></div>
+              </div>
+            `;
+            document.getElementById('verify2faForm').onsubmit = async function(e) {
+              e.preventDefault();
+              const token = document.getElementById('verify2faToken').value;
+              const msg = document.getElementById('verify2faMsg');
+              msg.textContent = '';
+              const res = await fetch('/admin/2fa/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+              });
+              const data = await res.json();
+              if (res.ok) {
+                msg.style.color = '#2A9D8F';
+                msg.textContent = data.message + ' (Se actualizará la página...)';
+                setTimeout(() => { renderTwofaSection(); location.reload(); }, 1800);
+              }
+              else { msg.style.color = '#e63946'; msg.textContent = data.message || 'Error.'; }
+            };
+          } else {
+            box.innerHTML = '<span style="color:#e63946;">Error al generar QR.</span>';
+          }
+        };
+      }
+    }
+    function renderSolicitudesTable() {
+      const tableDiv = document.getElementById('solicitudesTable');
+      const filtro = document.getElementById('filtroNombre').value.toLowerCase();
+      const filtroFecha = document.getElementById('filtroFecha').value;
+      let filtradas = allSolicitudes.filter(s => {
+        let match = true;
+        if (filtro) {
+          match = (
+            s.nombre.toLowerCase().includes(filtro) ||
+            s.empresa.toLowerCase().includes(filtro) ||
+            s.email.toLowerCase().includes(filtro) ||
+            (s.telefono || '').toLowerCase().includes(filtro) ||
+            (s.mensaje || '').toLowerCase().includes(filtro)
+          );
+        }
+        if (match && filtroFecha) {
+          const fecha = (s.createdAt || s.fecha).slice(0,10);
+          match = fecha === filtroFecha;
+        }
+        return match;
+      });
+      if (filtradas.length === 0) {
+        tableDiv.innerHTML = '<p>No hay solicitudes que coincidan con el filtro.</p>';
+        return;
+      }
+      let html = `<table class=\"demo-table\"><thead><tr><th>Fecha</th><th>Nombre</th><th>Empresa</th><th>Email</th><th>Teléfono</th><th>Mensaje</th></tr></thead><tbody>`;
+      filtradas.forEach(s => {
+        html += `<tr><td>${new Date(s.createdAt || s.fecha).toLocaleString('es-AR')}</td><td>${s.nombre}</td><td>${s.empresa}</td><td>${s.email}</td><td>${s.telefono || ''}</td><td class=\"mensaje\">${s.mensaje || ''}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      tableDiv.innerHTML = html;
+    }
+    window.logoutAdmin = async function() {
+      await fetch('/logout', { method: 'POST' });
+      isLogged = false;
+      renderLogin();
+    };
+    document.addEventListener('input', function(e) {
+      if (e.target && (e.target.id === 'filtroNombre' || e.target.id === 'filtroFecha')) {
+        renderSolicitudesTable();
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'btnExportar') {
+        window.open('/solicitudes-demo/export', '_blank');
+      }
+    });
+    // Inicial
+    fetch('/solicitudes-demo').then(r => {
+      if (r.status === 401) renderLogin();
+      else renderSolicitudesDemo();
+    });
+  </script>
+</body>
+</html>

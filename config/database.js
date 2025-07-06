@@ -16,6 +16,9 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT || 3306, // Puerto de MySQL, por defecto 3306
     dialect: 'mysql', // Especifica el dialecto de la base de datos a usar
     logging: false, // Desactiva los logs SQL en la consola para un output más limpio (puedes poner 'true' para depurar)
+    dialectOptions: {
+      charset: 'utf8mb4',
+    },
     // Opciones adicionales para el pool de conexiones (recomendado para producción)
     pool: {
       max: 10,  // Número máximo de conexiones en el pool
