@@ -198,9 +198,9 @@ Este es un **prototipo funcional** desarrollado como Trabajo Final de Grado. Las
 
 ## 👨‍💻 Autor
 
-**[Tu Nombre Completo]**  
-Legajo: [Tu Legajo]  
-Trabajo Final de Grado - [Universidad/Institución]  
+**Verónica García**  
+Legajo: VINF01264  
+Trabajo Final de Grado - Universidad Siglo 21  
 Año: 2025
 
 ---
@@ -208,8 +208,8 @@ Año: 2025
 ## 📞 Contacto
 
 Para consultas sobre el proyecto, demostración o colaboración:
-- 📧 Email: [tu_email@ejemplo.com]
-- 🔗 LinkedIn: [tu_perfil_linkedin]
+- 📧 Email: veronicaandrea.garcia@gmail.com
+- 🔗 LinkedIn: [www.linkedin.com/in/verónicaandreagarcía](https://www.linkedin.com/in/verónicaandreagarcía)
 - 🐙 GitHub: [Tegnyg](https://github.com/Tegnyg)
 
 ---
