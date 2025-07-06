@@ -1,145 +1,208 @@
+/* Copilot: Sistema de login para Hackless - Manejo de autenticación frontend con
+   validaciones, 2FA para administradores, feedback visual y redirección inteligente. */
+
 // hackless-backend/public/js/login.js
 // Este script maneja la lógica del formulario de inicio de sesión en el frontend.
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Obtiene referencias a los elementos HTML del formulario y el mensaje
-    const loginForm = document.getElementById('loginForm'); // Asegúrate que tu formulario HTML tiene el id="loginForm"
-    const loginMessage = document.getElementById('loginMessage'); // Asegúrate que tu párrafo HTML tiene el id="loginMessage"
-
-    // Verifica que el formulario de login exista en la página
-    if (loginForm) {
-        // Agrega un 'listener' para el evento 'submit' del formulario
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Previene el comportamiento por defecto del formulario (recargar la página)
-
-            // Obtiene los valores ingresados por el usuario
-            // AHORA SÍ: Los IDs de los inputs aquí coinciden con los de tu login.html actual
-            const correo_electronico_input = document.getElementById('correo_electronico'); // Input para el correo electrónico
-            const password_input = document.getElementById('password'); // Input para la contraseña
-
-            // Verifica que ambos inputs necesarios (correo y contraseña) existan en el DOM
-            if (!correo_electronico_input || !password_input) {
-                console.error('Error: No se encontraron los elementos del formulario (correo_electronico o password).');
-                loginMessage.textContent = 'Error interno: Faltan elementos del formulario.';
-                loginMessage.style.color = 'red';
-                return; // Detiene la ejecución de la función si no se encuentran los inputs
-            }
-
-            // Obtiene los valores reales de los inputs
-            const correo_electronico = correo_electronico_input.value;
-            const password = password_input.value;
-
-            loginMessage.textContent = ''; // Limpia cualquier mensaje anterior
-            loginMessage.style.color = 'black'; // Restablece el color del mensaje por defecto
-
-            // Validación básica para asegurar que los campos no estén vacíos y formato de correo
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!correo_electronico || !password) {
-                loginMessage.textContent = 'Por favor, ingresa tu correo electrónico y contraseña.';
-                loginMessage.style.color = 'red';
-                return; // Detiene la ejecución si los campos están vacíos
-            }
-            if (!emailRegex.test(correo_electronico)) {
-                loginMessage.textContent = 'Por favor, ingresa un correo electrónico válido.';
-                loginMessage.style.color = 'red';
-                return;
-            }
-            if (password.length < 8) {
-                loginMessage.textContent = 'La contraseña debe tener al menos 8 caracteres.';
-                loginMessage.style.color = 'red';
-                return;
-            }
-
-            try {
-                // Realiza una solicitud POST (fetch) a la ruta /login de tu backend
-                const response = await fetch('/login', {
-                    method: 'POST', // Define el método HTTP como POST
-                    headers: {
-                        'Content-Type': 'application/json' // Especifica que el cuerpo de la solicitud es JSON
-                    },
-                    body: JSON.stringify({ correo_electronico, password }) // Convierte el objeto JavaScript a una cadena JSON
-                });
-
-                const data = await response.json(); // Parsea la respuesta del servidor de JSON a un objeto JavaScript
-
-                // Comprueba si la respuesta HTTP fue exitosa (códigos de estado en el rango 200-299)
-                if (response.ok) {
-                    loginMessage.textContent = data.message; // Muestra el mensaje de éxito recibido del servidor
-                    loginMessage.style.color = 'green'; // Cambia el color del mensaje a verde
-                    console.log('Usuario logueado exitosamente:', data.usuario); // Loguea los datos del usuario en la consola del navegador
-
-                    // Redirige al usuario a la página de escritorio después de un inicio de sesión exitoso
-                    // Asegúrate de que 'escritorio.html' esté en la carpeta 'public' de tu backend.
-                    window.location.href = '/escritorio.html';
-                } else {
-                    // Si la respuesta no fue exitosa, muestra el mensaje de error del servidor o un mensaje genérico
-                    loginMessage.textContent = data.message || 'Error en el inicio de sesión. Inténtalo de nuevo.';
-                    loginMessage.style.color = 'red'; // Cambia el color del mensaje a rojo
-                }
-            } catch (error) {
-                // Captura errores que ocurran durante la solicitud de red (ej. el servidor no está corriendo o hay un problema de conexión)
-                console.error('Error de red o del servidor al intentar iniciar sesión:', error);
-                loginMessage.textContent = 'Error de conexión con el servidor. Por favor, verifica que el servidor esté activo.';
-                loginMessage.style.color = 'red';
-            }
-        });
-    } else {
-        // Mensaje de error si el formulario de login no se encuentra en el HTML
-        console.error('El formulario de login (ID "loginForm") no fue encontrado en el DOM. Asegúrate de que tu HTML tiene <form id="loginForm">.');
+/**
+ * Clase para manejar el sistema de login
+ */
+class LoginManager {
+    constructor() {
+        this.loginForm = document.getElementById('loginForm');
+        this.loginMessage = document.getElementById('loginMessage');
+        this.twofaRequired = false;
+        this.emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        this.init();
     }
 
-    // --- 2FA dinámico para admins ---
-    let twofaRequired = false;
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const correo_electronico = document.getElementById('correo_electronico').value;
-        const password = document.getElementById('password').value;
-        const twofa_token = document.getElementById('twofa_token') ? document.getElementById('twofa_token').value : undefined;
-        loginMessage.textContent = '';
-        loginMessage.style.color = 'black';
-        // Validación básica para asegurar que los campos no estén vacíos y formato de correo
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!correo_electronico || !password) {
-            loginMessage.textContent = 'Por favor, ingresa tu correo electrónico y contraseña.';
-            loginMessage.style.color = 'red';
-            return; // Detiene la ejecución si los campos están vacíos
-        }
-        if (!emailRegex.test(correo_electronico)) {
-            loginMessage.textContent = 'Por favor, ingresa un correo electrónico válido.';
-            loginMessage.style.color = 'red';
-            return;
-        }
-        if (password.length < 8) {
-            loginMessage.textContent = 'La contraseña debe tener al menos 8 caracteres.';
-            loginMessage.style.color = 'red';
+    /**
+     * Inicializa el sistema de login
+     */
+    init() {
+        if (!this.loginForm) {
             return;
         }
 
-        try {
-            const body = { correo_electronico, password };
-            if (twofaRequired && twofa_token) body.twofa_token = twofa_token;
-            const response = await fetch('/admin-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-            const data = await response.json();
-            if (response.ok) {
-                loginMessage.textContent = data.message;
-                loginMessage.style.color = 'green';
-                window.location.href = '/solicitudes-demo.html';
-            } else {
-                loginMessage.textContent = data.message || 'Error en el inicio de sesión. Inténtalo de nuevo.';
-                loginMessage.style.color = 'red';
-                // Si el error es 2FA requerido, mostrar campo
-                if (data.message && data.message.includes('2FA')) {
-                  twofaRequired = true;
-                  document.getElementById('twofaContainer').style.display = 'block';
-                }
-            }
-        } catch (error) {
-            loginMessage.textContent = 'Error de conexión con el servidor. Por favor, verifica que el servidor esté activo.';
-            loginMessage.style.color = 'red';
+        this.loginForm.addEventListener('submit', (event) => this.handleLogin(event));
+    }
+
+    /**
+     * Obtiene y valida los elementos del formulario
+     * @returns {Object|null} Datos del formulario o null si hay error
+     */
+    getFormData() {
+        const emailInput = document.getElementById('correo_electronico');
+        const passwordInput = document.getElementById('password');
+        const twofaInput = document.getElementById('twofa_token');
+
+        if (!emailInput || !passwordInput) {
+            this.showMessage('Error interno: Faltan elementos del formulario.', 'error');
+            return null;
         }
-    });
+
+        return {
+            correo_electronico: emailInput.value.trim(),
+            password: passwordInput.value,
+            twofa_token: twofaInput ? twofaInput.value : undefined
+        };
+    }
+
+    /**
+     * Valida los datos del formulario
+     * @param {Object} formData - Datos del formulario
+     * @returns {boolean} True si es válido, false si no
+     */
+    validateForm(formData) {
+        const { correo_electronico, password } = formData;
+
+        if (!correo_electronico || !password) {
+            this.showMessage('Por favor, ingresa tu correo electrónico y contraseña.', 'error');
+            return false;
+        }
+
+        if (!this.emailRegex.test(correo_electronico)) {
+            this.showMessage('Por favor, ingresa un correo electrónico válido.', 'error');
+            return false;
+        }
+
+        if (password.length < 8) {
+            this.showMessage('La contraseña debe tener al menos 8 caracteres.', 'error');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Muestra un mensaje al usuario
+     * @param {string} message - Mensaje a mostrar
+     * @param {string} type - Tipo: 'success', 'error', 'info'
+     */
+    showMessage(message, type = 'info') {
+        if (!this.loginMessage) return;
+
+        this.loginMessage.textContent = message;
+        
+        switch (type) {
+            case 'success':
+                this.loginMessage.style.color = 'green';
+                break;
+            case 'error':
+                this.loginMessage.style.color = 'red';
+                break;
+            default:
+                this.loginMessage.style.color = 'black';
+        }
+    }
+
+    /**
+     * Realiza petición de login
+     * @param {Object} credentials - Credenciales de login
+     * @param {string} endpoint - Endpoint a usar (/login o /admin-login)
+     * @returns {Object} Respuesta del servidor
+     */
+    async makeLoginRequest(credentials, endpoint = '/login') {
+        const body = { 
+            correo_electronico: credentials.correo_electronico, 
+            password: credentials.password 
+        };
+
+        if (this.twofaRequired && credentials.twofa_token) {
+            body.twofa_token = credentials.twofa_token;
+        }
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+        return { response, data };
+    }
+
+    /**
+     * Maneja el éxito del login
+     * @param {Object} data - Datos de respuesta
+     * @param {boolean} isAdmin - Si es login de admin
+     */
+    handleLoginSuccess(data, isAdmin = false) {
+        this.showMessage(data.message, 'success');
+        
+        // Redirección según el tipo de usuario
+        const redirectUrl = isAdmin ? '/solicitudes-demo.html' : '/escritorio.html';
+        
+        setTimeout(() => {
+            window.location.href = redirectUrl;
+        }, 1000);
+    }
+
+    /**
+     * Maneja errores de login
+     * @param {Object} data - Datos de respuesta de error
+     */
+    handleLoginError(data) {
+        this.showMessage(data.message || 'Error en el inicio de sesión. Inténtalo de nuevo.', 'error');
+        
+        // Manejo de 2FA para admins
+        if (data.message && data.message.includes('2FA')) {
+            this.twofaRequired = true;
+            const twofaContainer = document.getElementById('twofaContainer');
+            if (twofaContainer) {
+                twofaContainer.style.display = 'block';
+            }
+        }
+    }
+
+    /**
+     * Intenta login regular primero, luego admin si falla
+     * @param {Object} formData - Datos del formulario
+     */
+    async attemptLogin(formData) {
+        try {
+            // Primero intentar login regular
+            let { response, data } = await this.makeLoginRequest(formData, '/login');
+            
+            if (response.ok) {
+                this.handleLoginSuccess(data, false);
+                return;
+            }
+
+            // Si falla el login regular, intentar login admin
+            ({ response, data } = await this.makeLoginRequest(formData, '/admin-login'));
+            
+            if (response.ok) {
+                this.handleLoginSuccess(data, true);
+            } else {
+                this.handleLoginError(data);
+            }
+
+        } catch (error) {
+            this.showMessage('Error de conexión con el servidor. Verifica que esté activo.', 'error');
+        }
+    }
+
+    /**
+     * Maneja el evento de submit del formulario
+     * @param {Event} event - Evento de submit
+     */
+    async handleLogin(event) {
+        event.preventDefault();
+        
+        this.showMessage('Iniciando sesión...', 'info');
+        
+        const formData = this.getFormData();
+        if (!formData || !this.validateForm(formData)) {
+            return;
+        }
+
+        await this.attemptLogin(formData);
+    }
+}
+
+// Inicializar el sistema de login cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    new LoginManager();
 });

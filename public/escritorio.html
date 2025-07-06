@@ -93,10 +93,12 @@
   </style>
 </head>
 <body>
+<!-- Copilot: Página principal del escritorio de usuario para Hackless - Panel de control 
+     con navegación sidebar, tarjetas de acceso rápido y funciones principales del sistema. -->
 
   <header>
-    <img src="images/logoescudo.png" alt="Hackless Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
-<span style="font-size: 22px; font-weight: bold; color: #2c3e50;">HACKLESS</span>
+    <img src="images/logoescudo.png" alt="Hackless Logo" style="height: 40px; vertical-align: middle; margin-right: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
+<span style="font-size: 22px; font-weight: bold; color: #2c3e50; cursor: pointer;" onclick="window.location.href='index.html'">HACKLESS</span>
   </header>
 
   <aside class="sidebar">
@@ -115,6 +117,22 @@
     </div>
 
     <div class="cards">
+      <a href="documents.html" class="card-link" style="text-decoration: none; color: inherit;">
+        <div class="card">
+          <div class="card-icon">📄</div>
+          <div class="card-title">Documentos</div>
+          <div class="card-description">Gestionar documentación del personal</div>
+        </div>
+      </a>
+
+      <a href="nomina.html" class="card-link" style="text-decoration: none; color: inherit;">
+        <div class="card">
+          <div class="card-icon">👥</div>
+          <div class="card-title">Nómina de Empleados</div>
+          <div class="card-description">Ver y gestionar el personal y su documentación</div>
+        </div>
+      </a>
+
       <div class="card">
         <div class="card-icon">📝</div>
         <div class="card-title">Auditorías</div>
@@ -127,11 +145,13 @@
         <div class="card-description">Ver y gestionar hallazgos</div>
       </div>
 
-      <div class="card">
-        <div class="card-icon">🎓</div>
-        <div class="card-title">Capacitación</div>
-        <div class="card-description">Acceder a recursos formativos</div>
-      </div>
+      <a href="capacitacion.html" class="card-link" style="text-decoration: none; color: inherit;">
+        <div class="card">
+          <div class="card-icon">🎓</div>
+          <div class="card-title">Capacitación</div>
+          <div class="card-description">Acceder a recursos formativos</div>
+        </div>
+      </a>
     </div>
   </div>
 

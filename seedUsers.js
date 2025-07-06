@@ -30,11 +30,42 @@ async function seedUsers() {
         await Usuario.sync({ alter: true });
         console.log('Tabla de usuarios sincronizada.');
 
+        // --- Usuarios administradores específicos para demo ---
+        const adminUsers = [
+            {
+                nombre: 'Admin Principal',
+                correo_electronico: 'admin@hackless.com',
+                contraseña_simple: 'AdminPass123!',
+                rol: 'admin'
+            },
+            {
+                nombre: 'Admin Demo',
+                correo_electronico: 'demo@hackless.com',
+                contraseña_simple: 'DemoPass123!',
+                rol: 'admin'
+            },
+            {
+                nombre: 'Super Administrador',
+                correo_electronico: 'superadmin@hackless.com',
+                contraseña_simple: 'SuperPass123!',
+                rol: 'admin'
+            },
+            {
+                nombre: 'Admin Seguridad',
+                correo_electronico: 'security@hackless.com',
+                contraseña_simple: 'SecurePass123!',
+                rol: 'admin'
+            }
+        ];
+
         // --- Configura aquí la cantidad y los roles que quieres generar ---
-        const numberOfUsersToGenerate = 20; // Cambia la cantidad según lo que necesites
+        const numberOfUsersToGenerate = 15; // Cambia la cantidad según lo que necesites
         const desiredRoles = ['operativo', 'rrhh', 'supervisor', 'auditor', 'seguridad_higiene']; // Tus roles de ENUM
 
-        const usersToSeed = generateUsers(numberOfUsersToGenerate, desiredRoles);
+        const regularUsers = generateUsers(numberOfUsersToGenerate, desiredRoles);
+        
+        // Combinar usuarios administradores con usuarios regulares
+        const usersToSeed = [...adminUsers, ...regularUsers];
 
         for (const userData of usersToSeed) {
             // Verificar si el usuario ya existe

@@ -1,6 +1,9 @@
+/* Copilot: Sistema Hackless - Servidor backend principal para gestión de documentos,
+   usuarios, autenticación 2FA y administración de solicitudes de demo.
+   Incluye endpoints REST, validaciones robustas, seguridad y logging humanizado. */
+
 require('dotenv').config();
 const express = require('express');
-const app = express();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
@@ -10,145 +13,352 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
+const XLSX = require('xlsx');
 
-// Models & DB
+// Configuración de base de datos y modelos
 const { connectDB, sequelize } = require('./config/database');
 const Usuario = require('./models/Usuario');
 const Documentacion = require('./models/Documentacion');
 const SolicitudDemo = require('./models/SolicitudDemo');
 
-// Middlewares
+const app = express();
+
+// Configuración de middlewares
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'hackless_secret',
+  secret: process.env.SESSION_SECRET || 'hackless_secret_key_2024',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false }
 }));
 
-// --- Multer config ---
+// Configuración de Multer para subida de archivos
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
-const upload = multer({ storage });
 
-// --- Verificar y crear carpeta uploads si no existe ---
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
+// Configuración de Multer para archivos en memoria (Excel)
+const memoryStorage = multer.memoryStorage();
+
+const upload = multer({ storage });
+const uploadMemory = multer({ storage: memoryStorage });
+
+// Crear directorio de uploads si no existe
+const directorioUploads = path.join(__dirname, 'uploads');
+if (!fs.existsSync(directorioUploads)) {
+  fs.mkdirSync(directorioUploads, { recursive: true });
 }
 
-// --- Middleware simple de autenticación por sesión para admin ---
-function requireAdmin(req, res, next) {
-  if (req.session && req.session.user && req.session.user.rol === 'admin') {
+// Middleware de autenticación para administradores
+function verificarAdministrador(req, res, next) {
+  if (req.session?.user?.rol === 'administrador') {
     return next();
   }
-  res.status(401).json({ message: 'No autorizado. Debe iniciar sesión como admin.' });
+  res.status(401).json({ 
+    message: 'Acceso no autorizado. Se requieren privilegios de administrador.' 
+  });
 }
 
-// --- Ruta Test ---
+// === ENDPOINTS DE PRUEBA Y CONECTIVIDAD ===
+
+// Endpoint de prueba para verificar conectividad
 app.post('/test', (req, res) => {
-  console.log('Body recibido:', req.body);
-  res.json({ recibido: req.body });
+  console.log('📨 Datos recibidos en test:', req.body);
+  res.json({ 
+    mensaje: 'Conexión exitosa con el servidor Hackless',
+    datosRecibidos: req.body,
+    timestamp: new Date().toISOString()
+  });
 });
 
-// --- Registro de Usuario ---
+// === GESTIÓN DE USUARIOS ===
+
+// Registro de nuevos usuarios
 app.post('/register', async (req, res) => {
   const { nombre, correo_electronico, password, confirm_password, rol } = req.body;
 
+  // Validación de campos obligatorios
   if (!nombre || !correo_electronico || !password || !confirm_password || !rol) {
-    return res.status(400).json({ message: 'Todos los campos son obligatorios.' });
+    return res.status(400).json({ 
+      message: 'Todos los campos son obligatorios para completar el registro.' 
+    });
   }
 
+  // Validación de coincidencia de contraseñas
   if (password !== confirm_password) {
-    return res.status(400).json({ message: 'Las contraseñas no coinciden.' });
+    return res.status(400).json({ 
+      message: 'Las contraseñas no coinciden. Verifica e intenta nuevamente.' 
+    });
   }
 
-  if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
-      !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-    return res.status(400).json({ message: 'La contraseña debe tener mínimo 8 caracteres con mayúsculas, minúsculas, números y símbolo.' });
+  // Validación de seguridad de contraseña
+  const esContrasenaSegura = password.length >= 8 && 
+    /[A-Z]/.test(password) && 
+    /[a-z]/.test(password) && 
+    /[0-9]/.test(password) && 
+    /[^A-Za-z0-9]/.test(password);
+
+  if (!esContrasenaSegura) {
+    return res.status(400).json({ 
+      message: 'La contraseña debe tener mínimo 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos especiales.' 
+    });
   }
 
   try {
-    const existe = await Usuario.findOne({ where: { correo_electronico } });
-    if (existe) return res.status(409).json({ message: 'El correo ya está registrado.' });
+    // Verificar si el usuario ya existe
+    const usuarioExistente = await Usuario.findOne({ where: { correo_electronico } });
+    if (usuarioExistente) {
+      return res.status(409).json({ 
+        message: 'Este correo electrónico ya está registrado en el sistema.' 
+      });
+    }
 
-    const hash = await bcrypt.hash(password, 10);
-    const nuevo = await Usuario.create({ nombre, correo_electronico, contraseña: hash, rol });
+    // Crear nuevo usuario con contraseña encriptada
+    const contrasenaEncriptada = await bcrypt.hash(password, 12);
+    const nuevoUsuario = await Usuario.create({ 
+      nombre, 
+      correo_electronico, 
+      contraseña: contrasenaEncriptada, 
+      rol 
+    });
 
-    const user = nuevo.toJSON();
-    delete user.contraseña;
+    // Respuesta sin datos sensibles
+    const datosUsuario = nuevoUsuario.toJSON();
+    delete datosUsuario.contraseña;
 
-    res.status(201).json({ message: 'Usuario registrado exitosamente.', usuario: user });
+    res.status(201).json({ 
+      message: 'Usuario registrado exitosamente en el sistema Hackless.', 
+      usuario: datosUsuario 
+    });
+
   } catch (error) {
-    console.error('Error al registrar:', error);
-    res.status(500).json({ message: 'Error interno al registrar usuario.' });
+    console.error('❌ Error en registro de usuario:', error);
+    res.status(500).json({ 
+      message: 'Error interno del servidor. Inténtalo más tarde.' 
+    });
   }
 });
 
-// --- Login de Usuario ---
+// Inicio de sesión de usuarios
 app.post('/login', async (req, res) => {
   const { correo_electronico, password } = req.body;
 
   if (!correo_electronico || !password) {
-    return res.status(400).json({ message: 'Correo y contraseña son obligatorios.' });
+    return res.status(400).json({ 
+      message: 'El correo electrónico y la contraseña son obligatorios.' 
+    });
   }
 
   try {
     const usuario = await Usuario.findOne({ where: { correo_electronico } });
-    if (!usuario) return res.status(401).json({ message: 'Credenciales inválidas.' });
+    
+    if (!usuario) {
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas. Verifica tu información.' 
+      });
+    }
 
-    const match = await bcrypt.compare(password, usuario.contraseña);
-    if (!match) return res.status(401).json({ message: 'Contraseña incorrecta.' });
+    const contrasenaValida = await bcrypt.compare(password, usuario.contraseña);
+    if (!contrasenaValida) {
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas. Verifica tu información.' 
+      });
+    }
 
-    const data = usuario.toJSON();
-    delete data.contraseña;
+    // Preparar datos de respuesta sin información sensible
+    const datosUsuario = usuario.toJSON();
+    delete datosUsuario.contraseña;
 
-    res.status(200).json({ message: 'Inicio de sesión exitoso.', usuario: data });
+    res.status(200).json({ 
+      message: 'Inicio de sesión exitoso. Bienvenido a Hackless.', 
+      usuario: datosUsuario 
+    });
+
   } catch (error) {
-    console.error('Error en login:', error);
-    res.status(500).json({ message: 'Error interno al iniciar sesión.' });
+    console.error('❌ Error en inicio de sesión:', error);
+    res.status(500).json({ 
+      message: 'Error interno del servidor. Inténtalo más tarde.' 
+    });
   }
 });
 
-// --- Subir Documento ---
-app.post('/documents/upload', upload.single('archivoPdf'), async (req, res) => {
-  const { id_usuario, tipo_documento, fecha_emision, fecha_vencimiento } = req.body;
-  // El archivo se sube y se guarda en uploads/, Multer lo pone en req.file
-  const archivo_digital = req.file ? req.file.filename : null; // Solo el nombre del archivo
+// Obtener lista de usuarios para nómina
+app.get('/users', async (req, res) => {
+  try {
+    const usuarios = await Usuario.findAll({
+      attributes: ['id_usuario', 'nombre', 'correo_electronico', 'rol'],
+      order: [['nombre', 'ASC']]
+    });
 
-  if (!id_usuario || !tipo_documento || !fecha_vencimiento || !archivo_digital) {
-    return res.status(400).json({ message: 'Faltan datos o archivo.' });
+    res.status(200).json({ 
+      total: usuarios.length, 
+      users: usuarios,
+      mensaje: 'Lista de usuarios obtenida exitosamente'
+    });
+
+  } catch (error) {
+    console.error('❌ Error al obtener usuarios:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener la lista de usuarios.' 
+    });
+  }
+});
+
+// Cargar usuarios desde archivo Excel
+app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ 
+      message: 'No se ha proporcionado ningún archivo Excel.' 
+    });
   }
 
   try {
-    const usuario = await Usuario.findByPk(parseInt(id_usuario));
-    if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado.' });
+    // Leer el archivo Excel desde el buffer
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    
+    // Convertir a JSON
+    const datos = XLSX.utils.sheet_to_json(worksheet);
+    
+    if (!datos || datos.length === 0) {
+      return res.status(400).json({ 
+        message: 'El archivo Excel está vacío o no contiene datos válidos.' 
+      });
+    }
 
-    const doc = await Documentacion.create({
+    let usuariosCreados = 0;
+    let usuariosExistentes = 0;
+    let errores = [];
+
+    // Procesar cada fila del Excel
+    for (const [index, fila] of datos.entries()) {
+      const filaNumero = index + 2; // +2 porque Excel inicia en 1 y tiene encabezado
+      
+      try {
+        // Extraer datos de la fila (adaptable según las columnas del Excel)
+        const nombre = fila['Nombre'] || fila['nombre'] || fila['Name'];
+        const correo_electronico = fila['Email'] || fila['Correo'] || fila['correo_electronico'] || fila['Correo Electrónico'];
+        const rol = fila['Rol'] || fila['rol'] || fila['Role'] || 'empleado';
+        
+        // Validar campos obligatorios
+        if (!nombre || !correo_electronico) {
+          errores.push(`Fila ${filaNumero}: Faltan campos obligatorios (Nombre y/o Email)`);
+          continue;
+        }
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo_electronico)) {
+          errores.push(`Fila ${filaNumero}: Email inválido (${correo_electronico})`);
+          continue;
+        }
+
+        // Verificar si el usuario ya existe
+        const usuarioExistente = await Usuario.findOne({ 
+          where: { correo_electronico } 
+        });
+        
+        if (usuarioExistente) {
+          usuariosExistentes++;
+          continue;
+        }
+
+        // Generar contraseña temporal
+        const contrasenaTemp = `Hackless${new Date().getFullYear()}!`;
+        const contrasenaEncriptada = await bcrypt.hash(contrasenaTemp, 12);
+
+        // Crear nuevo usuario
+        await Usuario.create({
+          nombre: nombre.trim(),
+          correo_electronico: correo_electronico.toLowerCase().trim(),
+          contraseña: contrasenaEncriptada,
+          rol: rol.toLowerCase().trim()
+        });
+
+        usuariosCreados++;
+
+      } catch (errorFila) {
+        errores.push(`Fila ${filaNumero}: Error al procesar - ${errorFila.message}`);
+      }
+    }
+
+    // Preparar respuesta con resumen
+    const respuesta = {
+      message: `Proceso de carga completado`,
+      resumen: {
+        totalFilas: datos.length,
+        usuariosCreados,
+        usuariosExistentes,
+        errores: errores.length
+      },
+      contrasenaTemporalInfo: usuariosCreados > 0 ? `Los nuevos usuarios tienen la contraseña: Hackless${new Date().getFullYear()}!` : null
+    };
+
+    if (errores.length > 0) {
+      respuesta.detalleErrores = errores;
+    }
+
+    res.status(200).json(respuesta);
+
+  } catch (error) {
+    console.error('❌ Error al procesar archivo Excel:', error);
+    res.status(500).json({ 
+      message: 'Error interno al procesar el archivo Excel.',
+      detalle: error.message
+    });
+  }
+});
+
+// === GESTIÓN DE DOCUMENTOS ===
+
+// Subir documento de usuario
+app.post('/documents/upload', upload.single('archivoPdf'), async (req, res) => {
+  const { id_usuario, tipo_documento, fecha_emision, fecha_vencimiento } = req.body;
+  const archivoSubido = req.file?.filename;
+
+  if (!id_usuario || !tipo_documento || !fecha_vencimiento || !archivoSubido) {
+    return res.status(400).json({ 
+      message: 'Faltan datos obligatorios: usuario, tipo de documento, fecha de vencimiento o archivo.' 
+    });
+  }
+
+  try {
+    // Verificar que el usuario existe
+    const usuario = await Usuario.findByPk(parseInt(id_usuario));
+    if (!usuario) {
+      return res.status(404).json({ 
+        message: 'Usuario no encontrado en el sistema.' 
+      });
+    }
+
+    // Crear registro del documento
+    const documento = await Documentacion.create({
       id_usuario,
       tipo_documento,
       fecha_emision,
       fecha_vencimiento,
-      archivo_digital // Solo el nombre, no la ruta completa
+      archivo_digital: archivoSubido
     });
 
-    res.status(201).json({ message: 'Documento cargado exitosamente.', documento: doc });
+    res.status(201).json({ 
+      message: 'Documento cargado exitosamente en el sistema Hackless.', 
+      documento 
+    });
+
   } catch (error) {
-    console.error('Error al cargar documento:', error);
-    res.status(500).json({ message: 'Error interno al cargar documento.' });
+    console.error('❌ Error al cargar documento:', error);
+    res.status(500).json({ 
+      message: 'Error interno al procesar el documento.' 
+    });
   }
 });
 
-// --- Listar Documentos ---
+// Listar todos los documentos con información de usuario
 app.get('/documents', async (req, res) => {
   try {
     const documentos = await Documentacion.findAll({
@@ -156,24 +366,36 @@ app.get('/documents', async (req, res) => {
         model: Usuario,
         as: 'usuarioInfo',
         attributes: ['id_usuario', 'nombre', 'correo_electronico', 'rol']
-      }]
+      }],
+      order: [['id_documento', 'DESC']]
     });
 
-    res.status(200).json({ total: documentos.length, documentos });
+    res.status(200).json({ 
+      total: documentos.length, 
+      documentos,
+      mensaje: 'Documentos obtenidos exitosamente'
+    });
+
   } catch (error) {
-    console.error('Error al obtener documentos:', error);
-    res.status(500).json({ message: 'Error al obtener documentos.' });
+    console.error('❌ Error al obtener documentos:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener la lista de documentos.' 
+    });
   }
 });
 
-// --- Obtener documento por ID ---
+// Obtener documento específico por ID
 app.get('/documents/:id', async (req, res) => {
-  const id = req.params.id;
+  const idDocumento = req.params.id;
 
-  if (isNaN(id)) return res.status(400).json({ message: 'ID inválido.' });
+  if (isNaN(idDocumento)) {
+    return res.status(400).json({ 
+      message: 'ID de documento inválido.' 
+    });
+  }
 
   try {
-    const doc = await Documentacion.findByPk(id, {
+    const documento = await Documentacion.findByPk(idDocumento, {
       include: [{
         model: Usuario,
         as: 'usuarioInfo',
@@ -181,110 +403,261 @@ app.get('/documents/:id', async (req, res) => {
       }]
     });
 
-    if (!doc) return res.status(404).json({ message: 'Documento no encontrado.' });
+    if (!documento) {
+      return res.status(404).json({ 
+        message: 'Documento no encontrado en el sistema.' 
+      });
+    }
 
-    res.status(200).json({ documento: doc });
+    res.status(200).json({ 
+      documento,
+      mensaje: 'Documento obtenido exitosamente'
+    });
+
   } catch (error) {
-    console.error('Error al buscar documento por ID:', error);
-    res.status(500).json({ message: 'Error al buscar documento.' });
+    console.error('❌ Error al buscar documento:', error);
+    res.status(500).json({ 
+      message: 'Error al buscar el documento solicitado.' 
+    });
   }
 });
 
-// --- Solicitar Demo (guardar en BD) ---
+// Eliminar documento por ID
+app.delete('/documents/:id', async (req, res) => {
+  const idDocumento = req.params.id;
+
+  if (isNaN(idDocumento)) {
+    return res.status(400).json({ 
+      message: 'ID de documento inválido.' 
+    });
+  }
+
+  try {
+    const documento = await Documentacion.findByPk(idDocumento);
+    
+    if (!documento) {
+      return res.status(404).json({ 
+        message: 'Documento no encontrado en el sistema.' 
+      });
+    }
+
+    await documento.destroy();
+    
+    res.status(200).json({ 
+      message: 'Documento eliminado exitosamente del sistema Hackless.' 
+    });
+
+  } catch (error) {
+    console.error('❌ Error al eliminar documento:', error);
+    res.status(500).json({ 
+      message: 'Error al eliminar el documento.' 
+    });
+  }
+});
+
+// === GESTIÓN DE SOLICITUDES DE DEMO ===
+
+// Procesar solicitud de demostración
 app.post('/solicitar-demo', async (req, res) => {
   const { nombre, empresa, email, telefono, mensaje } = req.body;
+  
   if (!nombre || !empresa || !email) {
-    return res.status(400).json({ message: 'Nombre, empresa y email son obligatorios.' });
+    return res.status(400).json({ 
+      message: 'Nombre, empresa y email son campos obligatorios.' 
+    });
   }
+
   try {
-    const nuevaSolicitud = await SolicitudDemo.create({ nombre, empresa, email, telefono, mensaje });
-    res.status(200).json({ message: 'Solicitud recibida. ¡Gracias!', solicitud: nuevaSolicitud });
+    const nuevaSolicitud = await SolicitudDemo.create({ 
+      nombre, 
+      empresa, 
+      email, 
+      telefono, 
+      mensaje 
+    });
+
+    res.status(200).json({ 
+      message: '¡Solicitud recibida exitosamente! Nos pondremos en contacto contigo pronto.', 
+      solicitud: nuevaSolicitud 
+    });
+
   } catch (error) {
-    console.error('Error al procesar solicitud de demo:', error);
-    res.status(500).json({ message: 'Error interno al procesar la solicitud.' });
+    console.error('❌ Error al procesar solicitud de demo:', error);
+    res.status(500).json({ 
+      message: 'Error interno al procesar tu solicitud. Inténtalo más tarde.' 
+    });
   }
 });
 
-// --- Consultar solicitudes de demo (desde BD) ---
-app.get('/solicitudes-demo', requireAdmin, async (req, res) => {
+// Consultar solicitudes de demo (solo administradores)
+app.get('/solicitudes-demo', verificarAdministrador, async (req, res) => {
   try {
-    const solicitudes = await SolicitudDemo.findAll({ order: [['createdAt', 'DESC']] });
-    res.status(200).json({ total: solicitudes.length, solicitudes });
+    const solicitudes = await SolicitudDemo.findAll({ 
+      order: [['id', 'DESC']] 
+    });
+
+    res.status(200).json({ 
+      total: solicitudes.length, 
+      solicitudes,
+      mensaje: 'Solicitudes de demo obtenidas exitosamente'
+    });
+
   } catch (error) {
-    console.error('Error al leer solicitudes de demo:', error);
-    res.status(500).json({ message: 'Error al leer solicitudes.' });
+    console.error('❌ Error al obtener solicitudes de demo:', error);
+    res.status(500).json({ 
+      message: 'Error al obtener las solicitudes de demo.' 
+    });
   }
 });
 
-// --- Exportar solicitudes de demo a Excel ---
-app.get('/solicitudes-demo/export', requireAdmin, async (req, res) => {
+// Exportar solicitudes de demo a CSV (solo administradores)
+app.get('/solicitudes-demo/export', verificarAdministrador, async (req, res) => {
   try {
-    const solicitudes = await SolicitudDemo.findAll({ order: [['createdAt', 'DESC']] });
-    const fields = ['id', 'nombre', 'empresa', 'email', 'telefono', 'mensaje', 'createdAt'];
-    const header = fields.join(',') + '\n';
-    const rows = solicitudes.map(s => fields.map(f => '"' + (s[f] ? String(s[f]).replace(/"/g, '""') : '') + '"').join(',')).join('\n');
-    const csv = header + rows;
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="solicitudes_demo.csv"');
-    res.send(csv);
+    const solicitudes = await SolicitudDemo.findAll({ 
+      order: [['id', 'DESC']] 
+    });
+
+    const campos = ['id', 'nombre', 'empresa', 'email', 'telefono', 'mensaje'];
+    const encabezado = campos.join(',') + '\n';
+    
+    const filas = solicitudes.map(solicitud => 
+      campos.map(campo => {
+        const valor = solicitud[campo] || '';
+        return `"${String(valor).replace(/"/g, '""')}"`;
+      }).join(',')
+    ).join('\n');
+
+    const archivoCSV = encabezado + filas;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="solicitudes_demo_hackless.csv"');
+    res.send(archivoCSV);
+
   } catch (error) {
-    console.error('Error al exportar solicitudes:', error);
-    res.status(500).json({ message: 'Error al exportar.' });
+    console.error('❌ Error al exportar solicitudes:', error);
+    res.status(500).json({ 
+      message: 'Error al exportar las solicitudes de demo.' 
+    });
   }
 });
 
-// --- Endpoint de login de admin que guarda sesión ---
+// === AUTENTICACIÓN DE ADMINISTRADORES ===
+
+// Inicio de sesión para administradores con manejo de sesión
 app.post('/admin-login', async (req, res) => {
   const { correo_electronico, password, twofa_token } = req.body;
+  
   if (!correo_electronico || !password) {
-    return res.status(400).json({ message: 'Correo y contraseña requeridos.' });
+    return res.status(400).json({ 
+      message: 'Correo electrónico y contraseña son obligatorios.' 
+    });
   }
+
   try {
-    const usuario = await Usuario.findOne({ where: { correo_electronico } });
-    if (!usuario || usuario.rol !== 'admin') {
-      return res.status(401).json({ message: 'No autorizado.' });
+    const administrador = await Usuario.findOne({ where: { correo_electronico } });
+    
+    if (!administrador || administrador.rol !== 'administrador') {
+      return res.status(401).json({ 
+        message: 'Acceso no autorizado. Solo administradores pueden acceder.' 
+      });
     }
-    const match = await bcrypt.compare(password, usuario.contraseña);
-    if (!match) return res.status(401).json({ message: 'Contraseña incorrecta.' });
-    if (usuario.twofa_enabled) {
-      if (!twofa_token) return res.status(401).json({ message: 'Se requiere código 2FA.' });
-      const verified = speakeasy.totp.verify({
-        secret: usuario.twofa_secret,
+
+    const contrasenaValida = await bcrypt.compare(password, administrador.contraseña);
+    if (!contrasenaValida) {
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas.' 
+      });
+    }
+
+    // Verificación de 2FA si está habilitado
+    if (administrador.twofa_enabled) {
+      if (!twofa_token) {
+        return res.status(401).json({ 
+          message: 'Se requiere código de autenticación de dos factores (2FA).' 
+        });
+      }
+
+      const codigoValido = speakeasy.totp.verify({
+        secret: administrador.twofa_secret,
         encoding: 'base32',
         token: twofa_token,
         window: 1
       });
-      if (!verified) return res.status(401).json({ message: 'Código 2FA inválido.' });
+
+      if (!codigoValido) {
+        return res.status(401).json({ 
+          message: 'Código 2FA inválido. Verifica e intenta nuevamente.' 
+        });
+      }
     }
-    req.session.user = { id: usuario.id_usuario, rol: usuario.rol, nombre: usuario.nombre };
-    res.status(200).json({ message: 'Login exitoso.' });
+
+    // Crear sesión de administrador
+    req.session.user = { 
+      id: administrador.id_usuario, 
+      rol: administrador.rol, 
+      nombre: administrador.nombre 
+    };
+
+    res.status(200).json({ 
+      message: 'Inicio de sesión administrativo exitoso. Bienvenido a Hackless.' 
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error interno.' });
+    console.error('❌ Error en login de administrador:', error);
+    res.status(500).json({ 
+      message: 'Error interno del servidor.' 
+    });
   }
 });
 
-// --- Endpoint para cerrar sesión ---
+// Cerrar sesión de administrador
 app.post('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.status(200).json({ message: 'Sesión cerrada.' });
+  req.session.destroy((error) => {
+    if (error) {
+      console.error('❌ Error al cerrar sesión:', error);
+      return res.status(500).json({ 
+        message: 'Error al cerrar la sesión.' 
+      });
+    }
+    
+    res.status(200).json({ 
+      message: 'Sesión cerrada exitosamente.' 
+    });
   });
 });
 
-// --- Recuperación de contraseña (solicitud) ---
+// === RECUPERACIÓN DE CONTRASEÑA ===
+
+// Solicitar recuperación de contraseña
 app.post('/admin/forgot-password', async (req, res) => {
   const { correo_electronico } = req.body;
-  if (!correo_electronico) return res.status(400).json({ message: 'Correo requerido.' });
+  
+  if (!correo_electronico) {
+    return res.status(400).json({ 
+      message: 'El correo electrónico es obligatorio.' 
+    });
+  }
+
   try {
-    const usuario = await Usuario.findOne({ where: { correo_electronico, rol: 'admin' } });
-    if (!usuario) return res.status(404).json({ message: 'No existe admin con ese correo.' });
-    const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + 1000 * 60 * 30; // 30 minutos
-    usuario.reset_token = token;
-    usuario.reset_token_expires = expires;
-    await usuario.save();
-    // --- Enviar email (simulado en consola si no hay SMTP) ---
+    const administrador = await Usuario.findOne({ 
+      where: { correo_electronico, rol: 'administrador' } 
+    });
+
+    if (!administrador) {
+      return res.status(404).json({ 
+        message: 'No existe un administrador registrado con ese correo electrónico.' 
+      });
+    }
+
+    const tokenRecuperacion = crypto.randomBytes(32).toString('hex');
+    const tiempoExpiracion = Date.now() + (30 * 60 * 1000);
+
+    administrador.reset_token = tokenRecuperacion;
+    administrador.reset_token_expires = tiempoExpiracion;
+    await administrador.save();
+
     if (process.env.SMTP_HOST) {
-      const transporter = nodemailer.createTransport({
+      const transportador = nodemailer.createTransporter({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         secure: false,
@@ -293,165 +666,287 @@ app.post('/admin/forgot-password', async (req, res) => {
           pass: process.env.SMTP_PASS
         }
       });
-      await transporter.sendMail({
+
+      const urlRecuperacion = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password.html?token=${tokenRecuperacion}`;
+
+      await transportador.sendMail({
         from: process.env.SMTP_FROM || 'no-reply@hackless.com',
-        to: usuario.correo_electronico,
-        subject: 'Recuperación de contraseña',
-        text: `Para restablecer tu contraseña, visita: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password.html?token=${token}`
+        to: administrador.correo_electronico,
+        subject: 'Recuperación de contraseña - Hackless',
+        text: `Para restablecer tu contraseña de administrador, visita: ${urlRecuperacion}`
       });
     } else {
-      console.log('Enlace de recuperación:', `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password.html?token=${token}`);
+      console.log('🔗 Enlace de recuperación:', 
+        `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password.html?token=${tokenRecuperacion}`);
     }
-    res.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
+
+    res.status(200).json({ 
+      message: 'Si el correo existe, se ha enviado un enlace de recuperación.' 
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al solicitar recuperación.' });
+    console.error('❌ Error al solicitar recuperación:', error);
+    res.status(500).json({ 
+      message: 'Error interno al procesar la solicitud.' 
+    });
   }
 });
 
-// --- Recuperación de contraseña (reset) ---
+// Restablecer contraseña con token
 app.post('/admin/reset-password', async (req, res) => {
   const { token, password, confirm_password } = req.body;
-  if (!token || !password || !confirm_password) return res.status(400).json({ message: 'Datos incompletos.' });
-  if (password !== confirm_password) return res.status(400).json({ message: 'Las contraseñas no coinciden.' });
-  if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) ||
-      !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-    return res.status(400).json({ message: 'La contraseña debe tener mínimo 8 caracteres con mayúsculas, minúsculas, números y símbolo.' });
+  
+  if (!token || !password || !confirm_password) {
+    return res.status(400).json({ 
+      message: 'Token, contraseña y confirmación son obligatorios.' 
+    });
   }
+
+  if (password !== confirm_password) {
+    return res.status(400).json({ 
+      message: 'Las contraseñas no coinciden.' 
+    });
+  }
+
+  const esContrasenaSegura = password.length >= 8 && 
+    /[A-Z]/.test(password) && 
+    /[a-z]/.test(password) && 
+    /[0-9]/.test(password) && 
+    /[^A-Za-z0-9]/.test(password);
+
+  if (!esContrasenaSegura) {
+    return res.status(400).json({ 
+      message: 'La contraseña debe tener mínimo 8 caracteres con mayúsculas, minúsculas, números y símbolos.' 
+    });
+  }
+
   try {
-    const usuario = await Usuario.findOne({ where: { reset_token: token, rol: 'admin' } });
-    if (!usuario || !usuario.reset_token_expires || usuario.reset_token_expires < Date.now()) {
-      return res.status(400).json({ message: 'Token inválido o expirado.' });
+    const administrador = await Usuario.findOne({ 
+      where: { reset_token: token, rol: 'administrador' } 
+    });
+
+    if (!administrador || !administrador.reset_token_expires || administrador.reset_token_expires < Date.now()) {
+      return res.status(400).json({ 
+        message: 'Token inválido o expirado.' 
+      });
     }
-    usuario.contraseña = await bcrypt.hash(password, 10);
-    usuario.reset_token = null;
-    usuario.reset_token_expires = null;
-    await usuario.save();
-    res.status(200).json({ message: 'Contraseña restablecida correctamente.' });
+
+    administrador.contraseña = await bcrypt.hash(password, 12);
+    administrador.reset_token = null;
+    administrador.reset_token_expires = null;
+    await administrador.save();
+
+    res.status(200).json({ 
+      message: 'Contraseña restablecida correctamente.' 
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al restablecer contraseña.' });
+    console.error('❌ Error al restablecer contraseña:', error);
+    res.status(500).json({ 
+      message: 'Error interno al restablecer la contraseña.' 
+    });
   }
 });
 
-// --- 2FA: Generar secreto y QR para activar 2FA (solo admin autenticado) ---
-app.post('/admin/2fa/setup', requireAdmin, async (req, res) => {
+// === AUTENTICACIÓN DE DOS FACTORES (2FA) ===
+
+// Configurar 2FA para administradores
+app.post('/admin/2fa/setup', verificarAdministrador, async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.session.user.id);
-    if (!usuario || usuario.rol !== 'admin') return res.status(401).json({ message: 'No autorizado.' });
-    if (usuario.twofa_enabled) return res.status(400).json({ message: '2FA ya está activado.' });
+    const administrador = await Usuario.findByPk(req.session.user.id);
+    
+    if (!administrador || administrador.rol !== 'administrador') {
+      return res.status(401).json({ 
+        message: 'Acceso no autorizado.' 
+      });
+    }
+
+    if (administrador.twofa_enabled) {
+      return res.status(400).json({ 
+        message: 'La autenticación de dos factores ya está activada.' 
+      });
+    }
+
     // Generar secreto TOTP
-    const secret = speakeasy.generateSecret({
-      name: `Hackless (${usuario.correo_electronico})`,
+    const secreto2FA = speakeasy.generateSecret({
+      name: `Hackless Admin (${administrador.correo_electronico})`,
       length: 20
     });
-    usuario.twofa_secret = secret.base32;
-    await usuario.save();
-    // Generar QR para Google Authenticator
-    const otpauth = secret.otpauth_url;
-    QRCode.toDataURL(otpauth, (err, qr) => {
-      if (err) return res.status(500).json({ message: 'Error generando QR.' });
-      res.json({ qr, secret: secret.base32 });
+
+    administrador.twofa_secret = secreto2FA.base32;
+    await administrador.save();
+
+    // Generar código QR para Google Authenticator
+    const urlOTPAuth = secreto2FA.otpauth_url;
+    
+    QRCode.toDataURL(urlOTPAuth, (error, codigoQR) => {
+      if (error) {
+        console.error('❌ Error generando código QR:', error);
+        return res.status(500).json({ 
+          message: 'Error al generar código QR para 2FA.' 
+        });
+      }
+      
+      res.json({ 
+        qr: codigoQR, 
+        secret: secreto2FA.base32,
+        mensaje: 'Escanea el código QR con tu aplicación de autenticación'
+      });
     });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al generar secreto 2FA.' });
+    console.error('❌ Error al configurar 2FA:', error);
+    res.status(500).json({ 
+      message: 'Error interno al configurar autenticación de dos factores.' 
+    });
   }
 });
 
-// --- 2FA: Verificar código y activar 2FA ---
-app.post('/admin/2fa/verify', requireAdmin, async (req, res) => {
+// Verificar y activar 2FA
+app.post('/admin/2fa/verify', verificarAdministrador, async (req, res) => {
   const { token } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({ 
+      message: 'El código de verificación es obligatorio.' 
+    });
+  }
+
   try {
-    const usuario = await Usuario.findByPk(req.session.user.id);
-    if (!usuario || usuario.rol !== 'admin' || !usuario.twofa_secret) return res.status(401).json({ message: 'No autorizado.' });
-    const verified = speakeasy.totp.verify({
-      secret: usuario.twofa_secret,
+    const administrador = await Usuario.findByPk(req.session.user.id);
+    
+    if (!administrador || administrador.rol !== 'administrador' || !administrador.twofa_secret) {
+      return res.status(401).json({ 
+        message: 'Acceso no autorizado o configuración 2FA incompleta.' 
+      });
+    }
+
+    const codigoValido = speakeasy.totp.verify({
+      secret: administrador.twofa_secret,
       encoding: 'base32',
       token,
       window: 1
     });
-    if (!verified) return res.status(400).json({ message: 'Código inválido.' });
-    usuario.twofa_enabled = true;
-    await usuario.save();
-    res.json({ message: '2FA activado correctamente.' });
+
+    if (!codigoValido) {
+      return res.status(400).json({ 
+        message: 'Código de verificación inválido. Inténtalo nuevamente.' 
+      });
+    }
+
+    administrador.twofa_enabled = true;
+    await administrador.save();
+
+    res.json({ 
+      message: 'Autenticación de dos factores activada correctamente.',
+      twofa_enabled: true
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al verificar 2FA.' });
+    console.error('❌ Error al verificar 2FA:', error);
+    res.status(500).json({ 
+      message: 'Error interno al verificar la autenticación de dos factores.' 
+    });
   }
 });
 
-// --- 2FA: Desactivar 2FA (requiere código válido) ---
-app.post('/admin/2fa/disable', requireAdmin, async (req, res) => {
+// Desactivar 2FA
+app.post('/admin/2fa/disable', verificarAdministrador, async (req, res) => {
   const { token } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({ 
+      message: 'El código de verificación es obligatorio para desactivar 2FA.' 
+    });
+  }
+
   try {
-    const usuario = await Usuario.findByPk(req.session.user.id);
-    if (!usuario || usuario.rol !== 'admin' || !usuario.twofa_secret) return res.status(401).json({ message: 'No autorizado.' });
-    const verified = speakeasy.totp.verify({
-      secret: usuario.twofa_secret,
+    const administrador = await Usuario.findByPk(req.session.user.id);
+    
+    if (!administrador || administrador.rol !== 'administrador' || !administrador.twofa_secret) {
+      return res.status(401).json({ 
+        message: 'Acceso no autorizado o 2FA no configurado.' 
+      });
+    }
+
+    const codigoValido = speakeasy.totp.verify({
+      secret: administrador.twofa_secret,
       encoding: 'base32',
       token,
       window: 1
     });
-    if (!verified) return res.status(400).json({ message: 'Código inválido.' });
-    usuario.twofa_enabled = false;
-    usuario.twofa_secret = null;
-    await usuario.save();
-    res.json({ message: '2FA desactivado.' });
+
+    if (!codigoValido) {
+      return res.status(400).json({ 
+        message: 'Código de verificación inválido.' 
+      });
+    }
+
+    administrador.twofa_enabled = false;
+    administrador.twofa_secret = null;
+    await administrador.save();
+
+    res.json({ 
+      message: 'Autenticación de dos factores desactivada correctamente.',
+      twofa_enabled: false
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al desactivar 2FA.' });
+    console.error('❌ Error al desactivar 2FA:', error);
+    res.status(500).json({ 
+      message: 'Error interno al desactivar la autenticación de dos factores.' 
+    });
   }
 });
 
-// --- Estado de 2FA para frontend admin ---
-app.get('/admin/2fa/status', requireAdmin, async (req, res) => {
+// Obtener estado de 2FA
+app.get('/admin/2fa/status', verificarAdministrador, async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.session.user.id);
-    if (!usuario || usuario.rol !== 'admin') return res.status(401).json({ message: 'No autorizado.' });
-    res.json({ enabled: !!usuario.twofa_enabled });
+    const administrador = await Usuario.findByPk(req.session.user.id);
+    
+    if (!administrador || administrador.rol !== 'administrador') {
+      return res.status(401).json({ 
+        message: 'Acceso no autorizado.' 
+      });
+    }
+
+    res.json({ 
+      enabled: !!administrador.twofa_enabled,
+      usuario: administrador.nombre,
+      mensaje: 'Estado de 2FA obtenido correctamente'
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al consultar estado 2FA.' });
+    console.error('❌ Error al consultar estado 2FA:', error);
+    res.status(500).json({ 
+      message: 'Error interno al consultar el estado de 2FA.' 
+    });
   }
 });
 
-// --- Iniciar servidor ---
+// === INICIALIZACIÓN DEL SERVIDOR ===
+
+// Iniciar servidor solo si este archivo es ejecutado directamente
 if (require.main === module) {
-  // Solo inicia el servidor si este archivo es ejecutado directamente
-  async function startServer() {
+  async function iniciarServidor() {
     try {
       await connectDB();
-      await sequelize.sync({ alter: true });
-      console.log('📦 Base de datos sincronizada.');
-      app.listen(process.env.PORT || 3000, () => {
-        console.log(`🚀 Servidor ejecutándose en http://localhost:${process.env.PORT || 3000}`);
+      await sequelize.sync({ force: false });
+      console.log('📦 Base de datos sincronizada correctamente.');
+      
+      const puerto = process.env.PORT || 3000;
+      app.listen(puerto, () => {
+        console.log(`🚀 Servidor Hackless ejecutándose en http://localhost:${puerto}`);
+        console.log(`🔒 Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
       });
-    } catch (err) {
-      console.error('❌ Error al iniciar servidor:', err);
+
+    } catch (error) {
+      console.error('❌ Error crítico al iniciar servidor Hackless:', error);
       process.exit(1);
     }
   }
-  startServer();
+  
+  iniciarServidor();
 }
 
 module.exports = app;
-
-// RUTA: ACTUALIZAR UN DOCUMENTO (PUT /documents/:id)
-// Recibe datos en req.body y actualiza un documento existente por ID.
-app.put('/documents/:id', async (req, res) => {
-    // ...
-});
-
-// RUTA: ELIMINAR UN DOCUMENTO (DELETE /documents/:id)
-// Elimina un documento por su ID.
-app.delete('/documents/:id', async (req, res) => {
-    const id = req.params.id;
-
-    if (isNaN(id)) return res.status(400).json({ message: 'ID inválido.' });
-
-    try {
-        const doc = await Documentacion.findByPk(id);
-        if (!doc) return res.status(404).json({ message: 'Documento no encontrado.' });
-
-        await doc.destroy();
-        res.status(200).json({ message: 'Documento eliminado exitosamente.' });
-    } catch (error) {
-        console.error('Error al eliminar documento:', error);
-        res.status(500).json({ message: 'Error al eliminar documento.' });
-    }
-});
