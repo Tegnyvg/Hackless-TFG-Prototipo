@@ -105,7 +105,7 @@
         <div class="modal-demo-content">
             <button id="closeDemoModal" class="modal-demo-close" title="Cerrar">&times;</button>
             <h2>Solicitar Demo</h2>
-            <form id="demoForm" class="demo-form">
+            <form id="demoForm" class="demo-form" onsubmit="return handleFormSubmit(event)">
                 <label for="demoNombre">Nombre completo</label>
                 <input type="text" id="demoNombre" name="nombre" required>
                 <label for="demoEmpresa">Empresa</label>
@@ -116,7 +116,7 @@
                 <input type="text" id="demoTelefono" name="telefono">
                 <label for="demoMensaje">Mensaje</label>
                 <textarea id="demoMensaje" name="mensaje" rows="3" placeholder="¿En qué podemos ayudarte?"></textarea>
-                <button type="submit" class="btn-primary btn-large" style="width:100%;margin-top:18px;">Enviar solicitud</button>
+                <button type="submit" id="submitDemoBtn" class="btn-primary btn-large" style="width:100%;margin-top:18px;">Enviar solicitud</button>
                 <div class="demo-form-msg" style="margin-top:12px;font-weight:bold;"></div>
             </form>
         </div>
@@ -128,23 +128,54 @@
     </div>
 
     <script>
+    console.log('📜 Script iniciado:', new Date().toISOString());
+    
+    // Función de respaldo para manejar el submit del formulario
+    window.handleFormSubmit = function(event) {
+        console.log('🚨 handleFormSubmit llamada desde onsubmit');
+        event.preventDefault();
+        return false;
+    };
+    
     // Configura aquí la URL del backend si frontend y backend están en dominios distintos
     // window.HACKLESS_API_BASE = 'https://tu-backend.com';
     // Si frontend y backend están juntos, deja comentado
 
     // Mostrar y ocultar el modal de demo
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('🔍 DOM cargado, buscando elementos...');
+      console.log('🕐 Timestamp:', new Date().toISOString());
+      
       const demoModal = document.getElementById('demoModal');
-      const openDemoBtns = document.querySelectorAll('a[href="#contact"], .btn-primary.btn-large');
+      const openDemoBtns = document.querySelectorAll('a[href="#contact"]');
       const closeDemoBtn = document.getElementById('closeDemoModal');
       const demoForm = document.getElementById('demoForm');
       const demoFormMsg = document.querySelector('.demo-form-msg');
 
+      console.log('📋 Elementos encontrados:');
+      console.log('  - Modal:', !!demoModal);
+      console.log('  - Botones abrir:', openDemoBtns.length);
+      console.log('  - Botón cerrar:', !!closeDemoBtn);
+      console.log('  - Formulario:', !!demoForm);
+      console.log('  - Mensaje:', !!demoFormMsg);
+
+      if (!demoForm) {
+        console.error('❌ No se encontró el formulario demoForm');
+        return;
+      }
+      
+      if (!demoFormMsg) {
+        console.error('❌ No se encontró el elemento de mensaje');
+        return;
+      }
+
       function openModal(e) {
         if (e) e.preventDefault();
+        console.log('📂 Abriendo modal');
         demoModal.style.display = 'block';
       }
       function closeModal() {
+        console.log('📁 Cerrando modal');
         demoModal.style.display = 'none';
         demoForm.reset();
         demoFormMsg.textContent = '';
@@ -156,11 +187,39 @@
       window.onclick = function(event) {
         if (event.target === demoModal) closeModal();
       };
+      
+      // Agregar listener adicional al botón submit como respaldo
+      const submitBtn = document.getElementById('submitDemoBtn');
+      if (submitBtn) {
+        console.log('🎯 Botón submit encontrado, agregando listener directo');
+        submitBtn.addEventListener('click', function(e) {
+          console.log('🔴 Click directo en botón submit detectado');
+          e.preventDefault();
+          handleDemoSubmit();
+        });
+      }
       // Enviar solicitud de demo
+      console.log('🔧 Configurando listener del formulario...');
+      console.log('🎯 Formulario elemento:', demoForm);
+      console.log('🎯 Formulario tag name:', demoForm.tagName);
+      console.log('🎯 Formulario id:', demoForm.id);
+      
       demoForm.addEventListener('submit', async function(e) {
+        console.log('🚨 EVENTO SUBMIT CAPTURADO!');
         e.preventDefault();
+        console.log('� preventDefault() ejecutado');
+        
+        const submitBtn = document.getElementById('submitDemoBtn');
+        console.log('🎯 Botón submit:', submitBtn);
+        
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Enviando...';
+        }
+        
         demoFormMsg.textContent = 'Enviando...';
         demoFormMsg.style.color = '#333';
+        
         const data = {
           nombre: demoForm.demoNombre.value,
           empresa: demoForm.demoEmpresa.value,
@@ -168,33 +227,62 @@
           telefono: demoForm.demoTelefono.value,
           mensaje: demoForm.demoMensaje.value
         };
+        
+        console.log('📊 Datos a enviar:', data);
+        
         const API_BASE = window.HACKLESS_API_BASE || '';
+        console.log('🌐 API Base:', API_BASE);
+        console.log('📍 Protocol:', location.protocol);
+        
         if (!API_BASE && location.protocol === 'file:') {
           demoFormMsg.textContent = 'Debes abrir la web desde un servidor (http://localhost:3000 o dominio) para enviar la solicitud.';
           demoFormMsg.style.color = '#c0392b';
           return;
         }
+        
         try {
+          console.log('🚀 Enviando solicitud...');
           const res = await fetch(`${API_BASE}/solicitar-demo`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
           });
+          
+          console.log('📡 Respuesta recibida:', res.status, res.statusText);
+          
           let result = {};
-          try { result = await res.json(); } catch { result = {}; }
+          try { 
+            result = await res.json(); 
+            console.log('📄 Resultado JSON:', result);
+          } catch (e) { 
+            console.error('❌ Error parsing JSON:', e);
+            result = {}; 
+          }
+          
           if (res.ok) {
+            console.log('✅ Solicitud exitosa');
             demoFormMsg.textContent = '¡Solicitud enviada! Nos contactaremos pronto.';
             demoFormMsg.style.color = '#27ae60';
             demoForm.reset();
+            submitBtn.textContent = 'Enviar solicitud';
+            submitBtn.disabled = false;
           } else {
+            console.error('❌ Error en respuesta:', result);
             demoFormMsg.textContent = result.message || 'Error al enviar la solicitud.';
             demoFormMsg.style.color = '#c0392b';
+            submitBtn.textContent = 'Enviar solicitud';
+            submitBtn.disabled = false;
           }
         } catch (err) {
+          console.error('❌ Error de conexión:', err);
           demoFormMsg.textContent = 'No se pudo conectar con el servidor. Verifica la URL del backend o contacta soporte.';
           demoFormMsg.style.color = '#c0392b';
+          submitBtn.textContent = 'Enviar solicitud';
+          submitBtn.disabled = false;
         }
       });
+      
+      console.log('✅ Event listener del formulario configurado correctamente');
     });
     </script>
 

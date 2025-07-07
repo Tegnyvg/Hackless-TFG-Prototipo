@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .modal-demo { 
+            position: fixed; z-index: 9999; left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+        }
+        .modal-demo-content { 
+            background: white; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%; 
+        }
+        .demo-form input, .demo-form textarea { 
+            width: 100%; margin: 10px 0; padding: 10px; box-sizing: border-box; 
+        }
+        .btn-primary { 
+            background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; 
+        }
+        .demo-form-msg { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Modal Demo</h1>
+    <button id="openModalBtn" class="btn-primary">Abrir Modal de Demo</button>
+
+    <!-- Modal Solicitar Demo -->
+    <div id="demoModal" class="modal-demo" style="display:none;">
+        <div class="modal-demo-content">
+            <h2>Solicitar Demo</h2>
+            <form id="demoForm" class="demo-form">
+                <input type="text" id="demoNombre" name="nombre" placeholder="Nombre completo" required>
+                <input type="text" id="demoEmpresa" name="empresa" placeholder="Empresa" required>
+                <input type="email" id="demoEmail" name="email" placeholder="Email" required>
+                <input type="text" id="demoTelefono" name="telefono" placeholder="Teléfono">
+                <textarea id="demoMensaje" name="mensaje" rows="3" placeholder="Mensaje"></textarea>
+                <button type="submit" class="btn-primary">Enviar solicitud</button>
+                <div class="demo-form-msg"></div>
+            </form>
+            <button id="closeModalBtn" class="btn-primary" style="margin-top: 10px;">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Script de prueba iniciado');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM cargado');
+            
+            const demoModal = document.getElementById('demoModal');
+            const openModalBtn = document.getElementById('openModalBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const demoForm = document.getElementById('demoForm');
+            const demoFormMsg = document.querySelector('.demo-form-msg');
+            
+            console.log('📋 Elementos:', {
+                modal: !!demoModal,
+                openBtn: !!openModalBtn,
+                closeBtn: !!closeModalBtn,
+                form: !!demoForm,
+                msg: !!demoFormMsg
+            });
+            
+            // Abrir modal
+            openModalBtn.addEventListener('click', function() {
+                console.log('📂 Abriendo modal');
+                demoModal.style.display = 'flex';
+            });
+            
+            // Cerrar modal
+            closeModalBtn.addEventListener('click', function() {
+                console.log('📁 Cerrando modal');
+                demoModal.style.display = 'none';
+                demoForm.reset();
+                demoFormMsg.textContent = '';
+            });
+            
+            // Submit del formulario
+            demoForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('🚀 FORMULARIO ENVIADO!');
+                
+                const submitBtn = demoForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Enviando...';
+                
+                demoFormMsg.textContent = 'Enviando...';
+                demoFormMsg.style.color = '#333';
+                
+                const data = {
+                    nombre: demoForm.demoNombre.value,
+                    empresa: demoForm.demoEmpresa.value,
+                    email: demoForm.demoEmail.value,
+                    telefono: demoForm.demoTelefono.value,
+                    mensaje: demoForm.demoMensaje.value
+                };
+                
+                console.log('📊 Datos:', data);
+                
+                try {
+                    console.log('🌐 Enviando a /solicitar-demo...');
+                    const res = await fetch('/solicitar-demo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    console.log('📡 Respuesta:', res.status, res.statusText);
+                    
+                    const result = await res.json();
+                    console.log('📄 Resultado:', result);
+                    
+                    if (res.ok) {
+                        console.log('✅ Éxito!');
+                        demoFormMsg.textContent = '¡Solicitud enviada exitosamente!';
+                        demoFormMsg.style.color = 'green';
+                        demoForm.reset();
+                    } else {
+                        console.log('❌ Error del servidor');
+                        demoFormMsg.textContent = result.message || 'Error al enviar';
+                        demoFormMsg.style.color = 'red';
+                    }
+                    
+                } catch (err) {
+                    console.error('❌ Error de conexión:', err);
+                    demoFormMsg.textContent = 'Error de conexión';
+                    demoFormMsg.style.color = 'red';
+                }
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar solicitud';
+            });
+        });
+    </script>
+</body>
+</html>

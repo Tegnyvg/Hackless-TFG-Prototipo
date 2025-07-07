@@ -108,3 +108,8 @@ test-report.html
 # OS
 .DS_Store
 Thumbs.db
+
+# Archivos internos locales
+ARCHIVOS_INTERNOS_LOCAL/
+*.local
+temp_*

@@ -1,5 +1,0 @@
- Credenciales principales para la demo:
-Usuario	Email	Contraseña	Uso Recomendado
-Admin Demo	demo@hackless.com	DemoPass123!	Para demostraciones
-Admin Principal	admin@hackless.com	AdminPass123!	Usuario principal
-Super Admin	superadmin@hackless.com	SuperPass123!	Máximos privilegios
