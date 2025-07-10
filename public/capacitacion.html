@@ -2,104 +2,338 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Capacitación - Hackless</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎓 Capacitación - Hackless</title>
+  <link rel="stylesheet" href="css/dark-theme.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f2f4f7;
-      padding: 40px;
+      padding: 0;
     }
 
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* Header principal */
     .header {
-      text-align: center;
+      background: var(--bg-secondary);
+      padding: 15px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      border-bottom: 1px solid var(--border-color);
       margin-bottom: 30px;
     }
 
-    .header img {
-      height: 50px;
-      vertical-align: middle;
+    .logo-area {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-area img {
+      height: 35px;
       margin-right: 10px;
+      filter: brightness(1.2);
     }
 
-    .header .brand {
-      font-size: 22px;
+    .logo-area span {
+      font-size: 24px;
       font-weight: bold;
-      color: #2c3e50;
-      vertical-align: middle;
+      color: var(--text-primary);
     }
 
-    .header p {
-      color: #555;
-      margin-top: 10px;
+    .back-btn {
+      background: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Contenido principal */
+    .main-content {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 30px;
+    }
+
+    .welcome {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .welcome h1 {
+      color: var(--text-primary);
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .welcome p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     .course-container {
-      max-width: 700px;
-      margin: 0 auto;
-      background: white;
+      background: var(--bg-card);
+      border-radius: 16px;
       padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
     }
 
     .module {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: #f9fbfc;
+      padding: 20px;
+      margin-bottom: 15px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      transition: all 0.3s ease;
     }
 
-    .module span {
-      font-weight: bold;
-      color: #34495e;
+    .module:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    .module-info {
+      flex: 1;
+    }
+
+    .module-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .module-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
     }
 
     .complete-button {
-      padding: 6px 12px;
-      font-size: 13px;
-      background-color: #2ecc71;
+      padding: 10px 20px;
+      font-size: 14px;
+      background: var(--gradient-button);
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
 
     .complete-button:hover {
-      background-color: #27ae60;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
 
-    .footer {
-      margin-top: 30px;
-      text-align: center;
-      font-size: 12px;
-      color: #95a5a6;
+    .complete-button.completed {
+      background: var(--success);
+    }
+
+    .progress-section {
+      margin-bottom: 30px;
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--gradient-button);
+      transition: width 0.3s ease;
+    }
+
+    .progress-section h3 {
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .progress-section p {
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .header {
+        padding: 15px 20px;
+      }
+
+      .main-content {
+        padding: 0 20px;
+        margin: 20px auto;
+      }
+
+      .module {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .complete-button {
+        align-self: stretch;
+        text-align: center;
+      }
     }
   </style>
 </head>
 <body>
-<!-- Copilot: Página de gestión de capacitaciones para Hackless - Sistema de registro
-     y seguimiento de cursos formativos, certificaciones y desarrollo profesional del personal. -->
-
+  <!-- Header principal -->
   <div class="header">
-    <img src="images/logoescudo.png" alt="Hackless Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
-    <span class="brand">HACKLESS</span>
-    <p>Seguimiento de módulos formativos para el personal</p>
+    <div class="logo-area">
+      <img src="images/logoescudo.png" alt="Hackless Logo">
+      <span>HACKLESS</span>
+    </div>
+    <a href="escritorio.html" class="back-btn">🏠 Volver al Escritorio</a>
   </div>
 
-  <div class="course-container">
-    <div class="module">
-      <span>Módulo 1: Introducción a la ciberseguridad</span>
-      <button class="complete-button">Marcar como completo</button>
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <div class="welcome">
+      <h1>🎓 Sistema de Capacitación</h1>
+      <p>Gestión de programas formativos y desarrollo profesional del personal en ciberseguridad</p>
     </div>
-    <div class="module">
-      <span>Módulo 2: Buenas prácticas para PyMEs</span>
-      <button class="complete-button">Marcar como completo</button>
+
+    <!-- Sección de progreso -->
+    <div class="progress-section">
+      <h3>📊 Progreso General</h3>
+      <p>Completado: <span id="progressText">0 de 5 módulos</span></p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
     </div>
-    <div class="module">
-      <span>Módulo 3: Seguridad en el correo electrónico</span>
-      <button class="complete-button">Marcar como completo</button>
+
+    <!-- Módulos de capacitación -->
+    <div class="course-container">
+      <div class="module" data-module="1">
+        <div class="module-info">
+          <div class="module-title">🛡️ Módulo 1: Introducción a la Ciberseguridad</div>
+          <div class="module-description">Conceptos fundamentales, amenazas comunes y principios básicos de seguridad</div>
+        </div>
+        <button class="complete-button" onclick="toggleModule(1)">Marcar como completo</button>
+      </div>
+
+      <div class="module" data-module="2">
+        <div class="module-info">
+          <div class="module-title">🏢 Módulo 2: Buenas Prácticas para PyMEs</div>
+          <div class="module-description">Estrategias específicas de ciberseguridad para pequeñas y medianas empresas</div>
+        </div>
+        <button class="complete-button" onclick="toggleModule(2)">Marcar como completo</button>
+      </div>
+
+      <div class="module" data-module="3">
+        <div class="module-info">
+          <div class="module-title">📧 Módulo 3: Seguridad en el Correo Electrónico</div>
+          <div class="module-description">Identificación de phishing, malware y comunicaciones seguras</div>
+        </div>
+        <button class="complete-button" onclick="toggleModule(3)">Marcar como completo</button>
+      </div>
+
+      <div class="module" data-module="4">
+        <div class="module-info">
+          <div class="module-title">🔒 Módulo 4: Gestión de Contraseñas</div>
+          <div class="module-description">Creación de contraseñas seguras, gestores y autenticación de dos factores</div>
+        </div>
+        <button class="complete-button" onclick="toggleModule(4)">Marcar como completo</button>
+      </div>
+
+      <div class="module" data-module="5">
+        <div class="module-info">
+          <div class="module-title">🚨 Módulo 5: Respuesta a Incidentes</div>
+          <div class="module-description">Protocolos de actuación y procedimientos ante incidentes de seguridad</div>
+        </div>
+        <button class="complete-button" onclick="toggleModule(5)">Marcar como completo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Estado de los módulos completados
+    let completedModules = JSON.parse(localStorage.getItem('hackless_training_progress')) || [];
+
+    // Inicializar interfaz
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🎓 Sistema de Capacitación cargado');
+      loadProgress();
+      updateProgress();
+    });
+
+    // Cargar progreso guardado
+    function loadProgress() {
+      completedModules.forEach(moduleId => {
+        const moduleElement = document.querySelector(`[data-module="${moduleId}"]`);
+        if (moduleElement) {
+          const button = moduleElement.querySelector('.complete-button');
+          button.textContent = '✅ Completado';
+          button.classList.add('completed');
+        }
+      });
+    }
+
+    // Alternar estado del módulo
+    function toggleModule(moduleId) {
+      const moduleElement = document.querySelector(`[data-module="${moduleId}"]`);
+      const button = moduleElement.querySelector('.complete-button');
+      
+      if (completedModules.includes(moduleId)) {
+        // Marcar como no completado
+        completedModules = completedModules.filter(id => id !== moduleId);
+        button.textContent = 'Marcar como completo';
+        button.classList.remove('completed');
+      } else {
+        // Marcar como completado
+        completedModules.push(moduleId);
+        button.textContent = '✅ Completado';
+        button.classList.add('completed');
+      }
+      
+      localStorage.setItem('hackless_training_progress', JSON.stringify(completedModules));
+      updateProgress();
+    }
+
+    // Actualizar barra de progreso
+    function updateProgress() {
+      const totalModules = 5;
+      const completed = completedModules.length;
+      const percentage = (completed / totalModules) * 100;
+      
+      document.getElementById('progressText').textContent = `${completed} de ${totalModules} módulos`;
+      document.getElementById('progressFill').style.width = `${percentage}%`;
+    }
+  </script>
