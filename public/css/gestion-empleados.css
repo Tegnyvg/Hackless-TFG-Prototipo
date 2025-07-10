@@ -1,0 +1,277 @@
+/* ===== GESTIÓN EMPLEADOS - ESTILOS ESPECÍFICOS ===== */
+/* Solo estilos únicos que NO están en hackless-global.css */
+
+/* Configuración específica del body para esta página */
+body {
+    padding: var(--spacing-lg);
+}
+
+/* Contenedor principal específico */
+.main-container {
+    max-width: 1400px;
+}
+
+/* Header específico de la página */
+.header {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: var(--spacing-xl);
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.header p {
+    margin: var(--spacing-sm) 0 0;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Área de contenido específica */
+.content {
+    padding: var(--spacing-xl);
+}
+
+/* Tarjetas de acción específicas */
+.action-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    transition: all 0.3s ease;
+}
+
+.action-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--border-accent);
+}
+
+.action-card h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+/* Botones personalizados específicos */
+.btn-custom {
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    margin: var(--spacing-xs);
+}
+
+.btn-download {
+    background: var(--success-color);
+    color: var(--text-light);
+    border-color: var(--success-color);
+}
+
+.btn-download:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-template {
+    background: var(--gradient-button);
+    color: var(--text-dark);
+    border-color: var(--primary-color);
+}
+
+.btn-template:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-upload {
+    background: var(--warning-color);
+    color: var(--text-dark);
+    border-color: var(--warning-color);
+}
+
+.btn-upload:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+
+/* Grid de estadísticas específico */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-accent);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Área de carga específica */
+.upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    text-align: center;
+    background: var(--bg-secondary);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-tertiary);
+}
+
+.upload-area.dragover {
+    border-color: var(--success-color);
+    background: var(--bg-card);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Breadcrumb específico */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: var(--spacing-md);
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+/* Alerta personalizada */
+.alert-custom {
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+/* Tabla responsiva específica */
+.table-responsive {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.table th {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+.table td {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.table tr:hover td {
+    background: var(--bg-hover);
+}
+
+/* Controles de formulario específicos */
+.form-control, .form-select {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-control:focus, .form-select:focus {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+}
+
+/* Botón secundario específico */
+.btn-secondary {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-light);
+}
+
+/* Elementos ocultos */
+.file-input-hidden {
+    display: none;
+}
+
+/* Contenedor de alertas flotantes */
+.alerts-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+/* Badge personalizado */
+.badge-custom {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+}
+
+/* Footer específico */
+.footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+}

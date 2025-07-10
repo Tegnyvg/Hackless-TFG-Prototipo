@@ -4,66 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Documentos - Hackless</title>
-    <link rel="stylesheet" href="css/styles.css"> </head>
-<body onload="setTodayDate()">
-<!-- Copilot: Página de gestión de documentos para Hackless - Formulario de carga,
-     visualización de documentos existentes y administración completa del sistema documental. -->
-    <div class="container">
-        <h1>Gestión de Documentos del Personal</h1>
+    <link rel="stylesheet" href="css/hackless-global.css">
+    <link rel="stylesheet" href="css/documents.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-area" onclick="window.location.href='index.html'">
+            <img src="images/logoescudo.png" alt="Hackless Logo">
+            <span>HACKLESS</span>
+        </div>
+        <a href="escritorio.html" class="back-btn">🏠 Volver al Escritorio</a>
+    </div>
 
-        <section class="upload-section">
-            <h2>Cargar Nuevo Documento</h2>
+    <div class="container">
+        <h1 class="page-title">📋 Gestión de Documentos del Personal</h1>
+
+        <div class="section">
+            <h2 class="section-title">
+                📤 Cargar Nuevo Documento
+            </h2>
             <form id="documentUploadForm">
-                <div class="form-group">
-                    <label for="id_usuario">ID de Usuario Asociado:</label>
-                    <input type="number" id="id_usuario" name="id_usuario" value="1" required>
-                    <small>Usa el ID de un usuario existente (ej. 1 para el usuario registrado).</small>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="id_usuario">ID de Usuario Asociado <span class="required">*</span></label>
+                        <input type="number" id="id_usuario" name="id_usuario" value="1" required>
+                        <small>Usa el ID de un usuario existente (ej. 1 para el usuario registrado).</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo_documento">Tipo de Documento <span class="required">*</span></label>
+                        <select id="tipo_documento" name="tipo_documento" required>
+                            <option value="">-- Seleccione un tipo --</option>
+                            <option value="Certificado ART">Certificado ART</option>
+                            <option value="Examen Médico">Examen Médico</option>
+                            <option value="Constancia Capacitación">Constancia Capacitación</option>
+                            <option value="Contrato de Servicio">Contrato de Servicio</option>
+                            <option value="Póliza de Seguro">Póliza de Seguro</option>
+                            <option value="Constancia Gremial">Constancia Gremial</option>
+                            <option value="Permiso de Acceso Yacimiento">Permiso de Acceso Yacimiento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_emision">Fecha de Emisión</label>
+                        <input type="date" id="fecha_emision" name="fecha_emision">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_vencimiento">Fecha de Vencimiento</label>
+                        <input type="date" id="fecha_vencimiento" name="fecha_vencimiento">
+                    </div>
                 </div>
+                
                 <div class="form-group">
-                    <label for="tipo_documento">Tipo de Documento:</label>
-                    <select id="tipo_documento" name="tipo_documento" required>
-                        <option value="">-- Seleccione un tipo --</option>
-                        <option value="Certificado ART">Certificado ART</option>
-                        <option value="Examen Médico">Examen Médico</option>
-                        <option value="Constancia Capacitación">Constancia Capacitación</option>
-                        <option value="Contrato de Servicio">Contrato de Servicio</option>
-                        <option value="Póliza de Seguro">Póliza de Seguro</option>
-                        <option value="Constancia Gremial">Constancia Gremial</option>
-                        <option value="Permiso de Acceso Yacimiento">Permiso de Acceso Yacimiento</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_emision">Fecha de Emisión:</label>
-                    <input type="date" id="fecha_emision" name="fecha_emision">
-                </div>
-                <div class="form-group">
-                    <label for="fecha_vencimiento">Fecha de Vencimiento:</label>
-                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento">
-                </div>
-                <div class="form-group">
-                    <label>Seleccionar Archivo (PDF, DOCX, etc.):</label>
+                    <label>Seleccionar Archivo (PDF, DOCX, etc.) <span class="required">*</span></label>
                     <div class="file-input-wrapper">
                         <input type="file" id="archivoPdf" name="archivoPdf" accept=".pdf,.doc,.docx" required>
                         <label for="archivoPdf" class="custom-file-button">
-                            Adjuntar Documento
+                            📁 Adjuntar Documento
                             <span id="fileName"></span>
                         </label>
                     </div>
                     <small>Solo se permiten archivos PDF, DOC o DOCX.</small>
                 </div>
-                <button type="submit">Cargar Documento</button>
-                <p id="uploadMessage" class="message"></p>
+                
+                <button type="submit" class="submit-btn">📤 Cargar Documento</button>
+                <div id="uploadMessage" class="message hidden"></div>
             </form>
-        </section>
+        </div>
 
-        <section class="list-section">
-            <h2>Documentos Cargados</h2>
-            <button id="refreshDocuments">Actualizar Lista de Documentos</button>
+        <div class="section">
+            <h2 class="section-title">
+                📁 Documentos Cargados
+            </h2>
+            <button id="refreshDocuments" class="refresh-btn">🔄 Actualizar Lista de Documentos</button>
             <div id="documentsList" class="document-list">
-                <p>Cargando documentos...</p>
+                <p class="loading">Cargando documentos...</p>
             </div>
-        </section>
+        </div>
     </div>
 
-    <script src="js/script.js"></script> </body>
+    <script>
+        // Funciones utilitarias
+        function showMessage(message, type = 'success') {
+            const messageEl = document.getElementById('uploadMessage');
+            messageEl.textContent = message;
+            messageEl.className = `message ${type}`;
+            messageEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageEl.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Función para establecer fecha de hoy
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha_emision').value = today;
+        }
+
+        // Manejar selección de archivo
+        document.getElementById('archivoPdf').addEventListener('change', function(e) {
+            const fileNameSpan = document.getElementById('fileName');
+            const fileButton = document.querySelector('.custom-file-button');
+            
+            if (e.target.files.length > 0) {
+                const fileName = e.target.files[0].name;
+                fileNameSpan.textContent = ` - ${fileName}`;
+                fileButton.classList.add('has-file');
+            } else {
+                fileNameSpan.textContent = '';
+                fileButton.classList.remove('has-file');
+            }
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('documentUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const submitBtn = e.target.querySelector('.submit-btn');
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '📤 Cargando...';
+                
+                const response = await fetch('/api/documents', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('✅ Documento cargado exitosamente', 'success');
+                    e.target.reset();
+                    document.getElementById('fileName').textContent = '';
+                    document.querySelector('.custom-file-button').classList.remove('has-file');
+                    setTodayDate();
+                    refreshDocuments();
+                } else {
+                    showMessage(`❌ Error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`❌ Error de conexión: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Cargar Documento';
+            }
+        });
+
+        // Función para actualizar lista de documentos
+        async function refreshDocuments() {
+            const docsList = document.getElementById('documentsList');
+            docsList.innerHTML = '<p class="loading">Cargando documentos...</p>';
+            
+            try {
+                const response = await fetch('/api/documents');
+                const documents = await response.json();
+                
+                if (documents.length === 0) {
+                    docsList.innerHTML = '<p class="loading">No hay documentos cargados</p>';
+                    return;
+                }
+                
+                docsList.innerHTML = documents.map(doc => {
+                    const emissionDate = doc.fecha_emision ? new Date(doc.fecha_emision).toLocaleDateString() : 'N/A';
+                    const expirationDate = doc.fecha_vencimiento ? new Date(doc.fecha_vencimiento).toLocaleDateString() : 'N/A';
+                    
+                    // Determinar estado de vencimiento
+                    let expirationClass = '';
+                    if (doc.fecha_vencimiento) {
+                        const today = new Date();
+                        const expDate = new Date(doc.fecha_vencimiento);
+                        const daysUntilExpiration = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysUntilExpiration < 0) {
+                            expirationClass = 'expired';
+                        } else if (daysUntilExpiration <= 30) {
+                            expirationClass = 'expiring';
+                        }
+                    }
+                    
+                    return `
+                        <div class="document-card">
+                            <div class="document-type">${doc.tipo_documento}</div>
+                            <div class="document-info">Usuario ID: ${doc.id_usuario}</div>
+                            <div class="document-dates">
+                                <span class="date-badge">📅 Emisión: ${emissionDate}</span>
+                                <span class="date-badge ${expirationClass}">⏰ Vence: ${expirationDate}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                docsList.innerHTML = '<p class="loading">Error al cargar documentos</p>';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('refreshDocuments').addEventListener('click', refreshDocuments);
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            setTodayDate();
+            refreshDocuments();
+        });
+    </script>
+</body>
 </html>

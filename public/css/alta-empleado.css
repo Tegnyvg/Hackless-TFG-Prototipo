@@ -1,0 +1,237 @@
+/* ===== ALTA EMPLEADO - ESTILOS ESPECÍFICOS ===== */
+/* Solo estilos únicos que NO están en hackless-global.css */
+/* Adaptado al tema oscuro profesional */
+
+/* Configuración específica del body */
+body {
+    background: var(--gradient-main);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Contenedor principal del formulario */
+.form-container {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    box-shadow: var(--shadow-xl);
+    margin: 2rem auto;
+    max-width: 800px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* Header específico del formulario */
+.form-header {
+    background: var(--gradient-button);
+    color: var(--text-light);
+    padding: 2rem;
+    text-align: center;
+}
+
+.form-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+/* Contenido del formulario */
+.form-content {
+    padding: 2rem;
+    background: var(--bg-secondary);
+}
+
+/* Estilos específicos para form-floating */
+.form-floating label {
+    color: var(--text-secondary);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: var(--primary-color);
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+    background: var(--bg-tertiary);
+}
+
+.form-floating > .form-control,
+.form-floating > .form-select {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-floating > .form-control::placeholder,
+.form-floating > .form-select::placeholder {
+    color: var(--text-muted);
+}
+
+/* Botones específicos del formulario */
+.btn-primary {
+    background: var(--gradient-button);
+    border-color: var(--primary-color);
+    border-radius: 10px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+    border-radius: 10px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-light);
+    color: var(--text-primary);
+}
+
+/* Elementos requeridos */
+.required {
+    color: var(--danger-color);
+}
+
+/* Tarjetas específicas */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    background: var(--bg-card);
+}
+
+.card-header {
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.card-body {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+/* Breadcrumb específico */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-secondary);
+}
+
+/* Alertas personalizadas */
+.alert {
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+/* Contenedor de alertas */
+.alerts-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 400px;
+}
+
+/* Texto de ayuda */
+.form-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Indicador de fuerza de contraseña */
+.password-strength {
+    height: 5px;
+    background: var(--bg-tertiary);
+    border-radius: 5px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+}
+
+.password-strength-bar.weak {
+    background: var(--danger-color);
+    width: 25%;
+}
+
+.password-strength-bar.medium {
+    background: var(--warning-color);
+    width: 50%;
+}
+
+.password-strength-bar.strong {
+    background: var(--success-color);
+    width: 75%;
+}
+
+.password-strength-bar.very-strong {
+    background: var(--primary-color);
+    width: 100%;
+}
+
+/* Vista previa de avatar */
+.avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--gradient-button);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+    border: 2px solid var(--border-color);
+}

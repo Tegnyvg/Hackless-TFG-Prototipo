@@ -2,166 +2,200 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Escritorio Hacklees</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      background-color: #f8f9fa;
-    }
-
-    header {
-      background-color: #ffffff;
-      padding: 15px 30px;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-    }
-
-    header h1 {
-      font-size: 22px;
-      color: #2c3e50;
-      margin: 0;
-    }
-
-    .sidebar {
-      width: 200px;
-      background-color: #ffffff;
-      height: 100vh;
-      padding: 20px;
-      border-right: 1px solid #ddd;
-      position: fixed;
-      top: 60px;
-    }
-
-    .sidebar .user-info {
-      margin-bottom: 30px;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-
-    .main-content {
-      margin-left: 220px;
-      padding: 40px;
-    }
-
-    .welcome {
-      margin-bottom: 30px;
-    }
-
-    .cards {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .card {
-      width: 220px;
-      background-color: #e8f0fe;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      transition: all 0.3s ease;
-    }
-
-    .card:hover {
-      background-color: #d0e2fd;
-    }
-
-    .card-icon {
-      font-size: 36px;
-      margin-bottom: 10px;
-      color: #2c80b4;
-    }
-
-    .card-title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .card-description {
-      font-size: 14px;
-      color: #555;
-    }
-
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control - Hackless</title>
+  <link rel="stylesheet" href="css/hackless-global.css">
+  <link rel="stylesheet" href="css/escritorio.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-<!-- Copilot: Página principal del escritorio de usuario para Hackless - Panel de control 
-     con navegación sidebar, tarjetas de acceso rápido y funciones principales del sistema. -->
-
-  <header>
-    <img src="images/logoescudo.png" alt="Hackless Logo" style="height: 40px; vertical-align: middle; margin-right: 10px; cursor: pointer;" onclick="window.location.href='index.html'">
-<span style="font-size: 22px; font-weight: bold; color: #2c3e50; cursor: pointer;" onclick="window.location.href='index.html'">HACKLESS</span>
-  </header>
-
-  <aside class="sidebar">
-    <div class="user-info">Hola,<br>Analista Seguridad</div>
-    <nav>
-      <ul style="list-style: none; padding-left: 0;">
-        <li><strong>🔐 Tralarero</strong></li>
-      </ul>
-    </nav>
-  </aside>
-
-  <div class="main-content">
-    <div class="welcome">
-      <h2>Escritorio de Seguridad Hacklees</h2>
-      <p>Desde aquí puedes acceder a las funciones principales del sistema.</p>
-    </div>
-
-    <div class="cards">
-      <a href="documents.html" class="card-link" style="text-decoration: none; color: inherit;">
-        <div class="card">
-          <div class="card-icon">📄</div>
-          <div class="card-title">Documentos</div>
-          <div class="card-description">Gestionar documentación del personal</div>
-        </div>
-      </a>
-
-      <a href="nomina.html" class="card-link" style="text-decoration: none; color: inherit;">
-        <div class="card">
-          <div class="card-icon">👥</div>
-          <div class="card-title">Nómina de Empleados</div>
-          <div class="card-description">Ver y gestionar el personal y su documentación</div>
-        </div>
-      </a>
-
-      <a href="cargar-empleados.html" class="card-link" style="text-decoration: none; color: inherit;">
-        <div class="card">
-          <div class="card-icon">📤</div>
-          <div class="card-title">Cargar Empleados</div>
-          <div class="card-description">Importar empleados masivamente desde Excel</div>
-        </div>
-      </a>
-
-      <div class="card">
-        <div class="card-icon">📝</div>
-        <div class="card-title">Auditorías</div>
-        <div class="card-description">Administrar auditorías internas</div>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <div class="header-brand">
+        <img src="images/logoescudo.png" alt="Hackless Logo" class="header-logo" onclick="window.location.href='index.html'">
+        <span class="header-title" onclick="window.location.href='index.html'">HACKLESS</span>
       </div>
-
-      <div class="card">
-        <div class="card-icon">⚠️</div>
-        <div class="card-title">Hallazgos</div>
-        <div class="card-description">Ver y gestionar hallazgos</div>
-      </div>
-
-      <a href="capacitacion.html" class="card-link" style="text-decoration: none; color: inherit;">
-        <div class="card">
-          <div class="card-icon">🎓</div>
-          <div class="card-title">Capacitación</div>
-          <div class="card-description">Acceder a recursos formativos</div>
+      <div class="header-actions">
+        <div class="user-info">
+          <i class="fas fa-user-circle"></i>
+          <span id="userName">Cargando...</span>
         </div>
-      </a>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          Cerrar Sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <aside class="sidebar">
+        <div class="sidebar-title">Navegación</div>
+        <nav>
+          <ul class="nav-menu">
+            <li class="nav-item">
+              <a href="#" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>Escritorio</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="gestion-empleados.html" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Gestión Empleados</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="alta-empleado.html" class="nav-link">
+                <i class="fas fa-user-plus"></i>
+                <span>Alta Empleado</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="nomina.html" class="nav-link">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Nómina</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="documents.html" class="nav-link">
+                <i class="fas fa-file-alt"></i>
+                <span>Documentos</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="capacitacion.html" class="nav-link">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Capacitación</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="hallazgos.html" class="nav-link">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Hallazgos</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="content-area">
+        <div class="content-header">
+          <h1 class="content-title">Panel de Control</h1>
+          <p class="content-subtitle">Bienvenido al sistema de gestión Hackless</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="card-header">
+              <i class="fas fa-users card-icon"></i>
+              <h3 class="card-title">Gestión de Empleados</h3>
+            </div>
+            <div class="card-content">
+              <p>Administra la información de empleados, carga masiva de datos y gestiona documentación personal.</p>
+            </div>
+            <div class="card-actions">
+              <a href="gestion-empleados.html" class="btn btn-primary">
+                <i class="fas fa-users"></i> Gestionar Empleados
+              </a>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <i class="fas fa-user-plus card-icon"></i>
+              <h3 class="card-title">Alta de Empleado</h3>
+            </div>
+            <div class="card-content">
+              <p>Registra nuevos empleados con formulario completo y validación de datos.</p>
+            </div>
+            <div class="card-actions">
+              <a href="alta-empleado.html" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Dar de Alta
+              </a>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <i class="fas fa-money-bill-wave card-icon"></i>
+              <h3 class="card-title">Gestión de Nómina</h3>
+            </div>
+            <div class="card-content">
+              <p>Administra sueldos, bonificaciones y genera reportes de nómina.</p>
+            </div>
+            <div class="card-actions">
+              <a href="nomina.html" class="btn btn-primary">
+                <i class="fas fa-money-bill-wave"></i> Ver Nómina
+              </a>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <i class="fas fa-file-alt card-icon"></i>
+              <h3 class="card-title">Documentos</h3>
+            </div>
+            <div class="card-content">
+              <p>Gestiona documentos, certificados y archivos importantes del sistema.</p>
+            </div>
+            <div class="card-actions">
+              <a href="documents.html" class="btn btn-primary">
+                <i class="fas fa-file-alt"></i> Ver Documentos
+              </a>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <i class="fas fa-graduation-cap card-icon"></i>
+              <h3 class="card-title">Capacitación</h3>
+            </div>
+            <div class="card-content">
+              <p>Programa y gestiona cursos de capacitación para el personal.</p>
+            </div>
+            <div class="card-actions">
+              <a href="capacitacion.html" class="btn btn-primary">
+                <i class="fas fa-graduation-cap"></i> Ver Capacitación
+              </a>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <i class="fas fa-exclamation-triangle card-icon"></i>
+              <h3 class="card-title">Hallazgos</h3>
+            </div>
+            <div class="card-content">
+              <p>Revisa y gestiona hallazgos de seguridad y cumplimiento normativo.</p>
+            </div>
+            <div class="card-actions">
+              <a href="hallazgos.html" class="btn btn-primary">
+                <i class="fas fa-exclamation-triangle"></i> Ver Hallazgos
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 
+  <script>
+    // Cargar información del usuario
+    document.addEventListener('DOMContentLoaded', function() {
+      const userName = localStorage.getItem('userName');
+      if (userName) {
+        document.getElementById('userName').textContent = userName;
+      }
+    });
+
+    // Función de logout
+    function logout() {
+      if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userRole');
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
 </body>
 </html>
