@@ -1,15 +1,51 @@
 {
   "name": "hackless-backend",
   "version": "1.0.0",
+  "description": "Sistema integral de gestión documental para empresas - Trabajo Final de Grado",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js",
-    "test": "jest"
+    "dev": "nodemon app.js",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest --testNamePattern='Integration'",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "validate": "npm run lint && npm run format:check && npm test",
+    "prepare": "npm run validate"
   },
-  "keywords": [],
-  "author": "Verónica García",
-  "license": "ISC",
+  "keywords": [
+    "document-management",
+    "employee-management",
+    "audit-system",
+    "node.js",
+    "express",
+    "mongodb",
+    "web-application",
+    "tfg",
+    "academic-project"
+  ],
+  "author": {
+    "name": "Verónica García",
+    "email": "contacto@example.com",
+    "url": "https://github.com/Tegnyvg"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tegnyvg/Hackless-TFG-Prototipo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tegnyvg/Hackless-TFG-Prototipo/issues"
+  },
+  "homepage": "https://github.com/Tegnyvg/Hackless-TFG-Prototipo#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
@@ -26,21 +62,52 @@
     "speakeasy": "^2.0.0",
     "xlsx": "^0.18.5"
   },
-  "description": "",
   "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "nodemon": "^3.0.3",
+    "jest": "^29.7.0",
     "jest-html-reporter": "^4.3.0",
     "supertest": "^7.1.1"
   },
   "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!node_modules/**",
+      "!coverage/**",
+      "!public/**",
+      "!uploads/**",
+      "!*.config.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
     "reporters": [
       "default",
       [
         "jest-html-reporter",
         {
           "pageTitle": "Informe de Pruebas Hackless",
-          "outputPath": "test-report.html"
+          "outputPath": "test-report.html",
+          "includeFailureMsg": true,
+          "includeSuiteFailure": true
         }
       ]
     ]
+  },
+  "academic": {
+    "project": "Trabajo Final de Grado",
+    "code": "VINF01264",
+    "year": "2025",
+    "subject": "Tecnicatura en Informática",
+    "type": "Sistema de Gestión Documental"
   }
 }
