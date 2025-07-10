@@ -1,4 +1,4 @@
-# Hackless - Sistema de Gestión Documental y Ciberseguridad
+# Hackless: Solución Digital para el Control de Documentación y Ciberseguridad
 
 [![Deploy](https://img.shields.io/badge/Deploy-GitHub%20Pages-blue)](https://github.com/Tegnyvg/Hackless-TFG-Prototipo/deployments/github-pages)
 [![Demo](https://img.shields.io/badge/Demo-Railway-green)](https://hackless-backend-production.up.railway.app)
