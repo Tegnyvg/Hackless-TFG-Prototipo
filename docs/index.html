@@ -328,7 +328,7 @@
                 </div>
                 <div>
                     <strong>📧 Contacto:</strong><br>
-                    vgarciagonzalez@estudiantes.ues21.edu.ar
+                    veronicaandrea.garcia@gmail.com
                 </div>
             </div>
         </div>
@@ -339,5 +339,38 @@
             <p>Desarrollado para PyMEs del sector hidrocarburífero argentino</p>
         </div>
     </div>
+    <button id="darkModeToggle" style="position:fixed;bottom:30px;right:30px;padding:10px 20px;border:none;border-radius:8px;background:#333;color:#fff;z-index:999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);font-size:1rem;">🌙 Modo Oscuro</button>
+    <script>
+        const toggleBtn = document.getElementById('darkModeToggle');
+        let darkMode = false;
+        toggleBtn.onclick = function() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                document.body.style.background = '#181a20';
+                document.body.style.color = '#e0e0e0';
+                document.querySelectorAll('.card, .demo-card, .feature, .credentials').forEach(e => {
+                    e.style.background = '#23272f';
+                    e.style.color = '#e0e0e0';
+                });
+                document.querySelectorAll('.tech-badge').forEach(e => {
+                    e.style.background = '#333';
+                    e.style.color = '#fff';
+                });
+                toggleBtn.textContent = '☀️ Modo Claro';
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.body.style.color = '#333';
+                document.querySelectorAll('.card, .demo-card, .feature, .credentials').forEach(e => {
+                    e.style.background = 'white';
+                    e.style.color = '#333';
+                });
+                document.querySelectorAll('.tech-badge').forEach(e => {
+                    e.style.background = '#667eea';
+                    e.style.color = 'white';
+                });
+                toggleBtn.textContent = '🌙 Modo Oscuro';
+            }
+        };
+    </script>
 </body>
 </html>
