@@ -731,19 +731,19 @@ La experiencia de desarrollar **Hackless** ha sido transformadora, consolidando 
 - **Email Principal:** veronicaandrea.garcia@gmail.com
 - **LinkedIn:** [verónicaandreagarcía](https://linkedin.com/in/verónicaandreagarcía)
 - **GitHub:** [@Tegnyvg](https://github.com/Tegnyvg)
-- **Portfolio:** [tu-portfolio.com](https://tu-portfolio.com)
+- **Portfolio:** [hackless-portfolio.com](https://hackless-portfolio.com)
 
 ### 🏢 **Soporte Comercial**
 Para consultas sobre implementación empresarial o servicios de desarrollo:
-- **Email Comercial:** info@hackless.com
+- **Email Comercial:** veronicaandrea.garcia@gmail.com
 - **Teléfono:** +54 9 11 XXXX-XXXX
 - **WhatsApp Business:** [Link directo](https://wa.me/549XXXXXXXXX)
 
 ### 🤝 **Colaboraciones Académicas**
 ¿Eres estudiante o docente interesado en colaborar? ¡Contáctanos!
-- **Proyectos de Investigación:** research@hackless.com
-- **Prácticas Profesionales:** practicas@hackless.com
-- **Mentorías en Desarrollo:** mentoring@hackless.com
+- **Proyectos de Investigación:** veronicaandrea.garcia@gmail.com
+- **Prácticas Profesionales:** veronicaandrea.garcia@gmail.com
+- **Mentorías en Desarrollo:** veronicaandrea.garcia@gmail.com
 
 ---
 
@@ -764,6 +764,9 @@ Copyright (c) 2024-2025 Verónica García
 Trabajo Final de Grado - Licenciatura en Informática
 Universidad Siglo 21
 
+Director: Prof. Jorge Humberto Cassi
+Tutor: Prof. Pablo Alejandro Virgolini
+
 Todos los derechos reservados. Este software fue desarrollado como parte
 de los requisitos académicos para la obtención del título de Licenciado
 en Informática.
@@ -771,9 +774,10 @@ en Informática.
 
 ### 🎯 **Cita Académica Sugerida**
 ```
-[Garcia, V.] (2024). Hackless: Solución Digital para el Control de 
+García, V. (2024). Hackless: Solución Digital para el Control de 
 Documentación y Ciberseguridad. Trabajo Final de Grado, Licenciatura 
-en Informática, Universidad Siglo 21. Recuperado de: 
+en Informática, Universidad Siglo 21. Director: Prof. Jorge Humberto Cassi. 
+Tutor: Prof. Pablo Alejandro Virgolini. Recuperado de: 
 https://github.com/Tegnyvg/Hackless-TFG-Prototipo
 ```
 
@@ -787,8 +791,8 @@ https://github.com/Tegnyvg/Hackless-TFG-Prototipo
 - **Laboratorio de Informática** por el acceso a recursos tecnológicos
 
 ### 👥 **Agradecimientos Personales**
-- **Director de TFG:** [Nombre del Director] - Por la guía y supervisión académica
-- **Tutor Académico:** [Nombre del Tutor] - Por el apoyo metodológico
+- **Director de TFG:** Prof. Jorge Humberto Cassi - Por la guía y supervisión académica
+- **Tutor Académico:** Prof. Pablo Alejandro Virgolini - Por el apoyo metodológico
 - **Empresas Colaboradoras:** Por proporcionar casos de estudio reales
 - **Compañeros de Carrera:** Por el feedback y las pruebas de usuario
 
