@@ -29,6 +29,10 @@ pids
 *.seed
 *.pid.lock
 
+# Archivos internos y temporales
+ARCHIVOS_INTERNOS_LOCAL/
+interfaces_capturas/
+
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov
