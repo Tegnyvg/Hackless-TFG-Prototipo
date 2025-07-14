@@ -17,32 +17,44 @@ async function seedAdmins() {
             {
                 nombre: 'Admin Principal',
                 correo_electronico: 'admin@hackless.com',
-                contraseña_simple: 'AdminPass123!',
-                rol: 'admin'
+                contraseña_simple: 'AdminPass2025!',
+                rol: 'administrador',
+                id_usuario: '10000001'
             },
             {
                 nombre: 'Admin Demo',
                 correo_electronico: 'demo@hackless.com',
-                contraseña_simple: 'DemoPass123!',
-                rol: 'admin'
+                contraseña_simple: 'DemoPass2025!',
+                rol: 'administrador',
+                id_usuario: '10000002'
             },
             {
                 nombre: 'Super Administrador',
                 correo_electronico: 'superadmin@hackless.com',
-                contraseña_simple: 'SuperPass123!',
-                rol: 'admin'
+                contraseña_simple: 'SuperPass2025!',
+                rol: 'administrador',
+                id_usuario: '10000003'
             },
             {
                 nombre: 'Admin Seguridad',
                 correo_electronico: 'security@hackless.com',
-                contraseña_simple: 'SecurePass123!',
-                rol: 'admin'
+                contraseña_simple: 'SecurePass2025!',
+                rol: 'administrador',
+                id_usuario: '10000004'
             },
             {
                 nombre: 'Administrador Sistemas',
                 correo_electronico: 'sistemas@hackless.com',
-                contraseña_simple: 'SisPass123!',
-                rol: 'admin'
+                contraseña_simple: 'SisPass2025!',
+                rol: 'administrador',
+                id_usuario: '10000005'
+            },
+            {
+                nombre: 'Vero Hack',
+                correo_electronico: 'vero@hack.com',
+                contraseña_simple: 'VeroHack2025!',
+                rol: 'administrador',
+                id_usuario: '10000006'
             }
         ];
 
@@ -62,7 +74,8 @@ async function seedAdmins() {
                 nombre: userData.nombre,
                 correo_electronico: userData.correo_electronico,
                 contraseña: hashedPassword,
-                rol: userData.rol
+                rol: userData.rol,
+                id_usuario: userData.id_usuario
             });
             
             console.log(`✅ Admin insertado: ${userData.nombre} (${userData.correo_electronico})`);
@@ -75,7 +88,7 @@ async function seedAdmins() {
             console.log('\n📝 Credenciales para la demo:');
             console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             adminUsers.forEach(admin => {
-                console.log(`👤 ${admin.nombre}`);
+                console.log(`👤 ${admin.nombre} (DNI: ${admin.id_usuario})`);
                 console.log(`   📧 Email: ${admin.correo_electronico}`);
                 console.log(`   🔐 Pass:  ${admin.contraseña_simple}`);
                 console.log('');

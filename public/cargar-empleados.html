@@ -541,7 +541,18 @@
                     <div style="margin-top: 15px;">
                         <strong>📋 Detalles de errores:</strong>
                         <div class="error-list">
-                            ${result.detalleErrores.map(error => `<div class="error-item">⚠️ ${error}</div>`).join('')}
+                            ${result.detalleErrores.map(error => {
+                                let highlight = '';
+                                if (error.includes('DNI duplicado')) highlight = 'background: #ffe5e5; color: #c0392b;';
+                                if (error.includes('Email duplicado')) highlight = 'background: #fff3cd; color: #b8860b;';
+                                if (error.includes('formato')) highlight = 'background: #e5f7ff; color: #2980b9;';
+                                return `<div class="error-item" style="${highlight}">⚠️ ${error}</div>`;
+                            }).join('')}
+                        </div>
+                        <div style="margin-top:10px;">
+                            <span style="background:#ffe5e5;color:#c0392b;padding:3px 8px;border-radius:4px;">DNI duplicado</span>
+                            <span style="background:#fff3cd;color:#b8860b;padding:3px 8px;border-radius:4px;margin-left:8px;">Email duplicado</span>
+                            <span style="background:#e5f7ff;color:#2980b9;padding:3px 8px;border-radius:4px;margin-left:8px;">Error de formato</span>
                         </div>
                     </div>
                 `;

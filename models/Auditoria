@@ -11,21 +11,131 @@ const Auditoria = sequelize.define('Auditoria', {
     autoIncrement: true,
     allowNull: false
   },
-  fecha: {
-    type: DataTypes.DATEONLY, // Fecha de la auditoría
+  // Campos de planificación
+  tipo_auditoria: {
+    type: DataTypes.ENUM('iso_27001', 'hse', 'calidad', 'compliance', 'operacional', 'financiera'),
     allowNull: false
   },
-  responsable: { // Quién realizó la auditoría o es responsable de ella
+  fecha_programada: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  auditor_responsable: {
     type: DataTypes.STRING(100),
     allowNull: false
   },
-  observaciones: {
-    type: DataTypes.TEXT, // Campo para observaciones o comentarios extensos
+  area_auditada: {
+    type: DataTypes.ENUM('operaciones', 'seguridad', 'rrhh', 'ti', 'calidad', 'finanzas', 'ingenieria', 'legal'),
+    allowNull: false
+  },
+  alcance: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  objetivos: {
+    type: DataTypes.TEXT,
     allowNull: true
+  },
+  estado_auditoria: {
+    type: DataTypes.ENUM('planificada', 'en_progreso', 'completada', 'cancelada'),
+    allowNull: false,
+    defaultValue: 'planificada'
+  },
+  prioridad: {
+    type: DataTypes.ENUM('baja', 'media', 'alta', 'critica'),
+    allowNull: false,
+    defaultValue: 'media'
+  },
+  
+  // Campos de ejecución
+  fecha_real: {
+    type: DataTypes.DATEONLY,
+    allowNull: true
+  },
+  duracion: {
+    type: DataTypes.DECIMAL(4, 2), // Para almacenar horas con decimales (ej: 4.5)
+    allowNull: true
+  },
+  metodologia: {
+    type: DataTypes.ENUM('checklist', 'entrevistas', 'observacion', 'revision_documentos', 'muestreo', 'mixta'),
+    allowNull: true
+  },
+  hallazgos_encontrados: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  recomendaciones: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  resultado_general: {
+    type: DataTypes.ENUM('satisfactorio', 'satisfactorio_observaciones', 'no_conforme_menor', 'no_conforme_mayor', 'no_satisfactorio'),
+    allowNull: true
+  },
+  puntuacion: {
+    type: DataTypes.INTEGER, // Puntuación de 0 a 100
+    allowNull: true,
+    validate: {
+      min: 0,
+      max: 100
+    }
+  },
+  
+  // Campos de control
+  fecha_creacion: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  fecha_completada: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  usuario_creador: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'usuarios',
+      key: 'id'
+    }
+  },
+  
+  // Campos legacy para compatibilidad
+  fecha: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.fecha_programada || this.fecha_real;
+    }
+  },
+  responsable: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.auditor_responsable;
+    }
+  },
+  observaciones: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.hallazgos_encontrados;
+    }
   }
 }, {
   tableName: 'auditorias',
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    {
+      fields: ['estado_auditoria']
+    },
+    {
+      fields: ['tipo_auditoria']
+    },
+    {
+      fields: ['fecha_programada']
+    },
+    {
+      fields: ['area_auditada']
+    }
+  ]
 });
 
 module.exports = Auditoria;

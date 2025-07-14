@@ -13,45 +13,24 @@ const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.DATABASE_URL;
 let sequelize;
 
 if (isRailway || process.env.DATABASE_URL) {
-  // Configuración para Railway (PostgreSQL)
-  console.log('🚀 Configurando base de datos PostgreSQL para Railway...');
-  sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: process.env.NODE_ENV === 'production' ? {
-        require: true,
-        rejectUnauthorized: false
-      } : false
-    },
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
-    pool: {
-      max: 10,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
-  });
+  // ...existing code...
 } else {
   // Configuración para desarrollo local (MySQL)
-  console.log('🛠️ Configurando base de datos MySQL para desarrollo local...');
+  console.log('�️ Configurando base de datos MySQL para desarrollo local...');
   sequelize = new Sequelize(
-    process.env.DB_NAME,      // Nombre de la base de datos (hackless_db)
-    process.env.DB_USER,      // Usuario de la base de datos (root)
-    process.env.DB_PASSWORD,  // Contraseña del usuario de la base de datos
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
     {
-      host: process.env.DB_HOST, // Host de la base de datos (localhost)
-      port: process.env.DB_PORT || 3306, // Puerto de MySQL, por defecto 3306
-      dialect: 'mysql', // Especifica el dialecto de la base de datos a usar
-      logging: false, // Desactiva los logs SQL en la consola para un output más limpio
-      dialectOptions: {
-        charset: 'utf8mb4',
-      },
-      // Opciones adicionales para el pool de conexiones
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 3306,
+      dialect: 'mysql',
+      logging: false,
       pool: {
-        max: 10,  // Número máximo de conexiones en el pool
-        min: 0,   // Número mínimo de conexiones en el pool
-        acquire: 30000, // Tiempo máximo, en ms, que el pool intentará obtener una conexión antes de lanzar un error
-        idle: 10000 // Tiempo máximo, en ms, que una conexión puede estar inactiva antes de ser liberada
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
       }
     }
   );

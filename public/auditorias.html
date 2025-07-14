@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditorías Internas - Hackless</title>
+    <link rel="stylesheet" href="css/hackless-global.css">
+    <link rel="stylesheet" href="css/auditorias.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area" onclick="window.location.href='index.html'">
+            <img src="images/logoescudo.png" alt="Hackless Logo">
+            <span>HACKLESS</span>
+        </div>
+        <a href="escritorio.html" class="back-btn">🏠 Volver al Escritorio</a>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">🔍 Sistema de Auditorías Internas</h1>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('planificar')">📅 Planificar Auditoría</button>
+                <button class="tab-button" onclick="showTab('ejecutar')">⚡ Ejecutar Auditoría</button>
+                <button class="tab-button" onclick="showTab('lista')">📋 Ver Auditorías</button>
+                <button class="tab-button" onclick="showTab('reportes')">📊 Reportes</button>
+            </div>
+        </div>
+
+        <!-- TAB: PLANIFICAR AUDITORÍA -->
+        <div id="tab-planificar" class="tab-content active">
+            <div class="section">
+                <h2 class="section-title">
+                    📅 Planificar Nueva Auditoría
+                </h2>
+                <form id="auditoriaPlanForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="tipo_auditoria">Tipo de Auditoría <span class="required">*</span></label>
+                            <select id="tipo_auditoria" name="tipo_auditoria" required>
+                                <option value="">-- Seleccione tipo --</option>
+                                <option value="iso_27001">ISO 27001 - Seguridad de la Información</option>
+                                <option value="hse">HSE - Salud, Seguridad y Ambiente</option>
+                                <option value="calidad">Calidad - ISO 9001</option>
+                                <option value="compliance">Compliance Regulatorio</option>
+                                <option value="operacional">Auditoría Operacional</option>
+                                <option value="financiera">Auditoría Financiera</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fecha_programada">Fecha Programada <span class="required">*</span></label>
+                            <input type="date" id="fecha_programada" name="fecha_programada" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="auditor_responsable">Auditor Responsable <span class="required">*</span></label>
+                            <select id="auditor_responsable" name="auditor_responsable" required>
+                                <option value="">-- Seleccione auditor --</option>
+                                <option value="interno">Auditor Interno</option>
+                                <option value="externo">Auditor Externo</option>
+                                <option value="equipo">Equipo de Auditoría</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="area_auditada">Área a Auditar <span class="required">*</span></label>
+                            <select id="area_auditada" name="area_auditada" required>
+                                <option value="">-- Seleccione área --</option>
+                                <option value="operaciones">Operaciones</option>
+                                <option value="seguridad">Seguridad e Higiene</option>
+                                <option value="rrhh">Recursos Humanos</option>
+                                <option value="ti">Tecnología de la Información</option>
+                                <option value="calidad">Gestión de Calidad</option>
+                                <option value="finanzas">Finanzas</option>
+                                <option value="ingenieria">Ingeniería</option>
+                                <option value="legal">Legal y Compliance</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="alcance">Alcance de la Auditoría <span class="required">*</span></label>
+                            <textarea id="alcance" name="alcance" required 
+                                      placeholder="Defina claramente el alcance, los procesos, sistemas o áreas específicas que serán evaluadas en esta auditoría."></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="objetivos">Objetivos de la Auditoría</label>
+                            <textarea id="objetivos" name="objetivos" 
+                                      placeholder="Especifique los objetivos específicos que se buscan lograr con esta auditoría."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="estado_auditoria">Estado <span class="required">*</span></label>
+                            <select id="estado_auditoria" name="estado_auditoria" required>
+                                <option value="planificada">📅 Planificada</option>
+                                <option value="en_progreso">⚡ En Progreso</option>
+                                <option value="completada">✅ Completada</option>
+                                <option value="cancelada">❌ Cancelada</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="prioridad">Prioridad <span class="required">*</span></label>
+                            <select id="prioridad" name="prioridad" required>
+                                <option value="baja">🟢 Baja</option>
+                                <option value="media">🟡 Media</option>
+                                <option value="alta">🔴 Alta</option>
+                                <option value="critica">🚨 Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">📅 Planificar Auditoría</button>
+                    <div id="planificarMessage" class="message hidden"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: EJECUTAR AUDITORÍA -->
+        <div id="tab-ejecutar" class="tab-content">
+            <div class="section">
+                <h2 class="section-title">
+                    ⚡ Ejecutar Auditoría
+                </h2>
+                
+                <!-- Selector de Auditoría Planificada -->
+                <div class="audit-selector">
+                    <div class="form-group">
+                        <label for="auditoria_select">Seleccionar Auditoría Planificada</label>
+                        <select id="auditoria_select" name="auditoria_select">
+                            <option value="">-- Cargar auditorías planificadas --</option>
+                        </select>
+                        <button type="button" id="cargarAuditoria" class="btn-secondary">🔄 Cargar Auditorías</button>
+                    </div>
+                </div>
+                
+                <!-- Formulario de Ejecución -->
+                <form id="auditoriaEjecucionForm" class="execution-form hidden">
+                    <div class="audit-info">
+                        <h3>📋 Información de la Auditoría</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Tipo:</span>
+                                <span id="info-tipo" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Área:</span>
+                                <span id="info-area" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Fecha:</span>
+                                <span id="info-fecha" class="info-value">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Responsable:</span>
+                                <span id="info-responsable" class="info-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fecha_real">Fecha Real de Ejecución <span class="required">*</span></label>
+                            <input type="date" id="fecha_real" name="fecha_real" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="duracion">Duración (horas) <span class="required">*</span></label>
+                            <input type="number" id="duracion" name="duracion" min="0.5" step="0.5" required 
+                                   placeholder="Ej: 4.5">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="metodologia">Metodología Aplicada</label>
+                            <select id="metodologia" name="metodologia">
+                                <option value="">-- Seleccione metodología --</option>
+                                <option value="checklist">Lista de Verificación (Checklist)</option>
+                                <option value="entrevistas">Entrevistas Estructuradas</option>
+                                <option value="observacion">Observación Directa</option>
+                                <option value="revision_documentos">Revisión de Documentos</option>
+                                <option value="muestreo">Técnicas de Muestreo</option>
+                                <option value="mixta">Metodología Mixta</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="hallazgos_encontrados">Hallazgos Identificados</label>
+                            <textarea id="hallazgos_encontrados" name="hallazgos_encontrados" 
+                                      placeholder="Registre todos los hallazgos, observaciones y no conformidades identificadas durante la auditoría."></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="recomendaciones">Recomendaciones y Acciones Correctivas</label>
+                            <textarea id="recomendaciones" name="recomendaciones" 
+                                      placeholder="Describa las recomendaciones y acciones correctivas propuestas para abordar los hallazgos."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resultado_general">Resultado General <span class="required">*</span></label>
+                            <select id="resultado_general" name="resultado_general" required>
+                                <option value="">-- Seleccione resultado --</option>
+                                <option value="satisfactorio">✅ Satisfactorio</option>
+                                <option value="satisfactorio_observaciones">⚠️ Satisfactorio con Observaciones</option>
+                                <option value="no_conforme_menor">🟡 No Conforme Menor</option>
+                                <option value="no_conforme_mayor">🔴 No Conforme Mayor</option>
+                                <option value="no_satisfactorio">❌ No Satisfactorio</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="puntuacion">Puntuación (0-100)</label>
+                            <input type="number" id="puntuacion" name="puntuacion" min="0" max="100" 
+                                   placeholder="Puntuación numérica si aplica">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">⚡ Completar Auditoría</button>
+                    <div id="ejecutarMessage" class="message hidden"></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: LISTA DE AUDITORÍAS -->
+        <div id="tab-lista" class="tab-content">
+            <div class="section">
+                <h2 class="section-title">
+                    📋 Auditorías Registradas
+                </h2>
+                
+                <!-- Filtros -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="filtro-estado">Filtrar por Estado:</label>
+                        <select id="filtro-estado">
+                            <option value="">Todos los estados</option>
+                            <option value="planificada">Planificadas</option>
+                            <option value="en_progreso">En Progreso</option>
+                            <option value="completada">Completadas</option>
+                            <option value="cancelada">Canceladas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filtro-tipo">Filtrar por Tipo:</label>
+                        <select id="filtro-tipo">
+                            <option value="">Todos los tipos</option>
+                            <option value="iso_27001">ISO 27001</option>
+                            <option value="hse">HSE</option>
+                            <option value="calidad">Calidad</option>
+                            <option value="compliance">Compliance</option>
+                            <option value="operacional">Operacional</option>
+                            <option value="financiera">Financiera</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filtro-fecha">Desde Fecha:</label>
+                        <input type="date" id="filtro-fecha">
+                    </div>
+                    
+                    <button id="refreshAuditorias" class="refresh-btn">🔄 Actualizar Lista</button>
+                    <button id="exportarAuditorias" class="export-btn">📊 Exportar Excel</button>
+                </div>
+                
+                <div id="auditoriasList" class="auditorias-list">
+                    <p class="loading">Cargando auditorías...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: REPORTES -->
+        <div id="tab-reportes" class="tab-content">
+            <div class="section">
+                <h2 class="section-title">
+                    📊 Reportes y Métricas de Auditoría
+                </h2>
+                
+                <!-- Dashboard de Métricas -->
+                <div class="metrics-dashboard">
+                    <div class="metric-card">
+                        <div class="metric-icon">📅</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="total-auditorias">0</div>
+                            <div class="metric-label">Total Auditorías</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="auditorias-progreso">0</div>
+                            <div class="metric-label">En Progreso</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon">✅</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="auditorias-completadas">0</div>
+                            <div class="metric-label">Completadas</div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-content">
+                            <div class="metric-number" id="promedio-puntuacion">0%</div>
+                            <div class="metric-label">Promedio de Cumplimiento</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Generador de Reportes -->
+                <div class="report-generator">
+                    <h3>🎯 Generar Reportes Personalizados</h3>
+                    <form id="reporteForm" class="reporte-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="reporte-tipo">Tipo de Reporte:</label>
+                                <select id="reporte-tipo" name="reporte-tipo" required>
+                                    <option value="">-- Seleccione tipo --</option>
+                                    <option value="ejecutivo">Reporte Ejecutivo</option>
+                                    <option value="detallado">Reporte Detallado</option>
+                                    <option value="compliance">Reporte de Compliance</option>
+                                    <option value="tendencias">Análisis de Tendencias</option>
+                                    <option value="hallazgos">Reporte de Hallazgos</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reporte-periodo">Período:</label>
+                                <select id="reporte-periodo" name="reporte-periodo" required>
+                                    <option value="">-- Seleccione período --</option>
+                                    <option value="ultimo_mes">Último Mes</option>
+                                    <option value="ultimo_trimestre">Último Trimestre</option>
+                                    <option value="ultimo_semestre">Último Semestre</option>
+                                    <option value="ultimo_año">Último Año</option>
+                                    <option value="personalizado">Período Personalizado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group periodo-personalizado hidden">
+                                <label for="fecha-desde">Desde:</label>
+                                <input type="date" id="fecha-desde" name="fecha-desde">
+                            </div>
+                            
+                            <div class="form-group periodo-personalizado hidden">
+                                <label for="fecha-hasta">Hasta:</label>
+                                <input type="date" id="fecha-hasta" name="fecha-hasta">
+                            </div>
+                        </div>
+                        
+                        <div class="reporte-actions">
+                            <button type="submit" class="btn-primary">📊 Generar Reporte</button>
+                            <button type="button" id="previewReporte" class="btn-secondary">👁️ Vista Previa</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Área de Resultados del Reporte -->
+                <div id="reporteResultados" class="reporte-resultados hidden">
+                    <h3>📋 Resultado del Reporte</h3>
+                    <div id="reporteContent" class="reporte-content">
+                        <!-- Contenido del reporte se carga aquí -->
+                    </div>
+                    
+                    <div class="reporte-actions">
+                        <button id="descargarPDF" class="btn-primary">📄 Descargar PDF</button>
+                        <button id="descargarExcel" class="btn-secondary">📊 Descargar Excel</button>
+                        <button id="enviarEmail" class="btn-secondary">📧 Enviar por Email</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Variables globales
+        let auditoriaSeleccionada = null;
+        let auditoriasData = [];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            configurarEventos();
+            configurarValidaciones();
+            cargarDatosIniciales();
+        });
+
+        // Configurar eventos
+        function configurarEventos() {
+            // Tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabName = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    showTab(tabName);
+                });
+            });
+
+            // Formularios
+            document.getElementById('auditoriaPlanForm').addEventListener('submit', planificarAuditoria);
+            document.getElementById('auditoriaEjecucionForm').addEventListener('submit', ejecutarAuditoria);
+            document.getElementById('reporteForm').addEventListener('submit', generarReporte);
+
+            // Botones
+            document.getElementById('cargarAuditoria').addEventListener('click', cargarAuditoriasPlanificadas);
+            document.getElementById('refreshAuditorias').addEventListener('click', cargarListaAuditorias);
+            document.getElementById('exportarAuditorias').addEventListener('click', exportarAuditorias);
+            document.getElementById('previewReporte').addEventListener('click', previsualizarReporte);
+
+            // Selectores
+            document.getElementById('auditoria_select').addEventListener('change', seleccionarAuditoria);
+            document.getElementById('reporte-periodo').addEventListener('change', togglePeriodoPersonalizado);
+
+            // Filtros
+            document.getElementById('filtro-estado').addEventListener('change', filtrarAuditorias);
+            document.getElementById('filtro-tipo').addEventListener('change', filtrarAuditorias);
+            document.getElementById('filtro-fecha').addEventListener('change', filtrarAuditorias);
+
+            // Configurar fecha mínima para planificación (hoy)
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha_programada').min = hoy;
+            document.getElementById('fecha_real').max = hoy;
+        }
+
+        // Función para cambiar tabs
+        function showTab(tabName) {
+            // Ocultar todas las tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Mostrar tab seleccionada
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Cargar datos específicos del tab
+            if (tabName === 'lista') {
+                cargarListaAuditorias();
+            } else if (tabName === 'reportes') {
+                cargarMetricas();
+            }
+        }
+
+        // Planificar auditoría
+        async function planificarAuditoria(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const auditoriaData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/auditorias', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(auditoriaData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarMensaje('planificarMessage', '✅ Auditoría planificada exitosamente', 'success');
+                    event.target.reset();
+                } else {
+                    mostrarMensaje('planificarMessage', '❌ Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('planificarMessage', '❌ Error de conexión', 'error');
+            }
+        }
+
+        // Cargar auditorías planificadas
+        async function cargarAuditoriasPlanificadas() {
+            try {
+                const response = await fetch('/api/auditorias?estado=planificada');
+                const result = await response.json();
+                
+                const select = document.getElementById('auditoria_select');
+                select.innerHTML = '<option value="">-- Seleccione auditoría --</option>';
+                
+                if (result.success && result.data.length > 0) {
+                    result.data.forEach(auditoria => {
+                        const option = document.createElement('option');
+                        option.value = auditoria.id;
+                        option.textContent = `${auditoria.tipo_auditoria} - ${auditoria.area_auditada} (${auditoria.fecha_programada})`;
+                        option.dataset.auditoria = JSON.stringify(auditoria);
+                        select.appendChild(option);
+                    });
+                } else {
+                    select.innerHTML = '<option value="">No hay auditorías planificadas</option>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('ejecutarMessage', '❌ Error al cargar auditorías', 'error');
+            }
+        }
+
+        // Seleccionar auditoría para ejecutar
+        function seleccionarAuditoria(event) {
+            const selectedOption = event.target.selectedOptions[0];
+            const form = document.getElementById('auditoriaEjecucionForm');
+            
+            if (selectedOption && selectedOption.dataset.auditoria) {
+                auditoriaSeleccionada = JSON.parse(selectedOption.dataset.auditoria);
+                
+                // Mostrar información de la auditoría
+                document.getElementById('info-tipo').textContent = auditoriaSeleccionada.tipo_auditoria;
+                document.getElementById('info-area').textContent = auditoriaSeleccionada.area_auditada;
+                document.getElementById('info-fecha').textContent = auditoriaSeleccionada.fecha_programada;
+                document.getElementById('info-responsable').textContent = auditoriaSeleccionada.auditor_responsable;
+                
+                // Mostrar formulario
+                form.classList.remove('hidden');
+                
+                // Configurar fecha real con la fecha programada como sugerencia
+                document.getElementById('fecha_real').value = auditoriaSeleccionada.fecha_programada;
+            } else {
+                form.classList.add('hidden');
+                auditoriaSeleccionada = null;
+            }
+        }
+
+        // Ejecutar auditoría
+        async function ejecutarAuditoria(event) {
+            event.preventDefault();
+            
+            if (!auditoriaSeleccionada) {
+                mostrarMensaje('ejecutarMessage', '❌ Debe seleccionar una auditoría primero', 'error');
+                return;
+            }
+            
+            const formData = new FormData(event.target);
+            const ejecucionData = Object.fromEntries(formData);
+            ejecucionData.id_auditoria = auditoriaSeleccionada.id;
+            
+            try {
+                const response = await fetch('/api/auditorias/ejecutar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(ejecucionData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarMensaje('ejecutarMessage', '✅ Auditoría ejecutada exitosamente', 'success');
+                    event.target.reset();
+                    document.getElementById('auditoriaEjecucionForm').classList.add('hidden');
+                    cargarAuditoriasPlanificadas(); // Recargar lista
+                } else {
+                    mostrarMensaje('ejecutarMessage', '❌ Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('ejecutarMessage', '❌ Error de conexión', 'error');
+            }
+        }
+
+        // Cargar lista de auditorías
+        async function cargarListaAuditorias() {
+            try {
+                const response = await fetch('/api/auditorias');
+                const result = await response.json();
+                
+                if (result.success) {
+                    auditoriasData = result.data;
+                    renderizarListaAuditorias(auditoriasData);
+                } else {
+                    document.getElementById('auditoriasList').innerHTML = '<p class="error">Error al cargar auditorías</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('auditoriasList').innerHTML = '<p class="error">Error de conexión</p>';
+            }
+        }
+
+        // Renderizar lista de auditorías
+        function renderizarListaAuditorias(auditorias) {
+            const container = document.getElementById('auditoriasList');
+            
+            if (auditorias.length === 0) {
+                container.innerHTML = '<p class="no-data">No hay auditorías registradas</p>';
+                return;
+            }
+            
+            let html = '<div class="auditorias-grid">';
+            
+            auditorias.forEach(auditoria => {
+                const estadoClass = getEstadoClass(auditoria.estado_auditoria);
+                const prioridadIcon = getPrioridadIcon(auditoria.prioridad);
+                
+                html += `
+                    <div class="auditoria-card ${estadoClass}">
+                        <div class="auditoria-header">
+                            <div class="auditoria-tipo">${auditoria.tipo_auditoria}</div>
+                            <div class="auditoria-prioridad">${prioridadIcon}</div>
+                        </div>
+                        <div class="auditoria-content">
+                            <div class="auditoria-area"><strong>Área:</strong> ${auditoria.area_auditada}</div>
+                            <div class="auditoria-fecha"><strong>Fecha:</strong> ${auditoria.fecha_programada || auditoria.fecha_real}</div>
+                            <div class="auditoria-responsable"><strong>Responsable:</strong> ${auditoria.auditor_responsable}</div>
+                            <div class="auditoria-estado">
+                                <span class="estado-badge ${estadoClass}">${auditoria.estado_auditoria}</span>
+                            </div>
+                        </div>
+                        <div class="auditoria-actions">
+                            <button onclick="verDetalleAuditoria(${auditoria.id})" class="btn-detail">👁️ Ver</button>
+                            ${auditoria.estado_auditoria === 'completada' ? 
+                                `<button onclick="generarReporteAuditoria(${auditoria.id})" class="btn-report">📊 Reporte</button>` : 
+                                `<button onclick="editarAuditoria(${auditoria.id})" class="btn-edit">✏️ Editar</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Funciones auxiliares para renderizado
+        function getEstadoClass(estado) {
+            const clases = {
+                'planificada': 'estado-planificada',
+                'en_progreso': 'estado-progreso',
+                'completada': 'estado-completada',
+                'cancelada': 'estado-cancelada'
+            };
+            return clases[estado] || '';
+        }
+
+        function getPrioridadIcon(prioridad) {
+            const iconos = {
+                'baja': '🟢',
+                'media': '🟡',
+                'alta': '🔴',
+                'critica': '🚨'
+            };
+            return iconos[prioridad] || '⚪';
+        }
+
+        // Filtrar auditorías
+        function filtrarAuditorias() {
+            const estado = document.getElementById('filtro-estado').value;
+            const tipo = document.getElementById('filtro-tipo').value;
+            const fecha = document.getElementById('filtro-fecha').value;
+            
+            let auditoriasFiltradas = auditoriasData;
+            
+            if (estado) {
+                auditoriasFiltradas = auditoriasFiltradas.filter(a => a.estado_auditoria === estado);
+            }
+            
+            if (tipo) {
+                auditoriasFiltradas = auditoriasFiltradas.filter(a => a.tipo_auditoria === tipo);
+            }
+            
+            if (fecha) {
+                auditoriasFiltradas = auditoriasFiltradas.filter(a => {
+                    const fechaAuditoria = a.fecha_programada || a.fecha_real;
+                    return fechaAuditoria >= fecha;
+                });
+            }
+            
+            renderizarListaAuditorias(auditoriasFiltradas);
+        }
+
+        // Cargar métricas
+        async function cargarMetricas() {
+            try {
+                const response = await fetch('/api/auditorias/metricas');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const metricas = result.data;
+                    document.getElementById('total-auditorias').textContent = metricas.total || 0;
+                    document.getElementById('auditorias-progreso').textContent = metricas.en_progreso || 0;
+                    document.getElementById('auditorias-completadas').textContent = metricas.completadas || 0;
+                    document.getElementById('promedio-puntuacion').textContent = (metricas.promedio_puntuacion || 0) + '%';
+                }
+            } catch (error) {
+                console.error('Error al cargar métricas:', error);
+            }
+        }
+
+        // Toggle período personalizado
+        function togglePeriodoPersonalizado() {
+            const periodo = document.getElementById('reporte-periodo').value;
+            const campos = document.querySelectorAll('.periodo-personalizado');
+            
+            if (periodo === 'personalizado') {
+                campos.forEach(campo => campo.classList.remove('hidden'));
+            } else {
+                campos.forEach(campo => campo.classList.add('hidden'));
+            }
+        }
+
+        // Generar reporte
+        async function generarReporte(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const reporteData = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/auditorias/reporte', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reporteData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('reporteResultados').classList.remove('hidden');
+                    document.getElementById('reporteContent').innerHTML = result.html;
+                } else {
+                    mostrarMensaje('reporteMessage', '❌ Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('reporteMessage', '❌ Error de conexión', 'error');
+            }
+        }
+
+        // Funciones de utilidad
+        function mostrarMensaje(elementId, mensaje, tipo) {
+            const element = document.getElementById(elementId);
+            element.textContent = mensaje;
+            element.className = `message ${tipo}`;
+            element.classList.remove('hidden');
+            
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
+        }
+
+        function configurarValidaciones() {
+            // Validaciones adicionales si es necesario
+        }
+
+        function cargarDatosIniciales() {
+            // Configurar fecha actual por defecto
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha_real').value = hoy;
+        }
+
+        // Funciones para acciones específicas (a implementar según necesidades)
+        function verDetalleAuditoria(id) {
+            // Implementar vista detalle
+            console.log('Ver detalle de auditoría:', id);
+        }
+
+        function editarAuditoria(id) {
+            // Implementar edición
+            console.log('Editar auditoría:', id);
+        }
+
+        function generarReporteAuditoria(id) {
+            // Implementar reporte específico
+            console.log('Generar reporte de auditoría:', id);
+        }
+
+        function exportarAuditorias() {
+            // Implementar exportación
+            window.open('/api/auditorias/export', '_blank');
+        }
+
+        function previsualizarReporte() {
+            // Implementar vista previa
+            console.log('Vista previa del reporte');
+        }
+    </script>
+</body>
+</html>
