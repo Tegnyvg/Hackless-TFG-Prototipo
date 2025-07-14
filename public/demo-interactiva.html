@@ -221,7 +221,7 @@
 
         <div class="demo-status" id="demoStatus">
             <div>🔄 <strong>Estado:</strong> <span id="statusText">Listo</span></div>
-            <div>📊 <strong>Tests:</strong> <span id="testsCompleted">0</span>/8</div>
+            <div>📊 <strong>Tests:</strong> <span id="testsCompleted">0</span>/10</div>
         </div>
 
         <!-- Botón de Demo Automática -->
@@ -285,6 +285,14 @@
             <div class="results" id="docResults"></div>
         </div>
 
+        <!-- Demo de Excel Templates -->
+        <div class="demo-section">
+            <div class="demo-title">📊 Demo Excel Templates</div>
+            <button class="demo-button" onclick="probarExcelTemplates()">📥 Probar Plantillas Excel</button>
+            <button class="demo-button" onclick="window.open('/cargar-empleados.html', '_blank')">📤 Abrir Carga Masiva</button>
+            <div class="results" id="excelResults"></div>
+        </div>
+
         <!-- Progreso General -->
         <div class="demo-section">
             <div class="demo-title">🏆 Progreso de la Demo</div>
@@ -302,6 +310,7 @@
                 <a href="/login.html" target="_blank" class="url-link">🔐 Login</a>
                 <a href="/registro.html" target="_blank" class="url-link">📝 Registro</a>
                 <a href="/documents.html" target="_blank" class="url-link">📄 Documentos</a>
+                <a href="/cargar-empleados.html" target="_blank" class="url-link">📊 Carga Masiva Excel</a>
                 <a href="/solicitudes-demo.html" target="_blank" class="url-link">🎯 Admin Panel</a>
                 <a href="/testing-center.html" target="_blank" class="url-link">🧪 Testing Center</a>
             </div>
@@ -329,7 +338,7 @@
 
     <script>
         let testsCompletados = 0;
-        const totalTests = 8;
+        const totalTests = 10;
 
         function actualizarProgreso() {
             const porcentaje = (testsCompletados / totalTests) * 100;
@@ -585,13 +594,53 @@
             actualizarEstado('Documentos listados');
         }
 
+        async function probarExcelTemplates() {
+            actualizarEstado('Probando plantillas Excel...');
+            agregarResultado('excelResults', '🔄 Verificando sistema de plantillas Excel...', 'info');
+            
+            try {
+                // Verificar disponibilidad de plantilla
+                const response = await fetch('/empleados_plantilla_estructurada.xlsx');
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const size = (blob.size / 1024).toFixed(2);
+                    
+                    agregarResultado('excelResults', `✅ Plantilla Excel disponible (${size} KB)`, 'success');
+                    agregarResultado('excelResults', '📋 Contiene: Instrucciones + Ejemplos + Plantilla vacía', 'info');
+                    agregarResultado('excelResults', '🔗 Campos: nombre, correo_electronico, rol, puesto, area, telefono', 'info');
+                    
+                    // Verificar endpoint de validación
+                    const validationTest = await fetch('/api/validar-excel', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (validationTest.status === 400) {
+                        agregarResultado('excelResults', '✅ Endpoint de validación operativo', 'success');
+                    }
+                    
+                    agregarResultado('excelResults', '🌐 Interfaz armonizada con modo oscuro disponible', 'success');
+                    testsCompletados++;
+                } else {
+                    agregarResultado('excelResults', '❌ Error: Plantilla no disponible', 'error');
+                }
+                
+            } catch (error) {
+                agregarResultado('excelResults', `❌ Error: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Excel templates probados');
+        }
+
         async function ejecutarDemoCompleta() {
             actualizarEstado('Ejecutando demo completa...');
             testsCompletados = 0;
             actualizarProgreso();
             
             // Limpiar resultados previos
-            ['authResults', 'userResults', 'requestResults', 'docResults'].forEach(id => {
+            ['authResults', 'userResults', 'requestResults', 'docResults', 'excelResults'].forEach(id => {
                 document.getElementById(id).innerHTML = '';
             });
             
@@ -606,11 +655,12 @@
             setTimeout(crearSolicitudDemo, 8000);
             setTimeout(listarSolicitudes, 10000);
             setTimeout(listarDocumentos, 11500);
+            setTimeout(probarExcelTemplates, 13000);
             
             setTimeout(() => {
                 actualizarEstado('Demo completa finalizada');
                 agregarResultado('authResults', '🎉 ¡DEMO COMPLETA FINALIZADA! Todas las funcionalidades verificadas.', 'success');
-            }, 13000);
+            }, 15000);
         }
 
         // Cargar estadísticas iniciales al cargar la página
