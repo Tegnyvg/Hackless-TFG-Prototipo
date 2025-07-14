@@ -2,104 +2,291 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro - Hackless</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📝 Registro - Hackless</title>
+  <link rel="stylesheet" href="css/dark-theme.css">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="js/registro.js" defer></script>
   <style>
-    /* Estilos específicos para esta página si los necesitas, aunque styles.css debería cubrir la mayoría */
-    /* Si quieres el fondo claro para esta página como en el login original, asegúrate que styles.css lo permita o sobrescribe aquí */
+    /* Tema oscuro moderno para registro */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-        background-color: #e9f0f5; /* Fondo claro como en tu login original */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh; /* Asegura que ocupe al menos la altura de la vista */
-        margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Efectos de fondo animados */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
     }
 
     .register-container {
-        /* Reutiliza la clase container-box de styles.css, que ya tiene padding, sombra, etc. */
-        max-width: 450px; /* Un poco más ancha si hay más campos */
-        padding: 40px; /* Ajuste si es necesario */
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 2;
+      animation: slideUp 0.8s ease-out;
     }
 
-    .register-container .form-group {
-        margin-bottom: 15px; /* Espacio entre grupos de formulario */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .register-container .message {
-        margin-top: 15px;
+    .logo-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
     }
 
-    .register-container .link-login {
-        margin-top: 20px;
-        font-size: 0.9em;
-        color: #555;
+    .logo-brand img {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3));
     }
 
-    
-    .register-container .link-login a {
-        color: #3498db;
-        text-decoration: none;
-        font-weight: bold;
+    .logo-brand span {
+      font-size: 1.8em;
+      font-weight: 700;
+      background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .register-container .link-login a:hover {
-        text-decoration: underline;
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #e2e8f0;
+      font-size: 1.6em;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #cbd5e1;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group input::placeholder {
+      color: #64748b;
+    }
+
+    .form-group select option {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+
+    .main-button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(45deg, #3b82f6, #2563eb);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .main-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      background: linear-gradient(45deg, #2563eb, #1d4ed8);
+    }
+
+    .main-button:active {
+      transform: translateY(0);
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    .message.success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid #22c55e;
+      color: #22c55e;
+    }
+
+    .message.error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+
+    .link-login {
+      margin-top: 25px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9em;
+    }
+
+    .link-login a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .link-login a:hover {
+      color: #3b82f6;
+      text-decoration: underline;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      color: #64748b;
+      font-size: 0.8em;
+    }
+
+    /* Responsivo */
+    @media (max-width: 480px) {
+      .register-container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+      
+      .logo-brand span {
+        font-size: 1.5em;
+      }
+      
+      h2 {
+        font-size: 1.4em;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="register-container container-box"> <div class="logo-brand">
-      <img src="images/logoescudo.png" alt="Hackless Logo">
-      <span>HACKLESS</span>
+    <div class="register-container">
+      <div class="logo-brand">
+        <img src="images/logoescudo.png" alt="🛡️ Hackless Logo">
+        <span>HACKLESS</span>
+      </div>
+
+      <h2>📝 Registrar Nueva Cuenta</h2>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="nombre">👤 Nombre Completo</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ingrese su nombre completo" required>
+        </div>
+
+        <div class="form-group">
+          <label for="correo_electronico">📧 Correo Electrónico</label>
+          <input type="email" id="correo_electronico" name="correo_electronico" placeholder="Ingrese su correo electrónico" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">🔒 Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="Mín. 8 caracteres, mayús, minús, número, especial" required>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">🔒 Confirmar Contraseña</label>
+          <input type="password" id="confirm_password" name="confirm_password" placeholder="Repita su contraseña" required>
+        </div>
+
+        <div class="form-group">
+          <label for="rol">🎯 Rol</label>
+          <select id="rol" name="rol" required>
+            <option value="">Seleccione un rol</option>
+            <option value="operativo">🔧 Operativo</option>
+            <option value="administrador">👑 Administrador</option>
+            <option value="auditor">🔍 Auditor</option>
+            <option value="supervisor">👥 Supervisor</option>
+            <option value="rrhh">📋 RRHH</option>
+            <option value="seguridad_higiene">🦺 Seguridad e Higiene</option>
+          </select>
+        </div>
+
+        <button type="submit" class="main-button">✅ Registrar Cuenta</button>
+      </form>
+
+      <div id="registerMessage" class="message" style="display: none;"></div>
+
+      <p class="link-login">¿Ya tienes una cuenta? <a href="/login.html">🔑 Inicia Sesión aquí</a></p>
+      <p class="footer-text">© 2025 Hackless - Seguridad Integral para PyMEs</p>
     </div>
-
-    <h2>Registrar Nueva Cuenta</h2>
-
-    <form id="registerForm">
-      <div class="form-group">
-        <label for="nombre">Nombre Completo</label>
-        <input type="text" id="nombre" name="nombre" placeholder="Ingrese su nombre completo" required>
-      </div>
-
-      <div class="form-group">
-        <label for="correo_electronico">Correo Electrónico</label>
-        <input type="email" id="correo_electronico" name="correo_electronico" placeholder="Ingrese su correo electrónico" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password" placeholder="Mín. 8 caracteres, mayús, minús, número, especial" required>
-      </div>
-
-      <div class="form-group">
-        <label for="confirm_password">Confirmar Contraseña</label>
-        <input type="password" id="confirm_password" name="confirm_password" placeholder="Repita su contraseña" required>
-      </div>
-
-      <div class="form-group">
-        <label for="rol">Rol</label>
-        <select id="rol" name="rol" required>
-          <option value="">Seleccione un rol</option>
-          <option value="operativo">Operativo</option>
-          <option value="administrador">Administrador</option>
-          <option value="auditor">Auditor</option>
-          <option value="supervisor">Supervisor</option>
-          <option value="rrhh">RRHH</option>
-          <option value="seguridad_higiene">Seguridad e Higiene</option>
-        </select>
-      </div>
-
-      <button type="submit" class="main-button">Registrar</button>
-    </form>
-
-    <p id="registerMessage" class="message"></p>
-
-    <p class="link-login">¿Ya tienes una cuenta? <a href="/login.html">Inicia Sesión aquí</a></p>
-    <p class="footer-text">© 2025 Hacklees - Seguridad para PyMEs</p>
-  </div>
 
 </body>
 </html>
