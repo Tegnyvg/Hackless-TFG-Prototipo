@@ -397,7 +397,7 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
 // === GESTIÓN DE DOCUMENTOS ===
 
 // Subir documento de usuario
-app.post('/documents/upload', upload.single('archivoPdf'), async (req, res) => {
+app.post('/api/documents', upload.single('archivoPdf'), async (req, res) => {
   const { id_usuario, tipo_documento, fecha_emision, fecha_vencimiento } = req.body;
   const archivoSubido = req.file?.filename;
 
@@ -439,7 +439,7 @@ app.post('/documents/upload', upload.single('archivoPdf'), async (req, res) => {
 });
 
 // Listar todos los documentos con información de usuario
-app.get('/documents', async (req, res) => {
+app.get('/api/documents', async (req, res) => {
   try {
     const documentos = await Documentacion.findAll({
       include: [{
@@ -465,7 +465,7 @@ app.get('/documents', async (req, res) => {
 });
 
 // Obtener documento específico por ID
-app.get('/documents/:id', async (req, res) => {
+app.get('/api/documents/:id', async (req, res) => {
   const idDocumento = req.params.id;
 
   if (isNaN(idDocumento)) {
