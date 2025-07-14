@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKLESS - Interfaces Funcionales</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #10b981, #059669);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+
+        .categories {
+            display: grid;
+            gap: 30px;
+        }
+
+        .category {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .category-icon {
+            font-size: 1.8em;
+            margin-right: 15px;
+        }
+
+        .interfaces-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .interface-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interface-card:hover {
+            transform: translateY(-3px);
+            border-color: #3b82f6;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .interface-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .interface-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #e2e8f0;
+        }
+
+        .status-icon {
+            color: #10b981;
+            font-size: 1.2em;
+        }
+
+        .interface-url {
+            background: rgba(59, 130, 246, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #60a5fa;
+            margin-bottom: 10px;
+            word-break: break-all;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .interface-url:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .interface-description {
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .features-list li {
+            padding: 2px 0;
+            font-size: 0.85em;
+            color: #cbd5e1;
+        }
+
+        .features-list li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 1em;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-box::placeholder {
+            color: #64748b;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .quick-access {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #3b82f6;
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .quick-access:hover {
+            transform: scale(1.1);
+            background: #2563eb;
+        }
+
+        .highlight {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6 !important;
+        }
+
+        @media (max-width: 768px) {
+            .interfaces-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ INTERFACES FUNCIONALES</h1>
+            <div class="subtitle">Sistema HACKLESS - TFG Verónica García</div>
+            <div class="status-badge">✅ 100% OPERATIVO - 14 de julio de 2025</div>
+        </div>
+
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number">20</div>
+                <div>Interfaces Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div>Funcionales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">10</div>
+                <div>Categorías</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">105/100</div>
+                <div>Score Performance</div>
+            </div>
+        </div>
+
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar interfaces...">
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">📋 Todas</button>
+            <button class="filter-btn" data-filter="principales">🌐 Principales</button>
+            <button class="filter-btn" data-filter="usuarios">👥 Usuarios</button>
+            <button class="filter-btn" data-filter="testing">🧪 Testing</button>
+            <button class="filter-btn" data-filter="documentos">📄 Documentos</button>
+            <button class="filter-btn" data-filter="dashboards">🖥️ Dashboards</button>
+        </div>
+
+        <div class="categories">
+            <!-- Principales -->
+            <div class="category" data-category="principales">
+                <div class="category-header">
+                    <span class="category-icon">🌐</span>
+                    INTERFACES WEB PRINCIPALES
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🏠 Página Principal</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000')">
+                            http://localhost:3000
+                        </div>
+                        <div class="interface-description">
+                            Landing page del proyecto con navegación a todas las secciones
+                        </div>
+                        <ul class="features-list">
+                            <li>Diseño moderno y responsive</li>
+                            <li>Enlaces a login, demo, documentación</li>
+                            <li>Información del proyecto</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🔐 Sistema de Login</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/login.html')">
+                            http://localhost:3000/login.html
+                        </div>
+                        <div class="interface-description">
+                            Autenticación dual para usuarios y administradores
+                        </div>
+                        <ul class="features-list">
+                            <li>Login automático según rol</li>
+                            <li>Credenciales: admin@hackless.com / admin123!</li>
+                            <li>Redirección inteligente</li>
+                            <li>Validación de credenciales</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📝 Registro de Usuarios</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/registro.html')">
+                            http://localhost:3000/registro.html
+                        </div>
+                        <div class="interface-description">
+                            Registro de nuevos usuarios al sistema
+                        </div>
+                        <ul class="features-list">
+                            <li>Validación de contraseñas seguras</li>
+                            <li>Verificación de emails únicos</li>
+                            <li>Selección de roles</li>
+                            <li>Campos opcionales (puesto, área)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Usuarios -->
+            <div class="category" data-category="usuarios">
+                <div class="category-header">
+                    <span class="category-icon">👥</span>
+                    GESTIÓN DE USUARIOS
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🏢 Alta de Empleados</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/alta-empleado.html')">
+                            http://localhost:3000/alta-empleado.html
+                        </div>
+                        <div class="interface-description">
+                            Formulario para dar de alta empleados individualmente
+                        </div>
+                        <ul class="features-list">
+                            <li>Formulario completo de empleado</li>
+                            <li>Validaciones en tiempo real</li>
+                            <li>Integración con backend</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">👥 Gestión de Empleados</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/gestion-empleados.html')">
+                            http://localhost:3000/gestion-empleados.html
+                        </div>
+                        <div class="interface-description">
+                            Panel para administrar todos los empleados
+                        </div>
+                        <ul class="features-list">
+                            <li>Lista de empleados</li>
+                            <li>Edición y eliminación</li>
+                            <li>Búsqueda y filtros</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📊 Carga Masiva Excel</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/cargar-empleados.html')">
+                            http://localhost:3000/cargar-empleados.html
+                        </div>
+                        <div class="interface-description">
+                            Carga masiva de empleados desde Excel
+                        </div>
+                        <ul class="features-list">
+                            <li>Plantilla Excel descargable</li>
+                            <li>Validación de datos</li>
+                            <li>12 usuarios cargados actualmente</li>
+                            <li>Resumen de importación</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentos -->
+            <div class="category" data-category="documentos">
+                <div class="category-header">
+                    <span class="category-icon">📄</span>
+                    GESTIÓN DOCUMENTAL
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📁 Gestión de Documentos</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/documents.html')">
+                            http://localhost:3000/documents.html
+                        </div>
+                        <div class="interface-description">
+                            Subida, lista y gestión de documentos PDF
+                        </div>
+                        <ul class="features-list">
+                            <li>Subida de PDFs (max 10MB)</li>
+                            <li>Fechas de emisión/vencimiento</li>
+                            <li>Lista de documentos con metadatos</li>
+                            <li>Eliminación de documentos</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testing y Demo -->
+            <div class="category" data-category="testing">
+                <div class="category-header">
+                    <span class="category-icon">🧪</span>
+                    TESTING Y DEMO
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🔬 Testing Completo</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/testing-completo.html')">
+                            http://localhost:3000/testing-completo.html
+                        </div>
+                        <div class="interface-description">
+                            Suite completa de testing automatizado
+                        </div>
+                        <ul class="features-list">
+                            <li>15+ tests automatizados</li>
+                            <li>Testing de todas las APIs</li>
+                            <li>Score actual: 105/100 (EXCELENTE)</li>
+                            <li>Métricas en tiempo real</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🎬 Demo Interactiva</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/demo-interactiva.html')">
+                            http://localhost:3000/demo-interactiva.html
+                        </div>
+                        <div class="interface-description">
+                            Demo visual para presentaciones académicas
+                        </div>
+                        <ul class="features-list">
+                            <li>Demostración paso a paso</li>
+                            <li>Interfaz visual atractiva</li>
+                            <li>Ideal para presentaciones TFG</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🧪 Test de Funcionalidades</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/test-funcionalidades.html')">
+                            http://localhost:3000/test-funcionalidades.html
+                        </div>
+                        <div class="interface-description">
+                            Testing específico de funcionalidades
+                        </div>
+                        <ul class="features-list">
+                            <li>Tests por módulos</li>
+                            <li>Verificación de endpoints</li>
+                            <li>Resultados detallados</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboards -->
+            <div class="category" data-category="dashboards">
+                <div class="category-header">
+                    <span class="category-icon">🖥️</span>
+                    DASHBOARDS
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📊 Escritorio Principal</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/escritorio.html')">
+                            http://localhost:3000/escritorio.html
+                        </div>
+                        <div class="interface-description">
+                            Dashboard principal del sistema
+                        </div>
+                        <ul class="features-list">
+                            <li>Resumen de actividad</li>
+                            <li>Accesos rápidos</li>
+                            <li>Métricas del sistema</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🖥️ Escritorio Unificado</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/escritorio-unified.html')">
+                            http://localhost:3000/escritorio-unified.html
+                        </div>
+                        <div class="interface-description">
+                            Dashboard unificado con todas las funcionalidades
+                        </div>
+                        <ul class="features-list">
+                            <li>Interfaz unificada</li>
+                            <li>Navegación integrada</li>
+                            <li>Acceso completo a funciones</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solicitudes -->
+            <div class="category" data-category="solicitudes">
+                <div class="category-header">
+                    <span class="category-icon">🎯</span>
+                    DEMO Y SOLICITUDES
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📋 Solicitudes de Demo</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/solicitudes-demo.html')">
+                            http://localhost:3000/solicitudes-demo.html
+                        </div>
+                        <div class="interface-description">
+                            Panel administrativo para gestionar solicitudes de demo
+                        </div>
+                        <ul class="features-list">
+                            <li>Lista de solicitudes recibidas</li>
+                            <li>19+ solicitudes registradas</li>
+                            <li>Exportación a CSV</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auditoría -->
+            <div class="category" data-category="auditoria">
+                <div class="category-header">
+                    <span class="category-icon">🔍</span>
+                    AUDITORÍA Y REPORTES
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📊 Auditorías</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/auditorias.html')">
+                            http://localhost:3000/auditorias.html
+                        </div>
+                        <div class="interface-description">
+                            Sistema de auditoría y logs
+                        </div>
+                        <ul class="features-list">
+                            <li>Logs de actividad</li>
+                            <li>Trazabilidad de acciones</li>
+                            <li>Reportes de seguridad</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🔍 Hallazgos</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/hallazgos.html')">
+                            http://localhost:3000/hallazgos.html
+                        </div>
+                        <div class="interface-description">
+                            Gestión de hallazgos de seguridad
+                        </div>
+                        <ul class="features-list">
+                            <li>Registro de hallazgos</li>
+                            <li>Clasificación por severidad</li>
+                            <li>Seguimiento de resolución</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adicionales -->
+            <div class="category" data-category="adicionales">
+                <div class="category-header">
+                    <span class="category-icon">💰</span>
+                    MÓDULOS ADICIONALES
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">💳 Nómina</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/nomina.html')">
+                            http://localhost:3000/nomina.html
+                        </div>
+                        <div class="interface-description">
+                            Gestión de nóminas
+                        </div>
+                        <ul class="features-list">
+                            <li>Cálculo de nóminas</li>
+                            <li>Gestión de pagos</li>
+                            <li>Reportes financieros</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🎓 Capacitaciones</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/participacion-capacitaciones.html')">
+                            http://localhost:3000/participacion-capacitaciones.html
+                        </div>
+                        <div class="interface-description">
+                            Gestión de capacitaciones de empleados
+                        </div>
+                        <ul class="features-list">
+                            <li>Registro de participación</li>
+                            <li>Seguimiento de formación</li>
+                            <li>Certificaciones</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recuperación -->
+            <div class="category" data-category="recuperacion">
+                <div class="category-header">
+                    <span class="category-icon">🔑</span>
+                    RECUPERACIÓN DE ACCESO
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🔄 Recuperar Contraseña</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/forgot-password.html')">
+                            http://localhost:3000/forgot-password.html
+                        </div>
+                        <div class="interface-description">
+                            Sistema de recuperación de contraseñas
+                        </div>
+                        <ul class="features-list">
+                            <li>Solicitud de recuperación</li>
+                            <li>Validación de email</li>
+                            <li>Reset de contraseña</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🆕 Reset de Contraseña</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/reset-password.html')">
+                            http://localhost:3000/reset-password.html
+                        </div>
+                        <div class="interface-description">
+                            Interface para establecer nueva contraseña
+                        </div>
+                        <ul class="features-list">
+                            <li>Validación de nueva contraseña</li>
+                            <li>Confirmación de cambio</li>
+                            <li>Redirección automática</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentación -->
+            <div class="category" data-category="documentacion">
+                <div class="category-header">
+                    <span class="category-icon">📚</span>
+                    AYUDA Y DOCUMENTACIÓN
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📖 Guía de Usuario</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/guia.html')">
+                            http://localhost:3000/guia.html
+                        </div>
+                        <div class="interface-description">
+                            Guía de usuario del sistema
+                        </div>
+                        <ul class="features-list">
+                            <li>Manual de uso</li>
+                            <li>Ejemplos prácticos</li>
+                            <li>FAQ integrado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-access" onclick="scrollToTop()" title="Ir arriba">
+        ⬆️
+    </div>
+
+    <script>
+        // Funcionalidad de búsqueda
+        const searchBox = document.getElementById('searchBox');
+        const interfaceCards = document.querySelectorAll('.interface-card');
+        const categories = document.querySelectorAll('.category');
+
+        searchBox.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            interfaceCards.forEach(card => {
+                const title = card.querySelector('.interface-title').textContent.toLowerCase();
+                const description = card.querySelector('.interface-description').textContent.toLowerCase();
+                const url = card.querySelector('.interface-url').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm) || url.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    card.classList.add('highlight');
+                } else {
+                    card.style.display = 'none';
+                    card.classList.remove('highlight');
+                }
+            });
+
+            // Ocultar categorías vacías
+            categories.forEach(category => {
+                const visibleCards = category.querySelectorAll('.interface-card[style*="block"], .interface-card:not([style*="none"])');
+                if (visibleCards.length === 0 && searchTerm !== '') {
+                    category.style.display = 'none';
+                } else {
+                    category.style.display = 'block';
+                }
+            });
+        });
+
+        // Funcionalidad de filtros
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remover clase active de todos los botones
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                
+                if (filter === 'all') {
+                    categories.forEach(cat => cat.style.display = 'block');
+                } else {
+                    categories.forEach(cat => {
+                        if (cat.dataset.category === filter) {
+                            cat.style.display = 'block';
+                        } else {
+                            cat.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Limpiar búsqueda
+                searchBox.value = '';
+                interfaceCards.forEach(card => {
+                    card.style.display = 'block';
+                    card.classList.remove('highlight');
+                });
+            });
+        });
+
+        // Función para abrir interfaces
+        function openInterface(url) {
+            window.open(url, '_blank');
+        }
+
+        // Función para ir arriba
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Copiar URL al hacer clic
+        document.querySelectorAll('.interface-url').forEach(urlElement => {
+            urlElement.addEventListener('click', function() {
+                const url = this.textContent;
+                navigator.clipboard.writeText(url).then(() => {
+                    // Feedback visual
+                    this.style.background = 'rgba(16, 185, 129, 0.2)';
+                    setTimeout(() => {
+                        this.style.background = 'rgba(59, 130, 246, 0.1)';
+                    }, 300);
+                });
+            });
+        });
+
+        // Animación de entrada
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.interface-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎓 Capacitación - Hackless</title>
+  <link rel="stylesheet" href="css/dark-theme.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Estilos de fallback por si no carga el CSS externo */
+    body { 
+      background: #0f172a; 
+      color: #f8fafc; 
+      font-family: 'Inter', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+    }
+    .header { 
+      background: #1e293b; 
+      padding: 15px 40px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .main-content { 
+      max-width: 1200px; 
+      margin: 30px auto; 
+      padding: 0 30px; 
+    }
+    .welcome { 
+      text-align: center; 
+      margin-bottom: 40px; 
+    }
+    .welcome h1 { 
+      color: #f8fafc; 
+      font-size: 2.2rem; 
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-area">
+      <img src="images/logoescudo.png" alt="🛡️ Hackless Logo">
+      <span>🎓 Capacitación</span>
+    </div>
+    <a href="escritorio.html" class="back-btn">← Volver al Dashboard</a>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <!-- Bienvenida -->
+    <div class="welcome">
+      <h1>🎓 Gestión de Capacitaciones</h1>
+      <p>Planifica, ejecuta y gestiona programas de entrenamiento empresarial</p>
+    </div>
+
+    <!-- Progreso General -->
+    <div class="overall-progress">
+      <h3>📊 Progreso General de Capacitaciones</h3>
+      <p>Estado actual de todas las capacitaciones en curso</p>
+      <div class="progress-bar">
+        <div class="progress-fill progress-58"></div>
+      </div>
+      <div class="progress-label">
+        <span class="progress-text">Progreso total</span>
+        <span class="progress-percentage">58%</span>
+      </div>
+    </div>
+
+    <!-- Grid de capacitaciones -->
+    <div class="training-grid">
+      <!-- Capacitación de Seguridad Industrial -->
+      <div class="training-card">
+        <div class="training-header">
+          <span class="training-icon">🦺</span>
+          <h3 class="training-title">Seguridad Industrial</h3>
+        </div>
+
+        <div class="training-meta">
+          <div class="meta-item">
+            <span>📅</span>
+            <span>15/07/2025 - 19/07/2025</span>
+          </div>
+          <div class="meta-item">
+            <span>⏰</span>
+            <span>08:00 - 12:00</span>
+          </div>
+          <div class="meta-item">
+            <span>👥</span>
+            <span>25 participantes</span>
+          </div>
+        </div>
+
+        <p class="training-description">
+          Capacitación integral en normas de seguridad, prevención de riesgos y protocolos de emergencia para el sector petrolero.
+        </p>
+
+        <div class="progress-section">
+          <div class="progress-label">
+            <span class="progress-text">Progreso del curso</span>
+            <span class="progress-percentage">75%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-75"></div>
+          </div>
+        </div>
+
+        <span class="status-badge status-active">En Progreso</span>
+      </div>
+
+      <!-- Capacitación de Medio Ambiente -->
+      <div class="training-card">
+        <div class="training-header">
+          <span class="training-icon">🌱</span>
+          <h3 class="training-title">Gestión Ambiental</h3>
+        </div>
+
+        <div class="training-meta">
+          <div class="meta-item">
+            <span>📅</span>
+            <span>22/07/2025 - 24/07/2025</span>
+          </div>
+          <div class="meta-item">
+            <span>⏰</span>
+            <span>14:00 - 18:00</span>
+          </div>
+          <div class="meta-item">
+            <span>👥</span>
+            <span>18 participantes</span>
+          </div>
+        </div>
+
+        <p class="training-description">
+          Entrenamiento en procedimientos ambientales, manejo de residuos y cumplimiento de normativas ecológicas.
+        </p>
+
+        <div class="progress-section">
+          <div class="progress-label">
+            <span class="progress-text">Progreso del curso</span>
+            <span class="progress-percentage">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-0"></div>
+          </div>
+        </div>
+
+        <span class="status-badge status-pending">Programada</span>
+      </div>
+
+      <!-- Capacitación Completada -->
+      <div class="training-card">
+        <div class="training-header">
+          <span class="training-icon">💻</span>
+          <h3 class="training-title">Ciberseguridad</h3>
+        </div>
+
+        <div class="training-meta">
+          <div class="meta-item">
+            <span>📅</span>
+            <span>01/07/2025 - 05/07/2025</span>
+          </div>
+          <div class="meta-item">
+            <span>⏰</span>
+            <span>09:00 - 13:00</span>
+          </div>
+          <div class="meta-item">
+            <span>👥</span>
+            <span>30 participantes</span>
+          </div>
+        </div>
+
+        <p class="training-description">
+          Entrenamiento en seguridad informática, protección de datos y prevención de ataques cibernéticos.
+        </p>
+
+        <div class="progress-section">
+          <div class="progress-label">
+            <span class="progress-text">Progreso del curso</span>
+            <span class="progress-percentage">100%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill progress-100"></div>
+          </div>
+        </div>
+
+        <span class="status-badge status-completed">Completada</span>
+      </div>
+    </div>
+
+    <!-- Módulos simples -->
+    <div class="simple-modules">
+      <h2>📚 Módulos de Entrenamiento Básico</h2>
+      
+      <div class="module">
+        <div class="module-info">
+          <div class="module-title">🔐 Fundamentos de Seguridad</div>
+          <div class="module-description">Conceptos básicos de seguridad industrial y personal</div>
+        </div>
+        <button class="complete-button" onclick="completeModule(this)">Completar</button>
+      </div>
+
+      <div class="module">
+        <div class="module-info">
+          <div class="module-title">🌍 Conciencia Ambiental</div>
+          <div class="module-description">Principios de protección del medio ambiente</div>
+        </div>
+        <button class="complete-button" onclick="completeModule(this)">Completar</button>
+      </div>
+
+      <div class="module">
+        <div class="module-info">
+          <div class="module-title">💼 Ética Empresarial</div>
+          <div class="module-description">Valores y conducta profesional en el trabajo</div>
+        </div>
+        <button class="complete-button" onclick="completeModule(this)">Completar</button>
+      </div>
+
+      <div class="module">
+        <div class="module-info">
+          <div class="module-title">🚨 Prevención de Riesgos</div>
+          <div class="module-description">Identificación y manejo de situaciones de riesgo</div>
+        </div>
+        <button class="complete-button" onclick="completeModule(this)">Completar</button>
+      </div>
+
+      <div class="module">
+        <div class="module-info">
+          <div class="module-title">👥 Trabajo en Equipo</div>
+          <div class="module-description">Colaboración efectiva y comunicación</div>
+        </div>
+        <button class="complete-button" onclick="completeModule(this)">Completar</button>
+      </div>
+
+      <div class="module">
+        <div class="module-info">
+          <div class="module-title">🛠️ Uso de Herramientas</div>
+          <div class="module-description">Manejo seguro y eficiente de equipos</div>
+        </div>
+        <button class="complete-button" onclick="completeModule(this)">Completar</button>
+      </div>
+    </div>
+
+    <!-- Formulario de nueva capacitación -->
+    <div class="form-section">
+      <h2>➕ Programar Nueva Capacitación</h2>
+      
+      <form id="newTrainingForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="training-title">📚 Título de la Capacitación</label>
+            <input type="text" id="training-title" class="form-control" placeholder="Ej: Primeros Auxilios" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="start-date">📅 Fecha de Inicio</label>
+            <input type="date" id="start-date" class="form-control" title="Seleccione la fecha de inicio" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="end-date">📅 Fecha de Fin</label>
+            <input type="date" id="end-date" class="form-control" title="Seleccione la fecha de fin" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="schedule">⏰ Horario</label>
+            <input type="text" id="schedule" class="form-control" placeholder="Ej: 08:00 - 12:00" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="instructor">👤 Instructor</label>
+            <input type="text" id="instructor" class="form-control" placeholder="Nombre del instructor" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="max-participants">👥 Máximo Participantes</label>
+            <input type="number" id="max-participants" class="form-control" placeholder="Ej: 25" min="1" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="description">📝 Descripción</label>
+          <textarea id="description" class="form-control" rows="4" placeholder="Describe los objetivos y contenido de la capacitación..." required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">✅ Crear Capacitación</button>
+          <button type="reset" class="btn btn-secondary">🔄 Limpiar Formulario</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Enlaces de navegación -->
+    <div class="navigation-links">
+      <a href="escritorio.html" class="nav-link">🏠 Volver al Dashboard</a>
+      <a href="participacion-capacitaciones.html" class="nav-link">👤 Mis Capacitaciones</a>
+      <a href="nomina.html" class="nav-link">👥 Gestionar Empleados</a>
+      <a href="hallazgos.html" class="nav-link">🔍 Ver Hallazgos</a>
+    </div>
+  </div>
+
+  <script>
+    // Envío de formulario
+    document.getElementById('newTrainingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Mostrar mensaje de éxito
+      const successMessage = document.createElement('div');
+      successMessage.className = 'success-message';
+      successMessage.innerHTML = '✅ Capacitación creada exitosamente!';
+      this.insertBefore(successMessage, this.firstChild);
+      
+      // Limpiar formulario después de 2 segundos
+      setTimeout(() => {
+        this.reset();
+        successMessage.remove();
+      }, 2000);
+    });
+
+    // Función para completar módulos
+    function completeModule(button) {
+      if (button.classList.contains('completed')) {
+        // Si ya está completado, desmarcar
+        button.classList.remove('completed');
+        button.textContent = 'Completar';
+      } else {
+        // Marcar como completado
+        button.classList.add('completed');
+        button.textContent = '✅ Completado';
+      }
+      
+      // Actualizar progreso general
+      updateOverallProgress();
+    }
+
+    // Actualizar progreso general
+    function updateOverallProgress() {
+      const totalModules = document.querySelectorAll('.module').length;
+      const completedModules = document.querySelectorAll('.complete-button.completed').length;
+      const progressPercentage = Math.round((completedModules / totalModules) * 100);
+      
+      const progressFill = document.querySelector('.overall-progress .progress-fill');
+      const progressText = document.querySelector('.overall-progress .progress-percentage');
+      
+      // Actualizar barra de progreso
+      progressFill.className = `progress-fill progress-${progressPercentage}`;
+      progressText.textContent = `${progressPercentage}%`;
+    }
+
+    // Animaciones al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+      const cards = document.querySelectorAll('.training-card, .simple-modules, .form-section');
+      
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, {
+        threshold: 0.1
+      });
+
+      cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'all 0.6s ease-out';
+        observer.observe(card);
+      });
+    });
+  </script>
+</body>
+</html>

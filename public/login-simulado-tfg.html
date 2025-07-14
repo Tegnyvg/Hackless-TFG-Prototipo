@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKLESS - Login Simulado TFG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #94a3b8;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .message.loading {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+
+        .credentials-help {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .credentials-help h3 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .credentials-help p {
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .tfg-info {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #64748b;
+            font-size: 0.9em;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .demo-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid #8b5cf6;
+            color: #c4b5fd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #3b82f6;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .features-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .features-preview h4 {
+            color: #3b82f6;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 0.85em;
+        }
+
+        .feature-item {
+            color: #94a3b8;
+            padding: 5px 0;
+        }
+
+        .feature-item:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+
+            .demo-controls {
+                flex-direction: column;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🛡️ HACKLESS</h1>
+            <p>Sistema de Gestión Documental</p>
+        </div>
+
+        <div class="credentials-help">
+            <h3>📝 Credenciales de Demo TFG</h3>
+            <p><strong>Email:</strong> admin@hackless.com</p>
+            <p><strong>Contraseña:</strong> admin123!</p>
+        </div>
+
+        <div class="demo-controls">
+            <button class="demo-btn" onclick="fillCredentials('admin')">
+                👑 Admin
+            </button>
+            <button class="demo-btn" onclick="fillCredentials('employee')">
+                👤 Empleado
+            </button>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Introduce tu email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" placeholder="Introduce tu contraseña" required>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="features-preview">
+            <h4>🚀 Funcionalidades del Sistema</h4>
+            <div class="features-grid">
+                <div class="feature-item">Gestión de Usuarios</div>
+                <div class="feature-item">Documentos PDF</div>
+                <div class="feature-item">Carga Masiva Excel</div>
+                <div class="feature-item">Testing Automatizado</div>
+                <div class="feature-item">Sistema 2FA</div>
+                <div class="feature-item">Auditorías</div>
+                <div class="feature-item">Dashboard Analytics</div>
+                <div class="feature-item">Gestión Nómina</div>
+            </div>
+        </div>
+
+        <div class="tfg-info">
+            <p><strong>Universidad Siglo 21 - TFG 2025</strong></p>
+            <p>Verónica García - VINF01264</p>
+            <p>Sistema 100% Funcional para Demostración</p>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const messageDiv = document.getElementById('message');
+
+        // Credenciales válidas para la demo
+        const validCredentials = {
+            'admin@hackless.com': 'admin123!',
+            'demo@hackless.com': 'admin123!',
+            'superadmin@hackless.com': 'admin123!',
+            'empleado@hackless.com': 'empleado123!',
+            'user@hackless.com': 'user123!'
+        };
+
+        function fillCredentials(type) {
+            if (type === 'admin') {
+                emailInput.value = 'admin@hackless.com';
+                passwordInput.value = 'admin123!';
+            } else if (type === 'employee') {
+                emailInput.value = 'empleado@hackless.com';
+                passwordInput.value = 'empleado123!';
+            }
+        }
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+        }
+
+        function simulateLoading() {
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading-spinner"></span>Verificando...';
+        }
+
+        function resetButton() {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Iniciar Sesión';
+        }
+
+        function redirectToDashboard(userType) {
+            showMessage('✅ Login exitoso! Redirigiendo...', 'success');
+            
+            setTimeout(() => {
+                // Simular redirección basada en tipo de usuario
+                if (userType === 'admin') {
+                    window.location.href = 'escritorio-unified.html';
+                } else {
+                    window.location.href = 'escritorio.html';
+                }
+            }, 2000);
+        }
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            hideMessage();
+
+            // Validaciones básicas
+            if (!email || !password) {
+                showMessage('❌ Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            // Simular proceso de autenticación
+            simulateLoading();
+
+            setTimeout(() => {
+                // Verificar credenciales
+                if (validCredentials[email] === password) {
+                    // Determinar tipo de usuario
+                    const userType = email.includes('admin') || email.includes('superadmin') ? 'admin' : 'employee';
+                    
+                    resetButton();
+                    redirectToDashboard(userType);
+                } else {
+                    resetButton();
+                    showMessage('❌ Credenciales incorrectas. Usa las credenciales de demo.', 'error');
+                }
+            }, 1500); // Simular tiempo de procesamiento
+        });
+
+        // Auto-rellenar con credenciales de admin al cargar
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                fillCredentials('admin');
+            }, 500);
+        });
+
+        // Efectos de escritura automática para demo
+        function typeInField(field, text, speed = 100) {
+            field.value = '';
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < text.length) {
+                    field.value += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, speed);
+        }
+
+        // Demo automática para grabación
+        function startAutoDemo() {
+            setTimeout(() => {
+                typeInField(emailInput, 'admin@hackless.com', 80);
+                setTimeout(() => {
+                    typeInField(passwordInput, 'admin123!', 80);
+                    setTimeout(() => {
+                        loginForm.dispatchEvent(new Event('submit'));
+                    }, 2000);
+                }, 1500);
+            }, 1000);
+        }
+
+        // Activar demo automática si hay parámetro en URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autodemo') === 'true') {
+            startAutoDemo();
+        }
+
+        // Mensaje de consola para el evaluador
+        console.log('%c🎓 HACKLESS - TFG Demo Login', 'color: #3b82f6; font-size: 18px; font-weight: bold;');
+        console.log('%c✅ Credenciales válidas:', 'color: #10b981; font-size: 14px; font-weight: bold;');
+        console.log('• admin@hackless.com / admin123! (Administrador)');
+        console.log('• empleado@hackless.com / empleado123! (Empleado)');
+        console.log('%c🚀 Para demo automática: añade ?autodemo=true a la URL', 'color: #8b5cf6; font-size: 12px;');
+    </script>
+</body>
+</html>
