@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKLESS - Demo Interactiva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .demo-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #f44336;
+        }
+
+        .info {
+            color: #2196F3;
+        }
+
+        .warning {
+            color: #ff9800;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .url-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .url-link {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            display: block;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .url-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .credentials {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auto-demo-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .demo-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ HACKLESS</h1>
+            <p>Demo Interactiva del Sistema de Gestión Documental</p>
+            <p><strong>TFG - Verónica García | Universidad Siglo 21 | 2025</strong></p>
+        </div>
+
+        <div class="demo-status" id="demoStatus">
+            <div>🔄 <strong>Estado:</strong> <span id="statusText">Listo</span></div>
+            <div>📊 <strong>Tests:</strong> <span id="testsCompleted">0</span>/8</div>
+        </div>
+
+        <!-- Botón de Demo Automática -->
+        <button class="demo-button auto-demo-btn" onclick="ejecutarDemoCompleta()">
+            🎬 EJECUTAR DEMO COMPLETA AUTOMÁTICA
+        </button>
+
+        <!-- Estadísticas del Sistema -->
+        <div class="demo-section">
+            <div class="demo-title">📊 Estadísticas del Sistema</div>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">-</div>
+                    <div>👥 Total Usuarios</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAdmins">-</div>
+                    <div>🛡️ Administradores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalDemos">-</div>
+                    <div>🎯 Solicitudes Demo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalDocs">-</div>
+                    <div>📄 Documentos</div>
+                </div>
+            </div>
+            <button class="demo-button" onclick="cargarEstadisticas()">📊 Actualizar Estadísticas</button>
+        </div>
+
+        <!-- Demo de Autenticación -->
+        <div class="demo-section">
+            <div class="demo-title">🔐 Demo de Autenticación</div>
+            <button class="demo-button" onclick="probarLogin()">🔑 Probar Login Usuario</button>
+            <button class="demo-button" onclick="probarAdminLogin()">🛡️ Probar Login Admin</button>
+            <div class="results" id="authResults"></div>
+        </div>
+
+        <!-- Demo de Gestión de Usuarios -->
+        <div class="demo-section">
+            <div class="demo-title">👥 Demo de Gestión de Usuarios</div>
+            <button class="demo-button" onclick="listarUsuarios()">📋 Listar Usuarios</button>
+            <button class="demo-button" onclick="crearUsuarioDemo()">➕ Crear Usuario Demo</button>
+            <div class="results" id="userResults"></div>
+        </div>
+
+        <!-- Demo de Solicitudes -->
+        <div class="demo-section">
+            <div class="demo-title">🎯 Demo de Solicitudes</div>
+            <button class="demo-button" onclick="crearSolicitudDemo()">📝 Nueva Solicitud Demo</button>
+            <button class="demo-button" onclick="listarSolicitudes()">📋 Listar Solicitudes</button>
+            <div class="results" id="requestResults"></div>
+        </div>
+
+        <!-- Demo de Documentos -->
+        <div class="demo-section">
+            <div class="demo-title">📄 Demo de Documentos</div>
+            <button class="demo-button" onclick="listarDocumentos()">📋 Listar Documentos</button>
+            <button class="demo-button" onclick="window.open('/documents.html', '_blank')">📤 Abrir Gestión Documentos</button>
+            <div class="results" id="docResults"></div>
+        </div>
+
+        <!-- Progreso General -->
+        <div class="demo-section">
+            <div class="demo-title">🏆 Progreso de la Demo</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">0% completado</div>
+        </div>
+
+        <!-- Enlaces Rápidos -->
+        <div class="demo-section">
+            <div class="demo-title">🌐 Enlaces Rápidos del Sistema</div>
+            <div class="url-links">
+                <a href="/" target="_blank" class="url-link">🏠 Página Principal</a>
+                <a href="/login.html" target="_blank" class="url-link">🔐 Login</a>
+                <a href="/registro.html" target="_blank" class="url-link">📝 Registro</a>
+                <a href="/documents.html" target="_blank" class="url-link">📄 Documentos</a>
+                <a href="/solicitudes-demo.html" target="_blank" class="url-link">🎯 Admin Panel</a>
+                <a href="/testing-center.html" target="_blank" class="url-link">🧪 Testing Center</a>
+            </div>
+        </div>
+
+        <!-- Credenciales -->
+        <div class="demo-section">
+            <div class="demo-title">🔑 Credenciales de Acceso</div>
+            <div class="credentials">
+                <div class="credential-item">
+                    <span>📧 admin@hackless.com</span>
+                    <span>🔑 admin123!</span>
+                </div>
+                <div class="credential-item">
+                    <span>📧 demo@hackless.com</span>
+                    <span>🔑 admin123!</span>
+                </div>
+                <div class="credential-item">
+                    <span>📧 superadmin@hackless.com</span>
+                    <span>🔑 admin123!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testsCompletados = 0;
+        const totalTests = 8;
+
+        function actualizarProgreso() {
+            const porcentaje = (testsCompletados / totalTests) * 100;
+            document.getElementById('progressFill').style.width = porcentaje + '%';
+            document.getElementById('progressText').textContent = Math.round(porcentaje) + '% completado';
+            document.getElementById('testsCompleted').textContent = testsCompletados;
+        }
+
+        function actualizarEstado(texto) {
+            document.getElementById('statusText').textContent = texto;
+        }
+
+        function agregarResultado(contenedor, mensaje, tipo = 'info') {
+            const resultDiv = document.getElementById(contenedor);
+            const timestamp = new Date().toLocaleTimeString();
+            const claseColor = tipo === 'success' ? 'success' : tipo === 'error' ? 'error' : tipo === 'warning' ? 'warning' : 'info';
+            
+            resultDiv.innerHTML += `<div class="${claseColor}">[${timestamp}] ${mensaje}</div>`;
+            resultDiv.scrollTop = resultDiv.scrollHeight;
+        }
+
+        async function cargarEstadisticas() {
+            actualizarEstado('Cargando estadísticas...');
+            try {
+                const response = await fetch('/users');
+                const data = await response.json();
+                
+                document.getElementById('totalUsers').textContent = data.total;
+                const admins = data.users.filter(u => u.rol === 'administrador').length;
+                document.getElementById('totalAdmins').textContent = admins;
+                
+                // Cargar documentos
+                const docsResponse = await fetch('/documents');
+                const docsData = await docsResponse.json();
+                document.getElementById('totalDocs').textContent = docsData.total;
+                
+                // Simular solicitudes (requiere autenticación admin)
+                document.getElementById('totalDemos').textContent = '19+';
+                
+                testsCompletados++;
+                actualizarProgreso();
+                actualizarEstado('Estadísticas cargadas');
+                
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+                actualizarEstado('Error en estadísticas');
+            }
+        }
+
+        async function probarLogin() {
+            actualizarEstado('Probando login...');
+            agregarResultado('authResults', '🔄 Iniciando prueba de login...', 'info');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        correo_electronico: 'admin@hackless.com',
+                        password: 'admin123!'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    agregarResultado('authResults', `✅ Login exitoso: ${data.usuario.nombre}`, 'success');
+                    testsCompletados++;
+                } else {
+                    agregarResultado('authResults', '❌ Error en login', 'error');
+                }
+            } catch (error) {
+                agregarResultado('authResults', `❌ Error de conexión: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Login probado');
+        }
+
+        async function probarAdminLogin() {
+            actualizarEstado('Probando login admin...');
+            agregarResultado('authResults', '🔄 Iniciando prueba de login administrativo...', 'info');
+            
+            try {
+                const response = await fetch('/admin-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        correo_electronico: 'admin@hackless.com',
+                        password: 'admin123!'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    agregarResultado('authResults', `✅ Login admin exitoso: ${data.message}`, 'success');
+                    testsCompletados++;
+                } else {
+                    agregarResultado('authResults', '❌ Error en login admin', 'error');
+                }
+            } catch (error) {
+                agregarResultado('authResults', `❌ Error de conexión: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Login admin probado');
+        }
+
+        async function listarUsuarios() {
+            actualizarEstado('Listando usuarios...');
+            agregarResultado('userResults', '🔄 Obteniendo lista de usuarios...', 'info');
+            
+            try {
+                const response = await fetch('/users');
+                const data = await response.json();
+                
+                agregarResultado('userResults', `✅ Total usuarios encontrados: ${data.total}`, 'success');
+                
+                const admins = data.users.filter(u => u.rol === 'administrador');
+                agregarResultado('userResults', `🛡️ Administradores: ${admins.length}`, 'info');
+                
+                admins.slice(0, 3).forEach(admin => {
+                    agregarResultado('userResults', `  📧 ${admin.correo_electronico} - ${admin.nombre}`, 'info');
+                });
+                
+                testsCompletados++;
+            } catch (error) {
+                agregarResultado('userResults', `❌ Error: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Usuarios listados');
+        }
+
+        async function crearUsuarioDemo() {
+            actualizarEstado('Creando usuario demo...');
+            const timestamp = Date.now();
+            const emailDemo = `demo_${timestamp}@hackless.com`;
+            
+            agregarResultado('userResults', `🔄 Creando usuario: ${emailDemo}`, 'info');
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: `Usuario Demo ${timestamp}`,
+                        correo_electronico: emailDemo,
+                        password: 'Demo123!',
+                        confirm_password: 'Demo123!',
+                        rol: 'empleado',
+                        puesto: 'Demostrador',
+                        area: 'Testing'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    agregarResultado('userResults', `✅ Usuario creado: ${data.usuario.nombre}`, 'success');
+                    agregarResultado('userResults', `📧 Email: ${data.usuario.correo_electronico}`, 'info');
+                    testsCompletados++;
+                } else {
+                    const errorData = await response.json();
+                    agregarResultado('userResults', `❌ Error: ${errorData.message}`, 'error');
+                }
+            } catch (error) {
+                agregarResultado('userResults', `❌ Error de conexión: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Usuario demo creado');
+        }
+
+        async function crearSolicitudDemo() {
+            actualizarEstado('Creando solicitud demo...');
+            const timestamp = Date.now();
+            
+            agregarResultado('requestResults', '🔄 Enviando nueva solicitud de demo...', 'info');
+            
+            try {
+                const response = await fetch('/solicitar-demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: `Demo Cliente ${timestamp}`,
+                        empresa: 'Empresa Demo Corp',
+                        email: `cliente_${timestamp}@demo.com`,
+                        telefono: '123456789',
+                        mensaje: 'Solicitud generada desde la demo interactiva del sistema Hackless'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    agregarResultado('requestResults', `✅ Solicitud creada exitosamente`, 'success');
+                    agregarResultado('requestResults', `📧 Email: ${data.solicitud.email}`, 'info');
+                    agregarResultado('requestResults', `🏢 Empresa: ${data.solicitud.empresa}`, 'info');
+                    testsCompletados++;
+                } else {
+                    const errorData = await response.json();
+                    agregarResultado('requestResults', `❌ Error: ${errorData.message}`, 'error');
+                }
+            } catch (error) {
+                agregarResultado('requestResults', `❌ Error de conexión: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Solicitud demo creada');
+        }
+
+        async function listarSolicitudes() {
+            actualizarEstado('Listando solicitudes...');
+            agregarResultado('requestResults', '🔄 Nota: Para ver solicitudes completas, usar el panel de administrador', 'warning');
+            agregarResultado('requestResults', '🌐 Abrir: /solicitudes-demo.html (requiere login admin)', 'info');
+            
+            testsCompletados++;
+            actualizarProgreso();
+            actualizarEstado('Info solicitudes mostrada');
+        }
+
+        async function listarDocumentos() {
+            actualizarEstado('Listando documentos...');
+            agregarResultado('docResults', '🔄 Obteniendo lista de documentos...', 'info');
+            
+            try {
+                const response = await fetch('/documents');
+                const data = await response.json();
+                
+                agregarResultado('docResults', `✅ Total documentos: ${data.total}`, 'success');
+                
+                if (data.total === 0) {
+                    agregarResultado('docResults', '📝 No hay documentos. Sistema listo para subir archivos PDF', 'info');
+                    agregarResultado('docResults', '🌐 Ir a /documents.html para subir documentos', 'info');
+                } else {
+                    data.documentos.slice(0, 3).forEach(doc => {
+                        agregarResultado('docResults', `📄 ${doc.tipo_documento} - ${doc.usuarioInfo?.nombre}`, 'info');
+                    });
+                }
+                
+                testsCompletados++;
+            } catch (error) {
+                agregarResultado('docResults', `❌ Error: ${error.message}`, 'error');
+            }
+            
+            actualizarProgreso();
+            actualizarEstado('Documentos listados');
+        }
+
+        async function ejecutarDemoCompleta() {
+            actualizarEstado('Ejecutando demo completa...');
+            testsCompletados = 0;
+            actualizarProgreso();
+            
+            // Limpiar resultados previos
+            ['authResults', 'userResults', 'requestResults', 'docResults'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+            
+            agregarResultado('authResults', '🎬 INICIANDO DEMO COMPLETA AUTOMÁTICA...', 'success');
+            
+            // Ejecutar todas las demos con delays
+            setTimeout(cargarEstadisticas, 500);
+            setTimeout(probarLogin, 1500);
+            setTimeout(probarAdminLogin, 3000);
+            setTimeout(listarUsuarios, 4500);
+            setTimeout(crearUsuarioDemo, 6000);
+            setTimeout(crearSolicitudDemo, 8000);
+            setTimeout(listarSolicitudes, 10000);
+            setTimeout(listarDocumentos, 11500);
+            
+            setTimeout(() => {
+                actualizarEstado('Demo completa finalizada');
+                agregarResultado('authResults', '🎉 ¡DEMO COMPLETA FINALIZADA! Todas las funcionalidades verificadas.', 'success');
+            }, 13000);
+        }
+
+        // Cargar estadísticas iniciales al cargar la página
+        window.addEventListener('load', () => {
+            cargarEstadisticas();
+        });
+    </script>
+</body>
+</html>

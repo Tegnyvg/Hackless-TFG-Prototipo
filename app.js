@@ -1,4 +1,5 @@
-/*  Sistema Hackless - Servidor backend principal para gestión de documentos,
+
+/* Sistema Hackless - Servidor backend principal para gestión de documentos,
    usuarios, autenticación 2FA y administración de solicitudes de demo.
    Incluye endpoints REST, validaciones robustas, seguridad y logging humanizado. */
 
@@ -20,16 +21,6 @@ const { connectDB, sequelize } = require('./config/database');
 const Usuario = require('./models/Usuario');
 const Documentacion = require('./models/Documentacion');
 const SolicitudDemo = require('./models/SolicitudDemo');
-// // const Auditoria = require('./models/Auditoria'); // Temporalmente deshabilitado
-
-// Modelo temporal para auditorías
-const AuditoriaTemporal = {
-  findAll: () => Promise.resolve([]),
-  create: () => Promise.resolve({}),
-  findByPk: () => Promise.resolve(null),
-  count: () => Promise.resolve(0)
-};
-const Auditoria = AuditoriaTemporal;
 
 const app = express();
 
@@ -44,6 +35,25 @@ app.use(session({
   saveUninitialized: false,
   cookie: { secure: false }
 }));
+
+// === ENDPOINTS PARA DESCARGA DE PLANTILLAS DE EMPLEADOS ===
+app.get('/api/demo/generar-excel-empleados', (req, res) => {
+  const filePath = path.join(__dirname, 'empleados_demo.xlsx');
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, 'empleados_demo.xlsx');
+  } else {
+    res.status(404).send('Archivo de plantilla demo no encontrado');
+  }
+});
+
+app.get('/api/demo/plantilla-empleados-vacia', (req, res) => {
+  const filePath = path.join(__dirname, 'empleados_plantilla_vacia.xlsx');
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, 'empleados_plantilla_vacia.xlsx');
+  } else {
+    res.status(404).send('Archivo de plantilla vacía no encontrado');
+  }
+});
 
 // Configuración de Multer para subida de archivos
 const storage = multer.diskStorage({
@@ -131,12 +141,12 @@ app.post('/test', (req, res) => {
 
 // Registro de nuevos usuarios
 app.post('/register', async (req, res) => {
-  const { nombre, correo_electronico, password, confirm_password, rol, puesto, area, telefono, id } = req.body;
+  const { nombre, correo_electronico, password, confirm_password, rol, puesto, area, telefono } = req.body;
 
   // Validación de campos obligatorios
-  if (!nombre || !correo_electronico || !password || !confirm_password || !rol || !id) {
+  if (!nombre || !correo_electronico || !password || !confirm_password || !rol) {
     return res.status(400).json({ 
-      message: 'Todos los campos son obligatorios para completar el registro, incluyendo el ID (antes DNI).' 
+      message: 'Todos los campos son obligatorios para completar el registro.' 
     });
   }
 
@@ -160,33 +170,13 @@ app.post('/register', async (req, res) => {
     });
   }
 
-  // Validación de formato de ID (8 dígitos numéricos)
-  const idRegex = /^\d{8}$/;
-  if (!idRegex.test(String(id))) {
-      return res.status(400).json({ 
-          message: 'El ID debe contener exactamente 8 dígitos numéricos.' 
-      });
-  }
-
   try {
-    // Verificar si el usuario o ID ya existe
-    const usuarioExistente = await Usuario.findOne({ 
-        where: { 
-            [sequelize.Op.or]: [
-                { correo_electronico },
-                { dni: String(id) }
-            ]
-        } 
-    });
+    // Verificar si el usuario ya existe
+    const usuarioExistente = await Usuario.findOne({ where: { correo_electronico } });
     if (usuarioExistente) {
-        if (usuarioExistente.dni === String(id)) {
-            return res.status(409).json({ 
-                message: 'Este ID ya está registrado en el sistema.' 
-            });
-        }
-        return res.status(409).json({ 
-            message: 'Este correo electrónico ya está registrado en el sistema.' 
-        });
+      return res.status(409).json({ 
+        message: 'Este correo electrónico ya está registrado en el sistema.' 
+      });
     }
 
     // Crear nuevo usuario con contraseña encriptada
@@ -194,7 +184,6 @@ app.post('/register', async (req, res) => {
     const datosUsuario = { 
       nombre, 
       correo_electronico, 
-      dni: String(id),
       contraseña: contrasenaEncriptada, 
       rol 
     };
@@ -235,30 +224,24 @@ app.post('/login', async (req, res) => {
 
   try {
     const usuario = await Usuario.findOne({ where: { correo_electronico } });
-    console.log('🔍 Login intento:', { correo_electronico, password });
+    
     if (!usuario) {
-      console.log('❌ Usuario no encontrado para login:', correo_electronico);
       return res.status(401).json({ 
         message: 'Credenciales incorrectas. Verifica tu información.' 
       });
     }
-    console.log('👤 Usuario encontrado:', {
-      id: usuario.id_usuario,
-      correo: usuario.correo_electronico,
-      rol: usuario.rol,
-      hash: usuario.contraseña
-    });
+
     const contrasenaValida = await bcrypt.compare(password, usuario.contraseña);
-    console.log('🔑 Resultado comparación contraseña:', contrasenaValida);
     if (!contrasenaValida) {
-      console.log('❌ Contraseña incorrecta para usuario:', correo_electronico);
       return res.status(401).json({ 
         message: 'Credenciales incorrectas. Verifica tu información.' 
       });
     }
+
     // Preparar datos de respuesta sin información sensible
     const datosUsuario = usuario.toJSON();
     delete datosUsuario.contraseña;
+
     res.status(200).json({ 
       message: 'Inicio de sesión exitoso. Bienvenido a Hackless.', 
       usuario: datosUsuario 
@@ -318,9 +301,7 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
     }
 
     let usuariosCreados = 0;
-    let dniDuplicados = 0;
-    let emailDuplicados = 0;
-    let formatoInvalido = 0;
+    let usuariosExistentes = 0;
     let errores = [];
 
     // Procesar cada fila del Excel
@@ -331,53 +312,31 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
         // Extraer datos de la fila (adaptable según las columnas del Excel)
         const nombre = fila['Nombre'] || fila['nombre'] || fila['Name'];
         const correo_electronico = fila['Email'] || fila['Correo'] || fila['correo_electronico'] || fila['Correo Electrónico'];
-        const id = fila['ID'] || fila['id'] || fila['DNI'] || fila['dni'] || fila['Documento'];
         const rol = fila['Rol'] || fila['rol'] || fila['Role'] || 'empleado';
         const puesto = fila['Puesto'] || fila['puesto'] || fila['Position'] || '';
         const area = fila['Area'] || fila['Área'] || fila['area'] || fila['Department'] || '';
         const telefono = fila['Telefono'] || fila['Teléfono'] || fila['telefono'] || fila['Phone'] || '';
         
         // Validar campos obligatorios
-        if (!nombre || !correo_electronico || !id) {
-          errores.push({ fila: filaNumero, tipo: 'faltan_datos', mensaje: `Faltan campos obligatorios (Nombre, Email o ID)` });
-          formatoInvalido++;
+        if (!nombre || !correo_electronico) {
+          errores.push(`Fila ${filaNumero}: Faltan campos obligatorios (Nombre y/o Email)`);
           continue;
-        }
-
-        // Validar formato de ID (8 dígitos numéricos)
-        const idRegex = /^\d{8}$/;
-        if (!idRegex.test(String(id))) {
-            errores.push({ fila: filaNumero, tipo: 'id_invalido', mensaje: `ID inválido (${id}). Debe contener 8 dígitos.` });
-            formatoInvalido++;
-            continue;
         }
 
         // Validar formato de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(correo_electronico)) {
-          errores.push({ fila: filaNumero, tipo: 'email_invalido', mensaje: `Email inválido (${correo_electronico})` });
-          formatoInvalido++;
+          errores.push(`Fila ${filaNumero}: Email inválido (${correo_electronico})`);
           continue;
         }
 
-        // Verificar si el DNI o el email ya existen
+        // Verificar si el usuario ya existe
         const usuarioExistente = await Usuario.findOne({ 
-          where: { 
-            [sequelize.Op.or]: [
-              { correo_electronico },
-              { dni: String(id) }
-            ]
-          } 
+          where: { correo_electronico } 
         });
         
         if (usuarioExistente) {
-          if (usuarioExistente.dni === String(id)) {
-            errores.push({ fila: filaNumero, tipo: 'id_duplicado', mensaje: `El ID ${id} ya está registrado.` });
-            dniDuplicados++;
-          } else {
-            errores.push({ fila: filaNumero, tipo: 'email_duplicado', mensaje: `El email ${correo_electronico} ya está registrado.` });
-            emailDuplicados++;
-          }
+          usuariosExistentes++;
           continue;
         }
 
@@ -389,7 +348,6 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
         const datosUsuario = {
           nombre: nombre.trim(),
           correo_electronico: correo_electronico.toLowerCase().trim(),
-          dni: String(id),
           contraseña: contrasenaEncriptada,
           rol: rol.toLowerCase().trim()
         };
@@ -405,7 +363,7 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
         usuariosCreados++;
 
       } catch (errorFila) {
-        errores.push({ fila: filaNumero, tipo: 'desconocido', mensaje: `Error al procesar - ${errorFila.message}` });
+        errores.push(`Fila ${filaNumero}: Error al procesar - ${errorFila.message}`);
       }
     }
 
@@ -415,9 +373,7 @@ app.post('/users/upload-excel', uploadMemory.single('excelFile'), async (req, re
       resumen: {
         totalFilas: datos.length,
         usuariosCreados,
-        dniDuplicados,
-        emailDuplicados,
-        formatoInvalido,
+        usuariosExistentes,
         errores: errores.length
       },
       contrasenaTemporalInfo: usuariosCreados > 0 ? `Los nuevos usuarios tienen la contraseña: Hackless${new Date().getFullYear()}!` : null
@@ -578,574 +534,6 @@ app.delete('/documents/:id', async (req, res) => {
     });
   }
 });
-
-// === GESTIÓN DE AUDITORÍAS INTERNAS ===
-
-// Middleware para verificar autenticación en auditorías
-const verificarAutenticacionAuditoria = (req, res, next) => {
-  if (!req.session.usuario) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Acceso no autorizado. Debe iniciar sesión.' 
-    });
-  }
-  next();
-};
-
-// GET - Obtener todas las auditorías con filtros opcionales
-app.get('/api/auditorias', verificarAutenticacionAuditoria, async (req, res) => {
-  try {
-    const { estado, tipo, fecha_desde } = req.query;
-    
-    let whereConditions = {};
-    
-    // Aplicar filtros si se proporcionan
-    if (estado) {
-      whereConditions.estado_auditoria = estado;
-    }
-    
-    if (tipo) {
-      whereConditions.tipo_auditoria = tipo;
-    }
-    
-    if (fecha_desde) {
-      whereConditions.fecha_programada = {
-        [sequelize.Op.gte]: fecha_desde
-      };
-    }
-    
-    const auditorias = await Auditoria.findAll({
-      where: whereConditions,
-      order: [['fecha_programada', 'DESC']]
-    });
-    
-    console.log(`📋 Consultadas ${auditorias.length} auditorías`);
-    
-    res.json({
-      success: true,
-      data: auditorias,
-      total: auditorias.length
-    });
-    
-  } catch (error) {
-    console.error('❌ Error al obtener auditorías:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al obtener las auditorías.',
-      error: error.message
-    });
-  }
-});
-
-// POST - Crear nueva auditoría (planificar)
-app.post('/api/auditorias', verificarAutenticacionAuditoria, async (req, res) => {
-  try {
-    const {
-      tipo_auditoria,
-      fecha_programada,
-      auditor_responsable,
-      area_auditada,
-      alcance,
-      objetivos,
-      estado_auditoria,
-      prioridad
-    } = req.body;
-    
-    // Validaciones básicas
-    if (!tipo_auditoria || !fecha_programada || !auditor_responsable || !area_auditada) {
-      return res.status(400).json({
-        success: false,
-        message: 'Faltan campos obligatorios: tipo_auditoria, fecha_programada, auditor_responsable, area_auditada'
-      });
-    }
-    
-    // Crear nueva auditoría
-    const nuevaAuditoria = await Auditoria.create({
-      tipo_auditoria,
-      fecha_programada,
-      auditor_responsable,
-      area_auditada,
-      alcance,
-      objetivos,
-      estado_auditoria: estado_auditoria || 'planificada',
-      prioridad: prioridad || 'media',
-      fecha_creacion: new Date(),
-      usuario_creador: req.session.usuario.id
-    });
-    
-    console.log(`✅ Nueva auditoría creada: ID ${nuevaAuditoria.id_auditoria}, Tipo: ${tipo_auditoria}`);
-    
-    res.status(201).json({
-      success: true,
-      message: 'Auditoría planificada exitosamente',
-      data: nuevaAuditoria
-    });
-    
-  } catch (error) {
-    console.error('❌ Error al crear auditoría:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al planificar la auditoría.',
-      error: error.message
-    });
-  }
-});
-
-// POST - Ejecutar auditoría (actualizar con resultados)
-app.post('/api/auditorias/ejecutar', verificarAutenticacionAuditoria, async (req, res) => {
-  try {
-    const {
-      id_auditoria,
-      fecha_real,
-      duracion,
-      metodologia,
-      hallazgos_encontrados,
-      recomendaciones,
-      resultado_general,
-      puntuacion
-    } = req.body;
-    
-    if (!id_auditoria || !fecha_real || !resultado_general) {
-      return res.status(400).json({
-        success: false,
-        message: 'Faltan campos obligatorios: id_auditoria, fecha_real, resultado_general'
-      });
-    }
-    
-    // Buscar la auditoría
-    const auditoria = await Auditoria.findByPk(id_auditoria);
-    
-    if (!auditoria) {
-      return res.status(404).json({
-        success: false,
-        message: 'Auditoría no encontrada'
-      });
-    }
-    
-    // Actualizar la auditoría con los resultados de ejecución
-    await auditoria.update({
-      fecha_real,
-      duracion,
-      metodologia,
-      hallazgos_encontrados,
-      recomendaciones,
-      resultado_general,
-      puntuacion: puntuacion ? parseFloat(puntuacion) : null,
-      estado_auditoria: 'completada',
-      fecha_completada: new Date()
-    });
-    
-    console.log(`✅ Auditoría ejecutada: ID ${id_auditoria}, Resultado: ${resultado_general}`);
-    
-    res.json({
-      success: true,
-      message: 'Auditoría ejecutada exitosamente',
-      data: auditoria
-    });
-    
-  } catch (error) {
-    console.error('❌ Error al ejecutar auditoría:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al ejecutar la auditoría.',
-      error: error.message
-    });
-  }
-});
-
-// GET - Obtener métricas de auditorías para dashboard
-app.get('/api/auditorias/metricas', verificarAutenticacionAuditoria, async (req, res) => {
-  try {
-    const total = await Auditoria.count();
-    
-    const en_progreso = await Auditoria.count({
-      where: { estado_auditoria: 'en_progreso' }
-    });
-    
-    const completadas = await Auditoria.count({
-      where: { estado_auditoria: 'completada' }
-    });
-    
-    const planificadas = await Auditoria.count({
-      where: { estado_auditoria: 'planificada' }
-    });
-    
-    // Calcular promedio de puntuación
-    const auditoriasConPuntuacion = await Auditoria.findAll({
-      where: {
-        estado_auditoria: 'completada',
-        puntuacion: { [sequelize.Op.not]: null }
-      },
-      attributes: ['puntuacion']
-    });
-    
-    let promedio_puntuacion = 0;
-    if (auditoriasConPuntuacion.length > 0) {
-      const sumaPuntuaciones = auditoriasConPuntuacion.reduce((sum, audit) => sum + audit.puntuacion, 0);
-      promedio_puntuacion = Math.round(sumaPuntuaciones / auditoriasConPuntuacion.length);
-    }
-    
-    const metricas = {
-      total,
-      en_progreso,
-      completadas,
-      planificadas,
-      promedio_puntuacion
-    };
-    
-    console.log('📊 Métricas de auditorías calculadas:', metricas);
-    
-    res.json({
-      success: true,
-      data: metricas
-    });
-    
-  } catch (error) {
-    console.error('❌ Error al calcular métricas:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al calcular métricas de auditorías.',
-      error: error.message
-    });
-  }
-});
-
-// POST - Generar reporte de auditorías
-app.post('/api/auditorias/reporte', verificarAutenticacionAuditoria, async (req, res) => {
-  try {
-    const { reporte_tipo, reporte_periodo, fecha_desde, fecha_hasta } = req.body;
-    
-    if (!reporte_tipo || !reporte_periodo) {
-      return res.status(400).json({
-        success: false,
-        message: 'Faltan campos obligatorios: reporte_tipo, reporte_periodo'
-      });
-    }
-    
-    // Calcular fechas según el período
-    let fechaInicio, fechaFin;
-    const ahora = new Date();
-    
-    switch (reporte_periodo) {
-      case 'ultimo_mes':
-        fechaInicio = new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1);
-        fechaFin = new Date(ahora.getFullYear(), ahora.getMonth(), 0);
-        break;
-      case 'ultimo_trimestre':
-        const trimestreActual = Math.floor(ahora.getMonth() / 3);
-        fechaInicio = new Date(ahora.getFullYear(), (trimestreActual - 1) * 3, 1);
-        fechaFin = new Date(ahora.getFullYear(), trimestreActual * 3, 0);
-        break;
-      case 'ultimo_semestre':
-        const semestreActual = Math.floor(ahora.getMonth() / 6);
-        fechaInicio = new Date(ahora.getFullYear(), (semestreActual - 1) * 6, 1);
-        fechaFin = new Date(ahora.getFullYear(), semestreActual * 6, 0);
-        break;
-      case 'ultimo_año':
-        fechaInicio = new Date(ahora.getFullYear() - 1, 0, 1);
-        fechaFin = new Date(ahora.getFullYear() - 1, 11, 31);
-        break;
-      case 'personalizado':
-        if (!fecha_desde || !fecha_hasta) {
-          return res.status(400).json({
-            success: false,
-            message: 'Para período personalizado se requieren fecha_desde y fecha_hasta'
-          });
-        }
-        fechaInicio = new Date(fecha_desde);
-        fechaFin = new Date(fecha_hasta);
-        break;
-      default:
-        fechaInicio = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
-        fechaFin = ahora;
-    }
-    
-    // Obtener auditorías del período
-    const auditorias = await Auditoria.findAll({
-      where: {
-        fecha_programada: {
-          [sequelize.Op.between]: [fechaInicio, fechaFin]
-        }
-      },
-      order: [['fecha_programada', 'ASC']]
-    });
-    
-    // Generar HTML del reporte según el tipo
-    let reporteHTML = '';
-    
-    switch (reporte_tipo) {
-      case 'ejecutivo':
-        reporteHTML = generarReporteEjecutivo(auditorias, fechaInicio, fechaFin);
-        break;
-      case 'detallado':
-        reporteHTML = generarReporteDetallado(auditorias, fechaInicio, fechaFin);
-        break;
-      case 'compliance':
-        reporteHTML = generarReporteCompliance(auditorias, fechaInicio, fechaFin);
-        break;
-      case 'tendencias':
-        reporteHTML = generarReporteTendencias(auditorias, fechaInicio, fechaFin);
-        break;
-      case 'hallazgos':
-        reporteHTML = generarReporteHallazgos(auditorias, fechaInicio, fechaFin);
-        break;
-      default:
-        reporteHTML = '<p>Tipo de reporte no válido</p>';
-    }
-    
-    console.log(`📊 Reporte generado: ${reporte_tipo}, ${auditorias.length} auditorías`);
-    
-    res.json({
-      success: true,
-      html: reporteHTML,
-      data: {
-        periodo: reporte_periodo,
-        fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin,
-        total_auditorias: auditorias.length
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error al generar reporte:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al generar el reporte.',
-      error: error.message
-    });
-  }
-});
-
-// GET - Exportar auditorías a Excel
-app.get('/api/auditorias/export', verificarAutenticacionAuditoria, async (req, res) => {
-  try {
-    const auditorias = await Auditoria.findAll({
-      order: [['fecha_programada', 'DESC']]
-    });
-    
-    // Crear workbook de Excel
-    const workbook = XLSX.utils.book_new();
-    
-    // Preparar datos para Excel
-    const datosExcel = auditorias.map(auditoria => ({
-      'ID': auditoria.id_auditoria,
-      'Tipo': auditoria.tipo_auditoria,
-      'Área': auditoria.area_auditada,
-      'Fecha Programada': auditoria.fecha_programada,
-      'Fecha Real': auditoria.fecha_real || 'N/A',
-      'Responsable': auditoria.auditor_responsable,
-      'Estado': auditoria.estado_auditoria,
-      'Prioridad': auditoria.prioridad,
-      'Resultado': auditoria.resultado_general || 'N/A',
-      'Puntuación': auditoria.puntuacion || 'N/A',
-      'Duración (hrs)': auditoria.duracion || 'N/A'
-    }));
-    
-    // Crear hoja de cálculo
-    const worksheet = XLSX.utils.json_to_sheet(datosExcel);
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Auditorias');
-    
-    // Generar buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    
-    console.log(`📊 Exportando ${auditorias.length} auditorías a Excel`);
-    
-    res.setHeader('Content-Disposition', 'attachment; filename=auditorias_hackless.xlsx');
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.send(buffer);
-    
-  } catch (error) {
-    console.error('❌ Error al exportar auditorías:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al exportar auditorías.',
-      error: error.message
-    });
-  }
-});
-
-// Funciones auxiliares para generar reportes
-function generarReporteEjecutivo(auditorias, fechaInicio, fechaFin) {
-  const total = auditorias.length;
-  const completadas = auditorias.filter(a => a.estado_auditoria === 'completada').length;
-  const enProgreso = auditorias.filter(a => a.estado_auditoria === 'en_progreso').length;
-  const planificadas = auditorias.filter(a => a.estado_auditoria === 'planificada').length;
-  
-  const auditoriasConPuntuacion = auditorias.filter(a => a.puntuacion);
-  const promedioPuntuacion = auditoriasConPuntuacion.length > 0 
-    ? Math.round(auditoriasConPuntuacion.reduce((sum, a) => sum + a.puntuacion, 0) / auditoriasConPuntuacion.length)
-    : 0;
-  
-  return `
-    <div class="reporte-ejecutivo">
-      <h2>📊 Reporte Ejecutivo de Auditorías</h2>
-      <p><strong>Período:</strong> ${fechaInicio.toLocaleDateString()} - ${fechaFin.toLocaleDateString()}</p>
-      
-      <div class="metricas-resumen">
-        <div class="metrica">
-          <h3>Total de Auditorías</h3>
-          <div class="numero">${total}</div>
-        </div>
-        <div class="metrica">
-          <h3>Completadas</h3>
-          <div class="numero">${completadas}</div>
-        </div>
-        <div class="metrica">
-          <h3>En Progreso</h3>
-          <div class="numero">${enProgreso}</div>
-        </div>
-        <div class="metrica">
-          <h3>Planificadas</h3>
-          <div class="numero">${planificadas}</div>
-        </div>
-        <div class="metrica">
-          <h3>Promedio de Cumplimiento</h3>
-          <div class="numero">${promedioPuntuacion}%</div>
-        </div>
-      </div>
-      
-      <h3>Distribución por Tipo</h3>
-      <ul>
-        ${[...new Set(auditorias.map(a => a.tipo_auditoria))].map(tipo => 
-          `<li>${tipo}: ${auditorias.filter(a => a.tipo_auditoria === tipo).length} auditorías</li>`
-        ).join('')}
-      </ul>
-    </div>
-  `;
-}
-
-function generarReporteDetallado(auditorias, fechaInicio, fechaFin) {
-  return `
-    <div class="reporte-detallado">
-      <h2>📋 Reporte Detallado de Auditorías</h2>
-      <p><strong>Período:</strong> ${fechaInicio.toLocaleDateString()} - ${fechaFin.toLocaleDateString()}</p>
-      
-      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-        <thead>
-          <tr style="background: #f8f9fa;">
-            <th style="border: 1px solid #ddd; padding: 8px;">ID</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">Tipo</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">Área</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">Estado</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">Resultado</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">Puntuación</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${auditorias.map(auditoria => `
-            <tr>
-              <td style="border: 1px solid #ddd; padding: 8px;">${auditoria.id_auditoria}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${auditoria.tipo_auditoria}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${auditoria.area_auditada}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${auditoria.estado_auditoria}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${auditoria.resultado_general || 'N/A'}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">${auditoria.puntuacion || 'N/A'}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function generarReporteCompliance(auditorias, fechaInicio, fechaFin) {
-  const auditoriasPorTipo = {};
-  auditorias.forEach(auditoria => {
-    if (!auditoriasPorTipo[auditoria.tipo_auditoria]) {
-      auditoriasPorTipo[auditoria.tipo_auditoria] = [];
-    }
-    auditoriasPorTipo[auditoria.tipo_auditoria].push(auditoria);
-  });
-  
-  return `
-    <div class="reporte-compliance">
-      <h2>📈 Reporte de Compliance</h2>
-      <p><strong>Período:</strong> ${fechaInicio.toLocaleDateString()} - ${fechaFin.toLocaleDateString()}</p>
-      
-      ${Object.keys(auditoriasPorTipo).map(tipo => {
-        const auditoriasDelTipo = auditoriasPorTipo[tipo];
-        const completadas = auditoriasDelTipo.filter(a => a.estado_auditoria === 'completada').length;
-        const porcentajeCompletado = auditoriasDelTipo.length > 0 ? Math.round((completadas / auditoriasDelTipo.length) * 100) : 0;
-        
-        return `
-          <div class="compliance-seccion">
-            <h3>${tipo}</h3>
-            <p>Total: ${auditoriasDelTipo.length} | Completadas: ${completadas} | Progreso: ${porcentajeCompletado}%</p>
-            <div style="background: #e9ecef; height: 20px; border-radius: 10px; overflow: hidden;">
-              <div style="background: #28a745; height: 100%; width: ${porcentajeCompletado}%; transition: width 0.3s;"></div>
-            </div>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
-}
-
-function generarReporteTendencias(auditorias, fechaInicio, fechaFin) {
-  // Agrupar por mes
-  const auditoriasPorMes = {};
-  auditorias.forEach(auditoria => {
-    const fecha = new Date(auditoria.fecha_programada);
-    const mes = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
-    if (!auditoriasPorMes[mes]) {
-      auditoriasPorMes[mes] = 0;
-    }
-    auditoriasPorMes[mes]++;
-  });
-  
-  return `
-    <div class="reporte-tendencias">
-      <h2>📈 Análisis de Tendencias</h2>
-      <p><strong>Período:</strong> ${fechaInicio.toLocaleDateString()} - ${fechaFin.toLocaleDateString()}</p>
-      
-      <h3>Auditorías por Mes</h3>
-      ${Object.keys(auditoriasPorMes).map(mes => `
-        <div style="margin-bottom: 10px;">
-          <strong>${mes}:</strong> ${auditoriasPorMes[mes]} auditorías
-        </div>
-      `).join('')}
-      
-      <h3>Análisis de Resultados</h3>
-      <ul>
-        <li>Auditorías Satisfactorias: ${auditorias.filter(a => a.resultado_general === 'satisfactorio').length}</li>
-        <li>Satisfactorias con Observaciones: ${auditorias.filter(a => a.resultado_general === 'satisfactorio_observaciones').length}</li>
-        <li>No Conformes Menores: ${auditorias.filter(a => a.resultado_general === 'no_conforme_menor').length}</li>
-        <li>No Conformes Mayores: ${auditorias.filter(a => a.resultado_general === 'no_conforme_mayor').length}</li>
-        <li>No Satisfactorias: ${auditorias.filter(a => a.resultado_general === 'no_satisfactorio').length}</li>
-      </ul>
-    </div>
-  `;
-}
-
-function generarReporteHallazgos(auditorias, fechaInicio, fechaFin) {
-  const auditoriasConHallazgos = auditorias.filter(a => a.hallazgos_encontrados);
-  
-  return `
-    <div class="reporte-hallazgos">
-      <h2>🔍 Reporte de Hallazgos</h2>
-      <p><strong>Período:</strong> ${fechaInicio.toLocaleDateString()} - ${fechaFin.toLocaleDateString()}</p>
-      
-      <p><strong>Auditorías con Hallazgos:</strong> ${auditoriasConHallazgos.length} de ${auditorias.length}</p>
-      
-      ${auditoriasConHallazgos.map(auditoria => `
-        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
-          <h4>${auditoria.tipo_auditoria} - ${auditoria.area_auditada}</h4>
-          <p><strong>Fecha:</strong> ${auditoria.fecha_real || auditoria.fecha_programada}</p>
-          <p><strong>Hallazgos:</strong></p>
-          <div style="background: #f8f9fa; padding: 10px; border-radius: 3px;">
-            ${auditoria.hallazgos_encontrados.replace(/\n/g, '<br>')}
-          </div>
-          ${auditoria.recomendaciones ? `
-            <p><strong>Recomendaciones:</strong></p>
-            <div style="background: #e7f3ff; padding: 10px; border-radius: 3px;">
-              ${auditoria.recomendaciones.replace(/\n/g, '<br>')}
-            </div>
-          ` : ''}
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
 
 // === GESTIÓN DE SOLICITUDES DE DEMO ===
 
@@ -1632,7 +1020,7 @@ if (require.main === module) {
       
       // Sincronizar modelos
       console.log('📦 Sincronizando modelos de base de datos...');
-      await sequelize.sync();
+      await sequelize.sync({ force: false });
       console.log('✅ Base de datos sincronizada correctamente.');
       
       // Iniciar servidor
@@ -1640,7 +1028,7 @@ if (require.main === module) {
       const servidor = app.listen(puerto, '0.0.0.0', () => {
         console.log(`🎉 Servidor Hackless ejecutándose exitosamente!`);
         console.log(`🌐 URL: http://localhost:${puerto}`);
-        console.log(`� Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
+        console.log(`  Entorno: ${process.env.NODE_ENV || 'desarrollo'}`);
         console.log(`🛡️ Sistema listo para recibir conexiones`);
       });
 
@@ -1664,4 +1052,3 @@ if (require.main === module) {
   iniciarServidor();
 }
 
-module.exports = app;

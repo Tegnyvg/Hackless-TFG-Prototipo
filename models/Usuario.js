@@ -23,12 +23,6 @@ const Usuario = sequelize.define('Usuario', {
       isEmail: true // Valida que el formato sea de correo electrónico
     }
   },
-  id_usuario: {
-    type: DataTypes.STRING(20),
-    allowNull: false,
-    unique: true,
-    primaryKey: true
-  },
   contraseña: { // Guardará la contraseña cifrada
     type: DataTypes.STRING(255),
     allowNull: false
