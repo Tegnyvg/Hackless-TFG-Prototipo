@@ -277,7 +277,7 @@
         <div class="header">
             <h1>🖥️ INTERFACES FUNCIONALES</h1>
             <div class="subtitle">Sistema HACKLESS - TFG Verónica García</div>
-            <div class="status-badge">✅ 100% OPERATIVO - 14 de julio de 2025</div>
+            <div class="status-badge">✅ 100% OPERATIVO</div>
         </div>
 
         <div class="summary-stats">
@@ -303,6 +303,7 @@
 
         <div class="filter-buttons">
             <button class="filter-btn active" data-filter="all">📋 Todas</button>
+            <button class="filter-btn" data-filter="demos">🎬 Demos</button>
             <button class="filter-btn" data-filter="principales">🌐 Principales</button>
             <button class="filter-btn" data-filter="usuarios">👥 Usuarios</button>
             <button class="filter-btn" data-filter="testing">🧪 Testing</button>
@@ -311,6 +312,73 @@
         </div>
 
         <div class="categories">
+            <!-- Demostraciones Interactivas -->
+            <div class="category" data-category="demos">
+                <div class="category-header">
+                    <span class="category-icon">🎬</span>
+                    DEMOSTRACIONES INTERACTIVAS
+                </div>
+                <div class="interfaces-grid">
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🎬 Demo TFG Grabación</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/demo-tfg-grabacion.html')">
+                            http://localhost:3000/demo-tfg-grabacion.html
+                        </div>
+                        <div class="interface-description">
+                            Demostración completa del sistema preparada para grabaciones académicas
+                        </div>
+                        <ul class="features-list">
+                            <li>Interface optimizada para presentaciones</li>
+                            <li>Datos académicos de ejemplo preconfigurados</li>
+                            <li>Flujo de demostración paso a paso</li>
+                            <li>Plantillas Excel con datos profesionales</li>
+                            <li>Métricas académicas realistas</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">🎯 Demo Interactiva</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/demo-interactiva.html')">
+                            http://localhost:3000/demo-interactiva.html
+                        </div>
+                        <div class="interface-description">
+                            Demostración visual interactiva para presentaciones académicas
+                        </div>
+                        <ul class="features-list">
+                            <li>Demostración paso a paso del sistema</li>
+                            <li>Interfaz visual atractiva</li>
+                            <li>Ideal para presentaciones TFG</li>
+                            <li>Incluye demo de plantillas Excel</li>
+                        </ul>
+                    </div>
+
+                    <div class="interface-card">
+                        <div class="interface-header">
+                            <div class="interface-title">📊 Documentación de Empleados</div>
+                            <div class="status-icon">✅</div>
+                        </div>
+                        <div class="interface-url" onclick="openInterface('http://localhost:3000/documentacion-empleados.html')">
+                            http://localhost:3000/documentacion-empleados.html
+                        </div>
+                        <div class="interface-description">
+                            Dashboard completo con documentación empresarial profesional
+                        </div>
+                        <ul class="features-list">
+                            <li>Base de datos de empleados empresarial</li>
+                            <li>Documentos corporativos preconfigurados</li>
+                            <li>Informes de gestión automatizados</li>
+                            <li>Dashboard administrativo completo</li>
+                            <li>Datos de ejemplo de alta calidad</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <!-- Principales -->
             <div class="category" data-category="principales">
                 <div class="category-header">

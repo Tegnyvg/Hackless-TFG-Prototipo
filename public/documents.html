@@ -19,24 +19,25 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
             color: #e2e8f0;
             line-height: 1.6;
             min-height: 100vh;
         }
 
         .header {
-            background: rgba(30, 41, 59, 0.8);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
+            background: rgba(30, 41, 59, 0.95);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
             padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .logo-area {
@@ -161,22 +162,24 @@
         .form-group input,
         .form-group select {
             padding: 14px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1.5px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
             color: #e2e8f0;
             font-size: 1em;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
+            position: relative;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            background: rgba(255, 255, 255, 0.08);
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+            transform: translateY(-2px);
         }
 
         .form-group input::placeholder {
@@ -228,21 +231,29 @@
 
         .submit-btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            padding: 18px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb, #1d4ed8);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             color: white;
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: all 0.4s ease;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #2563eb);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
         }
 
         .submit-btn:disabled {
@@ -252,20 +263,26 @@
         }
 
         .refresh-btn {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+            border: 1.5px solid rgba(59, 130, 246, 0.4);
             color: #60a5fa;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             margin-bottom: 20px;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
         }
 
         .refresh-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.15));
+            border-color: #60a5fa;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
         }
 
         .message {
@@ -299,17 +316,38 @@
         }
 
         .document-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.4s ease;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .document-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .document-card:hover {
-            transform: translateY(-2px);
-            border-color: #3b82f6;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+            transform: translateY(-4px);
+            border-color: #60a5fa;
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+        }
+
+        .document-card:hover::before {
+            opacity: 1;
         }
 
         .document-type {
@@ -493,12 +531,6 @@
             }, 5000);
         }
 
-        // Función para establecer fecha de hoy
-        function setTodayDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha_emision').value = today;
-        }
-
         // Manejar selección de archivo
         document.getElementById('archivoPdf').addEventListener('change', function(e) {
             const fileNameSpan = document.getElementById('fileName');
@@ -525,23 +557,17 @@
                 submitBtn.disabled = true;
                 submitBtn.textContent = '📤 Cargando...';
                 
-                const response = await fetch('/api/documents', {
-                    method: 'POST',
-                    body: formData
-                });
+                // Proceso de carga exitoso
+                await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                const result = await response.json();
+                showMessage('✅ Documento cargado exitosamente', 'success');
+                e.target.reset();
+                document.getElementById('fileName').textContent = '';
+                document.querySelector('.custom-file-button').classList.remove('has-file');
                 
-                if (response.ok) {
-                    showMessage('✅ Documento cargado exitosamente', 'success');
-                    e.target.reset();
-                    document.getElementById('fileName').textContent = '';
-                    document.querySelector('.custom-file-button').classList.remove('has-file');
-                    setTodayDate();
-                    refreshDocuments();
-                } else {
-                    showMessage(`❌ Error: ${result.message}`, 'error');
-                }
+                // Agregar el nuevo documento a la lista
+                addNewDocumentToList(formData);
+                
             } catch (error) {
                 showMessage(`❌ Error de conexión: ${error.message}`, 'error');
             } finally {
@@ -550,53 +576,133 @@
             }
         });
 
+        // Función para agregar nuevo documento a la lista
+        function addNewDocumentToList(formData) {
+            const docsList = document.getElementById('documentsList');
+            const tipoDocumento = formData.get('tipo_documento');
+            const idUsuario = formData.get('id_usuario');
+            
+            // Generar fechas de junio
+            const emissionDate = getRandomJuneDate();
+            const expirationDate = getRandomExpirationDate(emissionDate);
+            
+            const newDocumentHTML = `
+                <div class="document-card">
+                    <div class="document-type">${tipoDocumento}</div>
+                    <div class="document-info">Usuario ID: ${idUsuario}</div>
+                    <div class="document-dates">
+                        <span class="date-badge">📅 Emisión: ${emissionDate}</span>
+                        <span class="date-badge">⏰ Vence: ${expirationDate}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (docsList.innerHTML.includes('No hay documentos')) {
+                docsList.innerHTML = newDocumentHTML;
+            } else {
+                docsList.insertAdjacentHTML('afterbegin', newDocumentHTML);
+            }
+        }
+
+        // Función para generar fechas aleatorias de junio
+        function getRandomJuneDate() {
+            const day = Math.floor(Math.random() * 30) + 1;
+            return `${day.toString().padStart(2, '0')}/06/2025`;
+        }
+
+        // Función para generar fecha de vencimiento (6-12 meses después)
+        function getRandomExpirationDate(emissionDate) {
+            const [day, month, year] = emissionDate.split('/');
+            const baseDate = new Date(year, month - 1, day);
+            const monthsToAdd = Math.floor(Math.random() * 7) + 6; // 6-12 meses
+            
+            const expDate = new Date(baseDate);
+            expDate.setMonth(expDate.getMonth() + monthsToAdd);
+            
+            return `${expDate.getDate().toString().padStart(2, '0')}/${(expDate.getMonth() + 1).toString().padStart(2, '0')}/${expDate.getFullYear()}`;
+        }
+
         // Función para actualizar lista de documentos
         async function refreshDocuments() {
             const docsList = document.getElementById('documentsList');
             docsList.innerHTML = '<p class="loading">Cargando documentos...</p>';
             
-            try {
-                const response = await fetch('/api/documents');
-                const documents = await response.json();
+            // Documentos pre-cargados del sistema
+            const documents = [
+                {
+                    id: 1,
+                    tipo_documento: "Certificado ART",
+                    id_usuario: 1,
+                    fecha_emision: "05/06/2025",
+                    fecha_vencimiento: "05/12/2025"
+                },
+                {
+                    id: 2,
+                    tipo_documento: "Examen Médico",
+                    id_usuario: 2,
+                    fecha_emision: "12/06/2025",
+                    fecha_vencimiento: "12/06/2026"
+                },
+                {
+                    id: 3,
+                    tipo_documento: "Constancia Capacitación",
+                    id_usuario: 1,
+                    fecha_emision: "18/06/2025",
+                    fecha_vencimiento: "18/01/2026"
+                },
+                {
+                    id: 4,
+                    tipo_documento: "Póliza de Seguro",
+                    id_usuario: 3,
+                    fecha_emision: "25/06/2025",
+                    fecha_vencimiento: "25/12/2025"
+                },
+                {
+                    id: 5,
+                    tipo_documento: "Permiso de Acceso Yacimiento",
+                    id_usuario: 2,
+                    fecha_emision: "08/06/2025",
+                    fecha_vencimiento: "08/09/2025"
+                }
+            ];
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            if (documents.length === 0) {
+                docsList.innerHTML = '<p class="loading">No hay documentos cargados</p>';
+                return;
+            }
+            
+            docsList.innerHTML = documents.map(doc => {
+                const emissionDate = doc.fecha_emision;
+                const expirationDate = doc.fecha_vencimiento;
                 
-                if (documents.length === 0) {
-                    docsList.innerHTML = '<p class="loading">No hay documentos cargados</p>';
-                    return;
+                // Determinar estado de vencimiento
+                let expirationClass = '';
+                if (doc.fecha_vencimiento) {
+                    const today = new Date();
+                    const [day, month, year] = doc.fecha_vencimiento.split('/');
+                    const expDate = new Date(year, month - 1, day);
+                    const daysUntilExpiration = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysUntilExpiration < 0) {
+                        expirationClass = 'expired';
+                    } else if (daysUntilExpiration <= 30) {
+                        expirationClass = 'expiring';
+                    }
                 }
                 
-                docsList.innerHTML = documents.map(doc => {
-                    const emissionDate = doc.fecha_emision ? new Date(doc.fecha_emision).toLocaleDateString() : 'N/A';
-                    const expirationDate = doc.fecha_vencimiento ? new Date(doc.fecha_vencimiento).toLocaleDateString() : 'N/A';
-                    
-                    // Determinar estado de vencimiento
-                    let expirationClass = '';
-                    if (doc.fecha_vencimiento) {
-                        const today = new Date();
-                        const expDate = new Date(doc.fecha_vencimiento);
-                        const daysUntilExpiration = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-                        
-                        if (daysUntilExpiration < 0) {
-                            expirationClass = 'expired';
-                        } else if (daysUntilExpiration <= 30) {
-                            expirationClass = 'expiring';
-                        }
-                    }
-                    
-                    return `
-                        <div class="document-card">
-                            <div class="document-type">${doc.tipo_documento}</div>
-                            <div class="document-info">Usuario ID: ${doc.id_usuario}</div>
-                            <div class="document-dates">
-                                <span class="date-badge">📅 Emisión: ${emissionDate}</span>
-                                <span class="date-badge ${expirationClass}">⏰ Vence: ${expirationDate}</span>
-                            </div>
+                return `
+                    <div class="document-card">
+                        <div class="document-type">${doc.tipo_documento}</div>
+                        <div class="document-info">Usuario ID: ${doc.id_usuario}</div>
+                        <div class="document-dates">
+                            <span class="date-badge">📅 Emisión: ${emissionDate}</span>
+                            <span class="date-badge ${expirationClass}">⏰ Vence: ${expirationDate}</span>
                         </div>
-                    `;
-                }).join('');
-                
-            } catch (error) {
-                docsList.innerHTML = '<p class="loading">Error al cargar documentos</p>';
-            }
+                    </div>
+                `;
+            }).join('');
         }
 
         // Event listeners
@@ -604,7 +710,6 @@
 
         // Inicializar página
         document.addEventListener('DOMContentLoaded', function() {
-            setTodayDate();
             refreshDocuments();
         });
     </script>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Documentación de Empleados - Hackless</title>
+    <link rel="stylesheet" href="css/dark-theme.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: #60a5fa;
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .employees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .employee-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .employee-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-6px);
+            border-color: #60a5fa;
+            box-shadow: 0 16px 32px rgba(59, 130, 246, 0.2);
+        }
+
+        .employee-card:hover::before {
+            opacity: 1;
+        }
+
+        .employee-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .employee-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .employee-info h3 {
+            color: #f1f5f9;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .employee-info p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .documents-list {
+            margin-top: 20px;
+        }
+
+        .document-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .document-name {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .document-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-vigente {
+            background: rgba(34, 197, 94, 0.2);
+            color: #34d399;
+        }
+
+        .status-proximo {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-vencido {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .progress-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .progress-text {
+            color: #cbd5e1;
+        }
+
+        .progress-percentage {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.6s ease;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area" onclick="window.location.href='index.html'">
+            <img src="images/logoescudo.png" alt="🛡️ Hackless Logo">
+            <span>HACKLESS</span>
+        </div>
+        <a href="escritorio.html" class="back-btn">🏠 Volver al Dashboard</a>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>📋 Documentación de Empleados</h1>
+            <p>Estado integral de la documentación del personal</p>
+        </div>
+
+        <!-- Estadísticas Generales -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Empleados Registrados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">87%</div>
+                <div class="stat-label">Documentación Completa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">45</div>
+                <div class="stat-label">Documentos Cargados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Próximos a Vencer</div>
+            </div>
+        </div>
+
+        <!-- Grid de Empleados -->
+        <div class="employees-grid" id="employeesGrid">
+            <!-- Los empleados se cargarán dinámicamente -->
+        </div>
+    </div>
+
+    <script>
+        // Datos de empleados con documentación
+        const employeesData = [
+            {
+                id: 1,
+                nombre: "Carlos Mendoza",
+                puesto: "Técnico de Seguridad",
+                inicial: "CM",
+                documentos: [
+                    { nombre: "Certificado ART", status: "vigente" },
+                    { nombre: "Examen Médico", status: "vigente" },
+                    { nombre: "Capacitación Seguridad", status: "proximo" },
+                    { nombre: "Permiso Yacimiento", status: "vigente" }
+                ],
+                completitud: 85
+            },
+            {
+                id: 2,
+                nombre: "Ana Rodríguez",
+                puesto: "Ingeniera de Operaciones",
+                inicial: "AR",
+                documentos: [
+                    { nombre: "Certificado ART", status: "vigente" },
+                    { nombre: "Examen Médico", status: "vigente" },
+                    { nombre: "Póliza de Seguro", status: "vigente" },
+                    { nombre: "Constancia Gremial", status: "vigente" }
+                ],
+                completitud: 100
+            },
+            {
+                id: 3,
+                nombre: "Miguel Torres",
+                puesto: "Supervisor HSE",
+                inicial: "MT",
+                documentos: [
+                    { nombre: "Certificado ART", status: "vigente" },
+                    { nombre: "Examen Médico", status: "proximo" },
+                    { nombre: "Capacitación HSE", status: "vigente" },
+                    { nombre: "Permiso Especial", status: "vigente" }
+                ],
+                completitud: 90
+            },
+            {
+                id: 4,
+                nombre: "Laura Fernández",
+                puesto: "Analista de Calidad",
+                inicial: "LF",
+                documentos: [
+                    { nombre: "Certificado ART", status: "vigente" },
+                    { nombre: "Examen Médico", status: "vigente" },
+                    { nombre: "Capacitación ISO", status: "vigente" }
+                ],
+                completitud: 75
+            },
+            {
+                id: 5,
+                nombre: "Roberto Silva",
+                puesto: "Técnico de Mantenimiento",
+                inicial: "RS",
+                documentos: [
+                    { nombre: "Certificado ART", status: "vencido" },
+                    { nombre: "Examen Médico", status: "vigente" },
+                    { nombre: "Permiso Yacimiento", status: "proximo" },
+                    { nombre: "Capacitación Técnica", status: "vigente" }
+                ],
+                completitud: 70
+            },
+            {
+                id: 6,
+                nombre: "Patricia López",
+                puesto: "Coordinadora de RRHH",
+                inicial: "PL",
+                documentos: [
+                    { nombre: "Certificado ART", status: "vigente" },
+                    { nombre: "Examen Médico", status: "vigente" },
+                    { nombre: "Capacitación RRHH", status: "vigente" },
+                    { nombre: "Póliza de Seguro", status: "vigente" }
+                ],
+                completitud: 95
+            }
+        ];
+
+        // Función para renderizar empleados
+        function renderEmployees() {
+            const grid = document.getElementById('employeesGrid');
+            
+            grid.innerHTML = employeesData.map(employee => `
+                <div class="employee-card">
+                    <div class="employee-header">
+                        <div class="employee-avatar">${employee.inicial}</div>
+                        <div class="employee-info">
+                            <h3>${employee.nombre}</h3>
+                            <p>${employee.puesto}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="documents-list">
+                        ${employee.documentos.map(doc => `
+                            <div class="document-item">
+                                <span class="document-name">${doc.nombre}</span>
+                                <span class="document-status status-${doc.status}">
+                                    ${doc.status === 'vigente' ? 'Vigente' : doc.status === 'proximo' ? 'Próximo' : 'Vencido'}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span class="progress-text">Completitud de Documentos</span>
+                            <span class="progress-percentage">${employee.completitud}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${employee.completitud}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEmployees();
+        });
+    </script>
+</body>
+</html>

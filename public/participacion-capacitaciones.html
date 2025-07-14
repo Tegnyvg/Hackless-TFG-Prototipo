@@ -19,60 +19,80 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: #e2e8f0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      color: #f1f5f9;
       line-height: 1.6;
       min-height: 100vh;
+      background-attachment: fixed;
     }
 
     .header {
-      background: rgba(30, 41, 59, 0.8);
-      backdrop-filter: blur(10px);
-      padding: 15px 40px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     }
 
     .logo-area {
       display: flex;
       align-items: center;
       gap: 15px;
-      font-size: 1.2em;
-      font-weight: 600;
-      color: #3b82f6;
     }
 
     .logo-area img {
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       border-radius: 8px;
+      filter: brightness(1.1) contrast(1.1);
+    }
+
+    .logo-area span {
+      font-size: 1.5em;
+      font-weight: 600;
+      background: linear-gradient(45deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
     }
 
     .back-btn {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid #3b82f6;
-      color: #60a5fa;
-      padding: 10px 20px;
-      border-radius: 8px;
+      background: linear-gradient(45deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #e2e8f0;
+      padding: 12px 24px;
+      border-radius: 10px;
       text-decoration: none;
       transition: all 0.3s ease;
-      font-weight: 500;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
     }
 
     .back-btn:hover {
-      background: rgba(59, 130, 246, 0.2);
-      transform: translateY(-1px);
+      background: linear-gradient(45deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25);
+      border-color: rgba(59, 130, 246, 0.6);
     }
 
     .main-content {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 30px;
+      padding: 40px;
     }
 
     .welcome {
@@ -81,6 +101,7 @@
       padding: 40px 20px;
       background: rgba(255, 255, 255, 0.05);
       border-radius: 20px;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -88,15 +109,16 @@
     .welcome h1 {
       font-size: 2.5em;
       margin-bottom: 15px;
-      background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+      background: linear-gradient(45deg, #60a5fa, #a78bfa, #34d399);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      text-shadow: 0 0 30px rgba(96, 165, 250, 0.3);
     }
 
     .welcome p {
-      color: #94a3b8;
-      font-size: 1.1em;
+      color: #cbd5e1;
+      font-size: 1.2em;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -109,39 +131,46 @@
     }
 
     .stat-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 15px;
       padding: 25px;
       text-align: center;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
     .stat-card:hover {
       transform: translateY(-5px);
-      border-color: #3b82f6;
+      border-color: #60a5fa;
+      box-shadow: 0 8px 30px rgba(96, 165, 250, 0.2);
     }
 
     .stat-number {
       font-size: 2.5em;
       font-weight: bold;
-      color: #3b82f6;
+      color: #60a5fa;
       margin-bottom: 10px;
+      text-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
     }
 
     .stat-label {
-      color: #94a3b8;
+      color: #e2e8f0;
       font-size: 0.9em;
+      font-weight: 500;
     }
 
     .filters-section {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 15px;
       padding: 25px;
       margin-bottom: 30px;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
     .filters-grid {
@@ -159,17 +188,18 @@
 
     .filter-label {
       font-size: 0.9em;
-      color: #cbd5e1;
-      font-weight: 500;
+      color: #e2e8f0;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
 
     .filter-select,
     .filter-input {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 8px;
       padding: 12px;
-      color: #e2e8f0;
+      color: #f1f5f9;
       font-size: 1em;
       transition: all 0.3s ease;
     }
@@ -177,8 +207,9 @@
     .filter-select:focus,
     .filter-input:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     .filter-btn {
@@ -198,11 +229,13 @@
     }
 
     .table-container {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 15px;
       overflow: hidden;
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
     .table {
@@ -211,22 +244,24 @@
     }
 
     .table th {
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(96, 165, 250, 0.15);
       padding: 20px 15px;
       text-align: left;
       font-weight: 600;
-      color: #3b82f6;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #60a5fa;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
     }
 
     .table td {
       padding: 20px 15px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       transition: all 0.3s ease;
+      color: #e2e8f0;
     }
 
     .table tr:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .status-badge {
@@ -394,6 +429,23 @@
     .fade-in {
       animation: fadeInUp 0.6s ease-out;
     }
+
+    /* Clases adicionales */
+    .filter-title {
+      margin-bottom: 20px;
+      color: #60a5fa !important;
+      font-weight: 600;
+      text-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+    }
+
+    .navigation-section {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .navigation-section .back-btn {
+      margin: 0 10px;
+    }
   </style>
 </head>
 <body>
@@ -440,11 +492,11 @@
 
     <!-- Filtros -->
     <div class="filters-section fade-in">
-      <h3 style="margin-bottom: 20px; color: #3b82f6;">🔍 Filtros de Búsqueda</h3>
+      <h3 class="filter-title">🔍 Filtros de Búsqueda</h3>
       <div class="filters-grid">
         <div class="filter-group">
           <label class="filter-label">Estado</label>
-          <select class="filter-select" id="statusFilter">
+          <select class="filter-select" id="statusFilter" title="Filtrar por estado de participación">
             <option value="all">Todos los estados</option>
             <option value="completed">Completado</option>
             <option value="in-progress">En Progreso</option>
@@ -458,7 +510,7 @@
         </div>
         <div class="filter-group">
           <label class="filter-label">Fecha</label>
-          <input type="date" class="filter-input" id="dateFilter">
+          <input type="date" class="filter-input" id="dateFilter" title="Filtrar por fecha de inscripción">
         </div>
         <div class="filter-group">
           <button class="filter-btn" onclick="applyFilters()">🔍 Buscar</button>
@@ -491,9 +543,9 @@
     </div>
 
     <!-- Enlaces de navegación -->
-    <div style="text-align: center; margin-top: 40px;">
-      <a href="capacitacion.html" class="back-btn" style="margin: 0 10px;">🎓 Ver Todas las Capacitaciones</a>
-      <a href="escritorio.html" class="back-btn" style="margin: 0 10px;">🏠 Volver al Dashboard</a>
+    <div class="navigation-section">
+      <a href="capacitacion.html" class="back-btn">🎓 Ver Todas las Capacitaciones</a>
+      <a href="escritorio.html" class="back-btn">🏠 Volver al Dashboard</a>
     </div>
   </div>
 
