@@ -1,4 +1,3 @@
-
 /* Sistema Hackless - Servidor backend principal para gestión de documentos,
    usuarios, autenticación 2FA y administración de solicitudes de demo.
    Incluye endpoints REST, validaciones robustas, seguridad y logging humanizado. */
@@ -82,6 +81,83 @@ function verificarAdministrador(req, res, next) {
     message: 'Acceso no autorizado. Se requieren privilegios de administrador.' 
   });
 }
+
+// === RUTAS PARA PLANTILLAS EXCEL ESTRUCTURADAS ===
+// Servir plantillas Excel
+app.get('/empleados_plantilla_estructurada.xlsx', (req, res) => {
+  const filePath = path.join(__dirname, 'empleados_plantilla_estructurada.xlsx');
+  res.download(filePath, 'empleados_plantilla_estructurada.xlsx');
+});
+
+app.get('/empleados_ejemplo_actualizado.xlsx', (req, res) => {
+  const filePath = path.join(__dirname, 'empleados_ejemplo_actualizado.xlsx');
+  res.download(filePath, 'empleados_ejemplo_actualizado.xlsx');
+});
+
+// Generar plantilla estructurada dinámicamente
+app.post('/api/generar-plantilla-estructurada', async (req, res) => {
+  try {
+    const { exec } = require('child_process');
+    exec('node generar_plantillas_estructuradas.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error generando plantilla:', error);
+        return res.status(500).json({ message: 'Error al generar plantilla' });
+      }
+      
+      const filePath = path.join(__dirname, 'empleados_plantilla_estructurada.xlsx');
+      res.download(filePath, 'empleados_plantilla_estructurada.xlsx');
+    });
+  } catch (error) {
+    console.error('Error al generar plantilla:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Generar ejemplo actualizado dinámicamente
+app.post('/api/generar-ejemplo-actualizado', async (req, res) => {
+  try {
+    const { exec } = require('child_process');
+    exec('node generar_plantillas_estructuradas.js', (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error generando ejemplo:', error);
+        return res.status(500).json({ message: 'Error al generar ejemplo' });
+      }
+      
+      const filePath = path.join(__dirname, 'empleados_ejemplo_actualizado.xlsx');
+      res.download(filePath, 'empleados_ejemplo_actualizado.xlsx');
+    });
+  } catch (error) {
+    console.error('Error al generar ejemplo:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Validar estructura de archivo Excel
+app.post('/api/validar-excel', uploadMemory.single('file'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ 
+      valido: false,
+      errores: ['No se ha proporcionado ningún archivo']
+    });
+  }
+
+  try {
+    // Usar la clase ValidadorExcel
+    const ValidadorExcel = require('./validar_excel');
+    const validador = new ValidadorExcel();
+    
+    // Validar el archivo desde el buffer
+    const resultado = await validador.validarArchivo(req.file.buffer);
+    
+    res.json(resultado);
+  } catch (error) {
+    console.error('Error al validar archivo Excel:', error);
+    res.status(500).json({ 
+      valido: false,
+      errores: ['Error interno al validar el archivo']
+    });
+  }
+});
 
 // === ENDPOINTS DE PRUEBA Y CONECTIVIDAD ===
 

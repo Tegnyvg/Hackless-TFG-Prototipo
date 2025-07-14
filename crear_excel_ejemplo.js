@@ -1,47 +1,49 @@
 const XLSX = require('xlsx');
 const path = require('path');
 
-// Crear datos de ejemplo para el Excel
+// Datos de ejemplo con estructura exacta de la base de datos
+// Campos obligatorios: Nombre, Email, Rol
+// Campos opcionales: Puesto, Area, Telefono
 const datosEmpleados = [
     {
         'Nombre': 'Ana García Rodríguez',
-        'Email': 'ana.garcia@empresa.com',
+        'Email': 'ana.garcia@hackless.com',
         'Rol': 'empleado',
-        'Puesto': 'Operador de Planta',
+        'Puesto': 'Operadora de Línea de Producción',
         'Area': 'Producción',
-        'Telefono': '011-4567-8901'
+        'Telefono': '+54 9 11 1234-5678'
     },
     {
         'Nombre': 'Carlos López Martínez',
-        'Email': 'carlos.lopez@empresa.com',
+        'Email': 'carlos.lopez@hackless.com',
         'Rol': 'supervisor',
-        'Puesto': 'Supervisor de Seguridad',
+        'Puesto': 'Supervisor de Seguridad Industrial',
         'Area': 'Seguridad e Higiene',
-        'Telefono': '011-4567-8902'
+        'Telefono': '+54 9 11 2345-6789'
     },
     {
-        'Nombre': 'María Fernández Silva',
-        'Email': 'maria.fernandez@empresa.com',
+        'Nombre': 'María José Fernández',
+        'Email': 'maria.fernandez@hackless.com',
         'Rol': 'administrador',
-        'Puesto': 'Jefe de RRHH',
-        'Area': 'Recursos Humanos',
-        'Telefono': '011-4567-8903'
+        'Puesto': 'Jefe de Recursos Humanos',
+        'Area': 'Administración',
+        'Telefono': '+54 9 11 3456-7890'
     },
     {
-        'Nombre': 'Juan Pedro Sánchez',
-        'Email': 'juan.sanchez@empresa.com',
+        'Nombre': 'Juan Carlos Sánchez',
+        'Email': 'juan.sanchez@hackless.com',
         'Rol': 'empleado',
-        'Puesto': 'Técnico de Mantenimiento',
+        'Puesto': 'Técnico en Mantenimiento Mecánico',
         'Area': 'Mantenimiento',
-        'Telefono': '011-4567-8904'
+        'Telefono': '+54 9 11 4567-8901'
     },
     {
-        'Nombre': 'Laura Morales Vega',
-        'Email': 'laura.morales@empresa.com',
+        'Nombre': 'Laura Patricia Morales',
+        'Email': 'laura.morales@hackless.com',
         'Rol': 'auditor',
-        'Puesto': 'Auditor Interno',
+        'Puesto': 'Auditor Interno de Calidad',
         'Area': 'Calidad',
-        'Telefono': '011-4567-8905'
+        'Telefono': '+54 9 11 5678-9012'
     }
 ];
 

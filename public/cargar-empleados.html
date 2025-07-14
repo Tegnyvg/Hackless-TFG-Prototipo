@@ -473,21 +473,40 @@
         <div id="tab-masiva" class="tab-content active">
 
         <div class="template-download">
-            <h3>📋 Descargar Plantilla</h3>
-            <p>Utiliza nuestra plantilla para asegurar el formato correcto de los datos</p>
-            <a href="#" class="btn-template" onclick="downloadTemplate()">📥 Descargar Plantilla Excel</a>
-            <a href="#" class="btn-template" onclick="downloadSample()">👥 Datos de Ejemplo</a>
+            <h3>📋 Descargar Plantillas Estructuradas</h3>
+            <p>Utiliza nuestras plantillas validadas para asegurar compatibilidad completa con la base de datos</p>
+            <a href="#" class="btn-template" onclick="downloadPlantillaEstructurada()">� Plantilla Completa (con instrucciones)</a>
+            <a href="#" class="btn-template" onclick="downloadEjemploActualizado()">👥 Ejemplo con Datos Reales</a>
+            <a href="#" class="btn-template" onclick="validarArchivoExcel()">🔍 Validar mi Archivo Excel</a>
         </div>
 
         <div class="instructions">
-            <h3>📝 Instrucciones de Uso</h3>
+            <h3>📝 Estructura Requerida (Base de Datos)</h3>
             <ul>
-                <li><strong>Formato requerido:</strong> Archivo Excel (.xlsx) o CSV</li>
-                <li><strong>Columnas obligatorias:</strong> Nombre, DNI, Email, Rol</li>
-                <li><strong>DNI:</strong> Debe tener exactamente 8 dígitos numéricos</li>
-                <li><strong>Columnas opcionales:</strong> Puesto, Area, Telefono</li>
-                <li><strong>Validaciones:</strong> Email único, DNI único, formato válido</li>
-                <li><strong>Contraseña temporal:</strong> Se asigna automáticamente (Hackless2025!)</li>
+                <li><strong>📁 Formato:</strong> Archivo Excel (.xlsx) con estructura específica</li>
+                <li><strong>✅ Columnas OBLIGATORIAS:</strong>
+                    <ul>
+                        <li><strong>Nombre:</strong> Texto hasta 100 caracteres</li>
+                        <li><strong>Email:</strong> Dirección email válida y única (hasta 100 caracteres)</li>
+                    </ul>
+                </li>
+                <li><strong>🔧 Columnas OPCIONALES:</strong>
+                    <ul>
+                        <li><strong>Rol:</strong> administrador, operativo, auditor, supervisor, rrhh, seguridad_higiene, empleado (por defecto)</li>
+                        <li><strong>Puesto:</strong> Descripción del puesto (hasta 100 caracteres)</li>
+                        <li><strong>Area:</strong> Área de trabajo (hasta 100 caracteres)</li>
+                        <li><strong>Telefono:</strong> Número de contacto (hasta 20 caracteres)</li>
+                    </ul>
+                </li>
+                <li><strong>🔒 Validaciones automáticas:</strong>
+                    <ul>
+                        <li>Email único en todo el sistema</li>
+                        <li>Formato de email válido (@dominio.com)</li>
+                        <li>Rol debe ser uno de los valores permitidos</li>
+                        <li>Longitud de campos respetada</li>
+                    </ul>
+                </li>
+                <li><strong>🔑 Contraseña temporal:</strong> Hackless2025! (debe cambiarse en primer login)</li>
             </ul>
         </div>
 
@@ -1138,33 +1157,92 @@
             hideElement('manualPreview');
         }
 
-        // === FUNCIONES PARA DESCARGA DE PLANTILLAS ===
-        function downloadTemplate() {
-            // Crear CSV de plantilla
-            const template = `Nombre,DNI,Email,Rol,Puesto,Area,Telefono
-Juan Pérez,12345678,jperez@empresa.com,empleado,Ingeniero de Producción,Operaciones,+54 9 11 1234-5678
-María González,87654321,mgonzalez@empresa.com,empleado,Técnica en Seguridad,HSE,+54 9 11 2345-6789`;
-            
-            downloadCSV(template, 'plantilla_empleados.csv');
+        // === FUNCIONES PARA DESCARGA DE PLANTILLAS ESTRUCTURADAS ===
+        async function downloadPlantillaEstructurada() {
+            try {
+                const response = await fetch('/empleados_plantilla_estructurada.xlsx');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    downloadFile(blob, 'empleados_plantilla_estructurada.xlsx');
+                    showAlert('Plantilla estructurada descargada exitosamente', 'success');
+                } else {
+                    // Si no existe, crearla usando el script
+                    showAlert('Generando plantilla estructurada...', 'info');
+                    const createResponse = await fetch('/api/generar-plantilla-estructurada', { method: 'POST' });
+                    if (createResponse.ok) {
+                        const blob = await createResponse.blob();
+                        downloadFile(blob, 'empleados_plantilla_estructurada.xlsx');
+                        showAlert('Plantilla creada y descargada exitosamente', 'success');
+                    } else {
+                        throw new Error('No se pudo generar la plantilla');
+                    }
+                }
+            } catch (error) {
+                console.error('Error al descargar plantilla:', error);
+                showAlert('Error al descargar plantilla estructurada', 'danger');
+            }
         }
 
-        function downloadSample() {
-            // Descargar el archivo de ejemplo que creamos
-            fetch('/empleados_ejemplo.csv')
-                .then(response => response.text())
-                .then(data => downloadCSV(data, 'empleados_ejemplo.csv'))
-                .catch(() => {
-                    // Si no existe, crear uno simple
-                    const sample = `Nombre,DNI,Email,Rol,Puesto,Area,Telefono
-Carlos Rodríguez,11223344,crodriguez@ejemplo.com,empleado,Supervisor de Campo,Operaciones,+54 9 11 3456-7890
-Ana Martínez,44556677,amartinez@ejemplo.com,empleado,Coordinadora de Documentación,Administración,+54 9 11 4567-8901
-Luis Fernández,77889900,lfernandez@ejemplo.com,empleado,Técnico en Mantenimiento,Mantenimiento,+54 9 11 5678-9012`;
-                    downloadCSV(sample, 'empleados_ejemplo.csv');
+        async function downloadEjemploActualizado() {
+            try {
+                const response = await fetch('/empleados_ejemplo_actualizado.xlsx');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    downloadFile(blob, 'empleados_ejemplo_actualizado.xlsx');
+                    showAlert('Ejemplo actualizado descargado exitosamente', 'success');
+                } else {
+                    // Si no existe, crear ejemplo simple
+                    showAlert('Generando ejemplo actualizado...', 'info');
+                    const createResponse = await fetch('/api/generar-ejemplo-actualizado', { method: 'POST' });
+                    if (createResponse.ok) {
+                        const blob = await createResponse.blob();
+                        downloadFile(blob, 'empleados_ejemplo_actualizado.xlsx');
+                        showAlert('Ejemplo creado y descargado exitosamente', 'success');
+                    } else {
+                        throw new Error('No se pudo generar el ejemplo');
+                    }
+                }
+            } catch (error) {
+                console.error('Error al descargar ejemplo:', error);
+                showAlert('Error al descargar ejemplo actualizado', 'danger');
+            }
+        }
+
+        async function validarArchivoExcel() {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                showAlert('Por favor selecciona un archivo Excel primero', 'warning');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showAlert('Validando estructura del archivo...', 'info');
+                const response = await fetch('/api/validar-excel', {
+                    method: 'POST',
+                    body: formData
                 });
+
+                const result = await response.json();
+                
+                if (result.valido) {
+                    showAlert(`✅ ARCHIVO VÁLIDO - ${result.filasValidadas} filas procesables`, 'success');
+                    if (result.advertencias && result.advertencias.length > 0) {
+                        showAlert(`⚠️ Advertencias: ${result.advertencias.join(', ')}`, 'warning');
+                    }
+                } else {
+                    showAlert(`❌ ARCHIVO INVÁLIDO - ${result.errores.join(', ')}`, 'danger');
+                }
+            } catch (error) {
+                console.error('Error al validar archivo:', error);
+                showAlert('Error al validar archivo Excel', 'danger');
+            }
         }
 
-        function downloadCSV(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        function downloadFile(blob, filename) {
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
@@ -1173,6 +1251,16 @@ Luis Fernández,77889900,lfernandez@ejemplo.com,empleado,Técnico en Mantenimien
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // === FUNCIONES LEGACY PARA COMPATIBILIDAD ===
+        function downloadTemplate() {
+            downloadPlantillaEstructurada();
+        }
+
+        function downloadSample() {
+            downloadEjemploActualizado();
         }
 
         // === FUNCIONES PARA MODIFICAR Y ELIMINAR EMPLEADO ===
