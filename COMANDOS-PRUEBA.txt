@@ -1,0 +1,177 @@
+=================================================================
+🧪 COMANDOS DE PRUEBA RÁPIDA - HACKLESS TFG PROTOTIPO
+=================================================================
+
+// ========================================
+// 🚀 1. INICIALIZACIÓN
+// ========================================
+
+cd "c:\Users\pc\proyectos Vero\Hackless-TFG-Prototipo"
+node app.js
+
+// ========================================
+// 🔐 2. AUTENTICACIÓN BÁSICA  
+// ========================================
+
+// A) Registrar usuario administrador:
+Invoke-WebRequest -Uri "http://localhost:3000/api/auth/register" -Method POST -ContentType "application/json" -Body '{"nombre":"Test Admin","correo_electronico":"admin@test.com","password":"Admin123!","rol":"administrador"}'
+
+// B) Login para obtener token:
+$response = Invoke-WebRequest -Uri "http://localhost:3000/api/auth/login" -Method POST -ContentType "application/json" -Body '{"correo_electronico":"admin@test.com","password":"Admin123!"}'
+$loginData = $response.Content | ConvertFrom-Json
+$token = $loginData.access_token
+Write-Host "Token obtenido: $token"
+
+// ========================================
+// 📊 3. PRUEBAS DE DASHBOARD
+// ========================================
+
+// Configurar headers con token:
+$headers = @{
+    "Authorization" = "Bearer $token"
+    "Content-Type" = "application/json"
+}
+
+// Obtener métricas del dashboard:
+Invoke-WebRequest -Uri "http://localhost:3000/api/metrics/dashboard" -Headers $headers
+
+// Obtener reporte de seguridad:
+Invoke-WebRequest -Uri "http://localhost:3000/api/metrics/security-report" -Headers $headers
+
+// ========================================
+// 🎣 4. PRUEBAS DE PHISHING
+// ========================================
+
+// A) Crear campaña:
+$campaignBody = @{
+    nombre_campana = "Test Banking"
+    template_usado = "banco_falso" 
+    destinatarios = @("emp1@test.com", "emp2@test.com")
+    descripcion = "Prueba de phishing bancario"
+} | ConvertTo-Json
+
+$campaignResponse = Invoke-WebRequest -Uri "http://localhost:3000/api/phishing/crear-campana" -Method POST -Headers $headers -Body $campaignBody
+$campaignData = $campaignResponse.Content | ConvertFrom-Json
+$campaignId = $campaignData.campana.id
+Write-Host "Campaña ID: $campaignId"
+
+// B) Iniciar campaña:
+Invoke-WebRequest -Uri "http://localhost:3000/api/phishing/iniciar-campana/$campaignId" -Method POST -Headers $headers
+
+// C) Ver estadísticas:
+Invoke-WebRequest -Uri "http://localhost:3000/api/phishing/estadisticas/$campaignId" -Headers $headers
+
+// ========================================
+// 🖥️ 5. ACCESO A FRONTEND
+// ========================================
+
+// Abrir en navegador:
+start "http://localhost:3000/dashboard-metricas.html"
+start "http://localhost:3000/simulador-phishing.html" 
+start "http://localhost:3000/test-jwt.html"
+
+// ========================================
+// 🔒 6. PRUEBAS DE SEGURIDAD
+// ========================================
+
+// A) Acceso sin token (debe fallar):
+try {
+    Invoke-WebRequest -Uri "http://localhost:3000/api/metrics/dashboard"
+} catch {
+    Write-Host "✅ CORRECTO: Acceso denegado sin token"
+}
+
+// B) Token inválido (debe fallar):
+$badHeaders = @{
+    "Authorization" = "Bearer token_falso"
+    "Content-Type" = "application/json"
+}
+try {
+    Invoke-WebRequest -Uri "http://localhost:3000/api/metrics/dashboard" -Headers $badHeaders
+} catch {
+    Write-Host "✅ CORRECTO: Token inválido rechazado"
+}
+
+// ========================================
+// 📋 CHECKLIST DE VERIFICACIÓN
+// ========================================
+
+ANTES DE EMPEZAR:
+□ XAMPP iniciado con MySQL corriendo
+□ Base de datos 'hackless_db' creada
+□ Dependencias instaladas (npm install)
+□ Servidor Node.js corriendo en puerto 3000
+
+PRUEBAS PRINCIPALES:
+□ Registro de usuario exitoso
+□ Login JWT obtiene token válido
+□ Dashboard de métricas responde con datos
+□ Campaña phishing se crea correctamente
+□ Endpoints protegidos requieren autenticación
+□ Frontend es accesible desde navegador
+□ Gráficos Chart.js se renderizan correctamente
+
+FUNCIONALIDADES CLAVE:
+□ Autenticación JWT con bcrypt
+□ Simulaciones de phishing con tracking
+□ Dashboard interactivo con métricas
+□ Control de acceso por roles
+□ Interfaz responsive y profesional
+
+=================================================================
+🎯 DATOS DE EJEMPLO PARA PRUEBAS
+=================================================================
+
+USUARIO ADMINISTRADOR:
+- Email: admin@test.com
+- Password: Admin123!
+- Rol: administrador
+
+USUARIO EMPLEADO:
+- Email: empleado@test.com  
+- Password: Emp123!
+- Rol: empleado
+
+CAMPAÑA DE PHISHING:
+- Nombre: "Simulación Bancaria Q4"
+- Template: "banco_falso"
+- Destinatarios: ["juan@empresa.com", "maria@empresa.com"]
+- Descripción: "Evaluación de conciencia en seguridad"
+
+=================================================================
+🚀 SCRIPT AUTOMATIZADO
+=================================================================
+
+Para ejecutar todas las pruebas automáticamente:
+.\test-hackless.ps1
+
+Con parámetros específicos:
+.\test-hackless.ps1 -BaseUrl "http://localhost:3000" -TestUser "admin@test.com"
+
+=================================================================
+📊 ENDPOINTS PRINCIPALES
+=================================================================
+
+AUTENTICACIÓN:
+POST /api/auth/register    - Registrar usuario
+POST /api/auth/login       - Login con JWT
+POST /api/auth/refresh     - Renovar token
+
+PHISHING:
+POST /api/phishing/crear-campana        - Crear campaña
+POST /api/phishing/iniciar-campana/:id  - Iniciar campaña  
+GET  /api/phishing/estadisticas/:id     - Ver estadísticas
+GET  /phishing/capture/:token           - Capturar click
+
+MÉTRICAS:
+GET  /api/metrics/dashboard             - KPIs generales
+GET  /api/metrics/campaign/:id          - Métricas específicas
+GET  /api/metrics/security-report       - Reporte ejecutivo
+
+FRONTEND:
+GET  /                                  - Homepage
+GET  /dashboard-metricas.html          - Dashboard visual
+GET  /simulador-phishing.html          - Simulador UI
+GET  /test-jwt.html                    - Test autenticación
+
+=================================================================

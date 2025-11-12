@@ -20,6 +20,8 @@ const { connectDB, sequelize } = require('./config/database');
 const Usuario = require('./models/Usuario');
 const Documentacion = require('./models/Documentacion');
 const SolicitudDemo = require('./models/SolicitudDemo');
+const SimulacionPhishing = require('./models/SimulacionPhishing');
+const RespuestaPhishing = require('./models/RespuestaPhishing');
 
 const app = express();
 
@@ -34,6 +36,58 @@ app.use(session({
   saveUninitialized: false,
   cookie: { secure: false }
 }));
+
+// === RUTA DE PRUEBA INMEDIATA ===
+app.get('/test', (req, res) => {
+  console.log('🧪 Endpoint de prueba llamado');
+  res.json({ 
+    message: 'Servidor funcionando correctamente', 
+    timestamp: new Date().toISOString(),
+    status: 'ok'
+  });
+});
+
+// === CONFIGURACIÓN DE RUTAS JWT ===
+const authJwtRoutes = require('./src/routes/auth_jwt');
+app.use('/api/auth', authJwtRoutes);
+
+// === CONFIGURACIÓN DE RUTAS PHISHING ===
+const phishingRoutes = require('./src/routes/phishing');
+app.use('/api/phishing', phishingRoutes);
+
+// Ruta pública para captura de clicks de phishing
+app.use('/phishing', phishingRoutes);
+
+// === CONFIGURACIÓN DE RUTAS MÉTRICAS ===
+const metricsRoutes = require('./src/routes/metrics');
+app.use('/api/metrics', metricsRoutes);
+
+// === ENDPOINT DE PRUEBA PARA MÉTRICAS ===
+app.get('/api/metrics-test', async (req, res) => {
+  try {
+    console.log('🧪 Probando endpoint de métricas...');
+    
+    const totalUsuarios = await Usuario.count({ where: { activo: true } });
+    const totalCampanas = await SimulacionPhishing.count({ where: { activo: true } });
+    
+    res.json({
+      success: true,
+      message: 'Endpoint de métricas funcionando correctamente',
+      test_data: {
+        total_usuarios: totalUsuarios || 0,
+        total_campanas: totalCampanas || 0,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en endpoint de prueba:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 
 // === ENDPOINTS PARA DESCARGA DE PLANTILLAS DE EMPLEADOS ===
 app.get('/api/demo/generar-excel-empleados', (req, res) => {

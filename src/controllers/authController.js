@@ -1,84 +1,164 @@
-// Controlador de autenticación
+// Controlador de autenticación con JWT y bcrypt según lineamientos TFG
+const bcrypt = require('bcryptjs');
+const { Usuario } = require('../../models/Usuario');
+const { generateAccessToken, generateRefreshToken } = require('../middleware/jwtAuth');
+
 const authController = {
-  // Registro de usuario
+  // Registro de usuario con hash bcrypt
   register: async (req, res) => {
     try {
-      const { nombre, apellido, email, password, dni } = req.body;
+      const { nombre, apellido, email, password, dni, rol = 'empleado' } = req.body;
       
-      // Implementar lógica de registro
-      res.json({ 
-        success: true, 
+      // Validaciones básicas
+      if (!nombre || !email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nombre, email y contraseña son requeridos'
+        });
+      }
+
+      // Verificar si el usuario ya existe
+      const existingUser = await Usuario.findOne({ 
+        where: { correo_electronico: email } 
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Ya existe un usuario con este email'
+        });
+      }
+
+      // Hash de contraseña con bcrypt (factor 12 según lineamientos)
+      const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // Crear usuario
+      const newUser = await Usuario.create({
+        nombre,
+        apellido,
+        correo_electronico: email,
+        contraseña: hashedPassword,
+        rol,
+        dni,
+        fecha_creacion: new Date(),
+        activo: true
+      });
+
+      // Generar tokens
+      const accessToken = generateAccessToken(newUser);
+      const refreshToken = generateRefreshToken(newUser);
+
+      res.status(201).json({
+        success: true,
         message: 'Usuario registrado exitosamente',
-        userId: Date.now()
+        user: {
+          id: newUser.id_usuario,
+          nombre: newUser.nombre,
+          email: newUser.correo_electronico,
+          rol: newUser.rol
+        },
+        accessToken,
+        refreshToken,
+        expiresIn: '15m'
       });
     } catch (error) {
-      res.status(500).json({ 
-        success: false, 
+      console.error('Error en registro:', error);
+      res.status(500).json({
+        success: false,
         message: 'Error al registrar usuario',
-        error: error.message 
+        error: error.message
       });
     }
   },
 
-  // Login de usuario
+  // Login de usuario con JWT
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
       
       // Validación básica
       if (!email || !password) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Email y contraseña son requeridos' 
+        return res.status(400).json({
+          success: false,
+          message: 'Email y contraseña son requeridos'
         });
       }
       
-      // Implementar lógica de login
-      req.session.userId = Date.now();
-      req.session.userRole = 'admin';
-      req.session.userEmail = email;
+      // Buscar usuario por email
+      const user = await Usuario.findOne({
+        where: { correo_electronico: email }
+      });
       
-      res.json({ 
-        success: true, 
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Credenciales incorrectas'
+        });
+      }
+      
+      // Verificar si la cuenta está activa
+      if (!user.activo) {
+        return res.status(401).json({
+          success: false,
+          message: 'Cuenta desactivada'
+        });
+      }
+      
+      // Verificar contraseña con bcrypt
+      const isValidPassword = await bcrypt.compare(password, user.contraseña);
+      
+      if (!isValidPassword) {
+        // TODO: Implementar contador de intentos fallidos según lineamientos
+        return res.status(401).json({
+          success: false,
+          message: 'Credenciales incorrectas'
+        });
+      }
+      
+      // Generar tokens JWT
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      
+      res.json({
+        success: true,
         message: 'Login exitoso',
+        user: {
+          id: user.id_usuario,
+          nombre: user.nombre,
+          email: user.correo_electronico,
+          rol: user.rol
+        },
+        accessToken,
+        refreshToken,
+        expiresIn: '15m',
         redirect: '/escritorio.html'
       });
     } catch (error) {
-      res.status(500).json({ 
-        success: false, 
+      console.error('Error en login:', error);
+      res.status(500).json({
+        success: false,
         message: 'Error al iniciar sesión',
-        error: error.message 
+        error: error.message
       });
     }
   },
 
-  // Logout de usuario
+  // Logout de usuario (invalidar token en cliente)
   logout: (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ 
-          success: false, 
-          message: 'Error al cerrar sesión' 
-        });
-      }
-      res.json({ 
-        success: true, 
-        message: 'Sesión cerrada exitosamente' 
-      });
+    res.json({
+      success: true,
+      message: 'Sesión cerrada exitosamente - eliminar tokens del cliente'
     });
   },
 
-  // Verificar sesión
-  checkSession: (req, res) => {
-    if (req.session.userId) {
-      res.json({ 
-        authenticated: true, 
-        userId: req.session.userId,
-        role: req.session.userRole
-      });
-    } else {
-      res.json({ authenticated: false });
-    }
+  // Verificar token JWT
+  checkAuth: (req, res) => {
+    // Este endpoint se ejecuta después del middleware verifyToken
+    res.json({
+      authenticated: true,
+      user: req.user
+    });
   }
 };
 

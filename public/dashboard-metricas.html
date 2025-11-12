@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Seguridad - Hackless TFG</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.0/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-change {
+            margin-top: 8px;
+            font-size: 0.85em;
+        }
+
+        .positive-change {
+            color: var(--success-color);
+        }
+
+        .negative-change {
+            color: var(--danger-color);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .campaigns-table-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        .campaigns-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .campaigns-table th,
+        .campaigns-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .campaigns-table th {
+            background-color: var(--light-bg);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .status-draft {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .status-finished {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            background: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .risk-low {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .risk-medium {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .risk-high {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .risk-critical {
+            background-color: #8e44ad;
+            color: white;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2em;
+            }
+            
+            .metric-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshDashboard()">
+        <i class="fas fa-sync-alt"></i> Actualizar
+    </button>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-shield-alt"></i> Dashboard de Seguridad</h1>
+            <p>Centro de Control y Métricas de Ciberseguridad - Hackless TFG</p>
+            <p id="lastUpdate" class="last-update"></p>
+        </div>
+
+        <!-- KPIs Principales -->
+        <div class="metrics-grid" id="metricsGrid">
+            <!-- Se llenarán dinámicamente con JavaScript -->
+        </div>
+
+        <!-- Gráficos -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> Distribución de Usuarios</h3>
+                <canvas id="usersChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-line"></i> Tendencia de Vulnerabilidades</h3>
+                <canvas id="vulnerabilityTrendChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="chart-card full-width">
+                <h3><i class="fas fa-chart-bar"></i> Análisis Mensual de Campañas</h3>
+                <canvas id="monthlyAnalysisChart" width="800" height="400"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3><i class="fas fa-envelope"></i> Efectividad por Template</h3>
+                <canvas id="templateEffectivenessChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabla de Campañas Recientes -->
+        <div class="campaigns-table-card">
+            <h3><i class="fas fa-history"></i> Campañas Recientes</h3>
+            <table class="campaigns-table" id="campaignsTable">
+                <thead>
+                    <tr>
+                        <th>Campaña</th>
+                        <th>Estado</th>
+                        <th>Template</th>
+                        <th>Tasa de Éxito</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="campaignsTableBody">
+                    <!-- Se llenará dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales para los gráficos
+        let charts = {};
+        let dashboardData = null;
+
+        // Configuración de autenticación
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        const apiHeaders = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            // Actualizar cada 5 minutos
+            setInterval(loadDashboard, 300000);
+        });
+
+        // Función principal para cargar el dashboard
+        async function loadDashboard() {
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/metrics/dashboard', {
+                    headers: apiHeaders
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                dashboardData = await response.json();
+                
+                if (dashboardData.success) {
+                    renderMetrics(dashboardData.dashboard);
+                    renderCharts(dashboardData.dashboard);
+                    renderCampaignsTable(dashboardData.dashboard.campanas_recientes);
+                    updateLastUpdate();
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+                showError('Error al cargar el dashboard. Por favor, intente nuevamente.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Renderizar métricas KPI
+        function renderMetrics(data) {
+            const metricsGrid = document.getElementById('metricsGrid');
+            const resumen = data.resumen;
+
+            const metrics = [
+                {
+                    icon: 'fas fa-users',
+                    value: resumen.total_usuarios,
+                    label: 'Usuarios Activos',
+                    color: 'var(--info-color)'
+                },
+                {
+                    icon: 'fas fa-envelope-open-text',
+                    value: resumen.total_campanas,
+                    label: 'Campañas Creadas',
+                    color: 'var(--primary-color)'
+                },
+                {
+                    icon: 'fas fa-play-circle',
+                    value: resumen.campanas_activas,
+                    label: 'Campañas Activas',
+                    color: 'var(--success-color)'
+                },
+                {
+                    icon: 'fas fa-paper-plane',
+                    value: resumen.emails_enviados.toLocaleString(),
+                    label: 'Emails Enviados',
+                    color: 'var(--info-color)'
+                },
+                {
+                    icon: 'fas fa-mouse-pointer',
+                    value: resumen.clicks_recibidos.toLocaleString(),
+                    label: 'Clicks Recibidos',
+                    color: 'var(--warning-color)'
+                },
+                {
+                    icon: 'fas fa-exclamation-triangle',
+                    value: resumen.credenciales_comprometidas.toLocaleString(),
+                    label: 'Credenciales Comprometidas',
+                    color: 'var(--danger-color)'
+                },
+                {
+                    icon: 'fas fa-percentage',
+                    value: `${resumen.tasa_vulnerabilidad_general}%`,
+                    label: 'Tasa de Vulnerabilidad',
+                    color: parseFloat(resumen.tasa_vulnerabilidad_general) > 20 ? 'var(--danger-color)' : 
+                           parseFloat(resumen.tasa_vulnerabilidad_general) > 10 ? 'var(--warning-color)' : 'var(--success-color)'
+                },
+                {
+                    icon: 'fas fa-chart-line',
+                    value: `${resumen.tasa_click_general}%`,
+                    label: 'Tasa de Click',
+                    color: 'var(--info-color)'
+                }
+            ];
+
+            metricsGrid.innerHTML = metrics.map(metric => `
+                <div class="metric-card">
+                    <div class="metric-icon" style="color: ${metric.color}">
+                        <i class="${metric.icon}"></i>
+                    </div>
+                    <div class="metric-value" style="color: ${metric.color}">${metric.value}</div>
+                    <div class="metric-label">${metric.label}</div>
+                </div>
+            `).join('');
+        }
+
+        // Renderizar gráficos
+        function renderCharts(data) {
+            // Destruir gráficos existentes
+            Object.keys(charts).forEach(key => {
+                if (charts[key]) {
+                    charts[key].destroy();
+                }
+            });
+
+            // Gráfico de distribución de usuarios
+            const userCtx = document.getElementById('usersChart').getContext('2d');
+            charts.usersChart = new Chart(userCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.usuarios_por_rol.map(u => u.rol.charAt(0).toUpperCase() + u.rol.slice(1)),
+                    datasets: [{
+                        data: data.usuarios_por_rol.map(u => u.cantidad),
+                        backgroundColor: [
+                            'var(--primary-color)',
+                            'var(--success-color)',
+                            'var(--warning-color)',
+                            'var(--info-color)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de tendencia mensual
+            if (data.tendencia_mensual && data.tendencia_mensual.length > 0) {
+                const trendCtx = document.getElementById('vulnerabilityTrendChart').getContext('2d');
+                charts.vulnerabilityTrendChart = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.tendencia_mensual.map(t => {
+                            const [year, month] = t.mes.split('-');
+                            return new Date(year, month - 1).toLocaleDateString('es-ES', { 
+                                year: '2-digit', 
+                                month: 'short' 
+                            });
+                        }),
+                        datasets: [{
+                            label: 'Tasa de Vulnerabilidad (%)',
+                            data: data.tendencia_mensual.map(t => parseFloat(t.tasa_vulnerabilidad)),
+                            borderColor: 'var(--danger-color)',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de análisis mensual completo
+            if (data.tendencia_mensual && data.tendencia_mensual.length > 0) {
+                const monthlyCtx = document.getElementById('monthlyAnalysisChart').getContext('2d');
+                charts.monthlyAnalysisChart = new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.tendencia_mensual.map(t => {
+                            const [year, month] = t.mes.split('-');
+                            return new Date(year, month - 1).toLocaleDateString('es-ES', { 
+                                year: '2-digit', 
+                                month: 'short' 
+                            });
+                        }),
+                        datasets: [
+                            {
+                                label: 'Emails Enviados',
+                                data: data.tendencia_mensual.map(t => t.emails),
+                                backgroundColor: 'var(--info-color)',
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Clicks Recibidos',
+                                data: data.tendencia_mensual.map(t => t.clicks),
+                                backgroundColor: 'var(--warning-color)',
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Vulnerables',
+                                data: data.tendencia_mensual.map(t => t.vulnerables),
+                                backgroundColor: 'var(--danger-color)',
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de efectividad por template
+            if (data.efectividad_templates && data.efectividad_templates.length > 0) {
+                const templateCtx = document.getElementById('templateEffectivenessChart').getContext('2d');
+                charts.templateEffectivenessChart = new Chart(templateCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.efectividad_templates.map(t => t.template),
+                        datasets: [{
+                            label: 'Tasa de Éxito Promedio (%)',
+                            data: data.efectividad_templates.map(t => parseFloat(t.tasa_promedio)),
+                            backgroundColor: data.efectividad_templates.map(() => 'var(--primary-color)')
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Renderizar tabla de campañas
+        function renderCampaignsTable(campaigns) {
+            const tbody = document.getElementById('campaignsTableBody');
+            
+            if (!campaigns || campaigns.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No hay campañas recientes</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = campaigns.map(campaign => `
+                <tr>
+                    <td><strong>${campaign.nombre_campana}</strong></td>
+                    <td><span class="status-badge ${getStatusClass(campaign.estado)}">${getStatusLabel(campaign.estado)}</span></td>
+                    <td>${campaign.template || 'N/A'}</td>
+                    <td><strong>${campaign.tasa_exito || 0}%</strong></td>
+                    <td>${new Date(campaign.fecha_creacion).toLocaleDateString('es-ES')}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Funciones auxiliares
+        function getStatusClass(status) {
+            const statusMap = {
+                'activa': 'status-active',
+                'borrador': 'status-draft',
+                'finalizada': 'status-finished'
+            };
+            return statusMap[status] || 'status-draft';
+        }
+
+        function getStatusLabel(status) {
+            const labelMap = {
+                'activa': 'Activa',
+                'borrador': 'Borrador',
+                'finalizada': 'Finalizada'
+            };
+            return labelMap[status] || status;
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function showError(message) {
+            const container = document.querySelector('.dashboard-container');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            container.insertBefore(errorDiv, container.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function updateLastUpdate() {
+            const lastUpdate = document.getElementById('lastUpdate');
+            lastUpdate.textContent = `Última actualización: ${new Date().toLocaleString('es-ES')}`;
+        }
+
+        function refreshDashboard() {
+            loadDashboard();
+        }
+
+        // Verificar token periódicamente
+        setInterval(() => {
+            if (!localStorage.getItem('access_token')) {
+                window.location.href = 'login.html';
+            }
+        }, 60000);
+    </script>
+</body>
+</html>

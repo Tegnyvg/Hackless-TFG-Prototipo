@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test JWT - Hackless</title>
+    <link rel="stylesheet" href="css/hackless-global.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--border-color);
+        }
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-left: 4px solid var(--primary-color);
+            background: var(--bg-secondary);
+        }
+        .test-form {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .test-input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-width: 200px;
+        }
+        .test-button {
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .test-button:hover {
+            background: var(--primary-light);
+        }
+        .test-result {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        .result-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .token-display {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            word-break: break-all;
+            font-size: 0.8rem;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔐 Pruebas de Autenticación JWT - Hackless TFG</h1>
+        <p>Esta página permite probar la implementación de JWT según los lineamientos de seguridad del TFG.</p>
+        
+        <!-- Registro -->
+        <div class="test-section">
+            <h3>📝 Registro de Usuario</h3>
+            <div class="test-form">
+                <input type="text" id="reg-nombre" class="test-input" placeholder="Nombre" value="Test Usuario">
+                <input type="email" id="reg-email" class="test-input" placeholder="Email" value="test@hackless.com">
+                <input type="password" id="reg-password" class="test-input" placeholder="Contraseña" value="123456">
+                <button onclick="testRegister()" class="test-button">Registrar</button>
+            </div>
+            <div id="register-result" class="test-result" style="display:none;"></div>
+        </div>
+
+        <!-- Login -->
+        <div class="test-section">
+            <h3>🔑 Login de Usuario</h3>
+            <div class="test-form">
+                <input type="email" id="login-email" class="test-input" placeholder="Email" value="test@hackless.com">
+                <input type="password" id="login-password" class="test-input" placeholder="Contraseña" value="123456">
+                <button onclick="testLogin()" class="test-button">Login</button>
+            </div>
+            <div id="login-result" class="test-result" style="display:none;"></div>
+        </div>
+
+        <!-- Tokens -->
+        <div class="test-section">
+            <h3>🎫 Tokens Almacenados</h3>
+            <p><strong>Access Token:</strong></p>
+            <div id="access-token" class="token-display">No disponible</div>
+            <p><strong>Refresh Token:</strong></p>
+            <div id="refresh-token" class="token-display">No disponible</div>
+            <button onclick="refreshAccessToken()" class="test-button">Renovar Access Token</button>
+            <div id="refresh-result" class="test-result" style="display:none;"></div>
+        </div>
+
+        <!-- Prueba de endpoint protegido -->
+        <div class="test-section">
+            <h3>🛡️ Endpoint Protegido</h3>
+            <button onclick="testProtectedEndpoint()" class="test-button">Probar /api/auth/check-auth</button>
+            <div id="protected-result" class="test-result" style="display:none;"></div>
+        </div>
+
+        <!-- Logout -->
+        <div class="test-section">
+            <h3>🚪 Cerrar Sesión</h3>
+            <button onclick="testLogout()" class="test-button">Logout</button>
+            <div id="logout-result" class="test-result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = localStorage.getItem('accessToken');
+        let refreshToken = localStorage.getItem('refreshToken');
+
+        // Actualizar display de tokens
+        function updateTokenDisplay() {
+            document.getElementById('access-token').textContent = accessToken || 'No disponible';
+            document.getElementById('refresh-token').textContent = refreshToken || 'No disponible';
+        }
+
+        // Función para mostrar resultados
+        function showResult(elementId, data, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `test-result ${isSuccess ? 'result-success' : 'result-error'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Test de registro
+        async function testRegister() {
+            const nombre = document.getElementById('reg-nombre').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nombre, email, password })
+                });
+
+                const data = await response.json();
+                showResult('register-result', data, response.ok);
+
+                if (response.ok && data.accessToken) {
+                    accessToken = data.accessToken;
+                    refreshToken = data.refreshToken;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+                    updateTokenDisplay();
+                }
+            } catch (error) {
+                showResult('register-result', { error: error.message }, false);
+            }
+        }
+
+        // Test de login
+        async function testLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                showResult('login-result', data, response.ok);
+
+                if (response.ok && data.accessToken) {
+                    accessToken = data.accessToken;
+                    refreshToken = data.refreshToken;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+                    updateTokenDisplay();
+                }
+            } catch (error) {
+                showResult('login-result', { error: error.message }, false);
+            }
+        }
+
+        // Test de endpoint protegido
+        async function testProtectedEndpoint() {
+            if (!accessToken) {
+                showResult('protected-result', { error: 'No hay token de acceso' }, false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/check-auth', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const data = await response.json();
+                showResult('protected-result', data, response.ok);
+            } catch (error) {
+                showResult('protected-result', { error: error.message }, false);
+            }
+        }
+
+        // Renovar access token
+        async function refreshAccessToken() {
+            if (!refreshToken) {
+                showResult('refresh-result', { error: 'No hay refresh token' }, false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/refresh-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ refreshToken })
+                });
+
+                const data = await response.json();
+                showResult('refresh-result', data, response.ok);
+
+                if (response.ok && data.accessToken) {
+                    accessToken = data.accessToken;
+                    localStorage.setItem('accessToken', accessToken);
+                    updateTokenDisplay();
+                }
+            } catch (error) {
+                showResult('refresh-result', { error: error.message }, false);
+            }
+        }
+
+        // Test de logout
+        async function testLogout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const data = await response.json();
+                showResult('logout-result', data, response.ok);
+
+                if (response.ok) {
+                    accessToken = null;
+                    refreshToken = null;
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    updateTokenDisplay();
+                }
+            } catch (error) {
+                showResult('logout-result', { error: error.message }, false);
+            }
+        }
+
+        // Inicializar display
+        updateTokenDisplay();
+    </script>
+</body>
+</html>

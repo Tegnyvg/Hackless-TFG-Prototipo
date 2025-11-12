@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎣 Simulador de Phishing - Hackless TFG</title>
+    <link rel="stylesheet" href="css/hackless-global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .phishing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .section-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .btn-phishing {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-phishing:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+        .campaign-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .campaign-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .campaign-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-activa { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-borrador { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+        .status-finalizada { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .metric-card {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .template-preview {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="phishing-container">
+        <header class="section-header">
+            <div>
+                <h1>🎣 Simulador de Phishing</h1>
+                <p>Gestión de campañas de simulación según lineamientos TFG</p>
+            </div>
+            <a href="escritorio.html" class="btn-secondary">← Volver al Dashboard</a>
+        </header>
+
+        <!-- Crear nueva campaña -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><i class="fas fa-plus-circle"></i> Nueva Campaña de Phishing</h2>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>📋 Recordatorio:</strong> Las simulaciones de phishing deben realizarse únicamente con fines educativos y con el conocimiento y consentimiento de la organización.
+            </div>
+
+            <form id="campaignForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre_campana">Nombre de la Campaña *</label>
+                        <input type="text" id="nombre_campana" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="template_usado">Template de Phishing *</label>
+                        <select id="template_usado" class="form-control" required onchange="mostrarPreview()">
+                            <option value="">Seleccionar template...</option>
+                            <option value="banco_falso">🏦 Banco Falso - Verificación de cuenta</option>
+                            <option value="rrhh_documento">📄 RRHH - Documento importante</option>
+                            <option value="ti_actualizacion">⚙️ TI - Actualización de seguridad</option>
+                            <option value="premio_falso">🎉 Premio Falso - Ganador</option>
+                            <option value="facturacion">💰 Facturación - Pago pendiente</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipo_ataque">Tipo de Ataque</label>
+                        <select id="tipo_ataque" class="form-control">
+                            <option value="email">📧 Email</option>
+                            <option value="sms">📱 SMS</option>
+                            <option value="llamada">📞 Llamada</option>
+                            <option value="link_malicioso">🔗 Link Malicioso</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha_inicio">Fecha de Inicio</label>
+                        <input type="datetime-local" id="fecha_inicio" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" class="form-control" rows="3" placeholder="Describe el objetivo de esta campaña..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="objetivo_simulacion">Objetivo Educativo</label>
+                    <textarea id="objetivo_simulacion" class="form-control" rows="2" placeholder="¿Qué se espera que aprendan los empleados?"></textarea>
+                </div>
+
+                <!-- Preview del template -->
+                <div id="templatePreview" class="template-preview" style="display: none;">
+                    <h4>📧 Preview del Email</h4>
+                    <div id="previewContent"></div>
+                </div>
+
+                <button type="submit" class="btn-phishing">
+                    <i class="fas fa-rocket"></i> Crear Campaña
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de campañas -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><i class="fas fa-list"></i> Campañas Activas</h2>
+                <button onclick="cargarCampanas()" class="btn-secondary">
+                    <i class="fas fa-refresh"></i> Actualizar
+                </button>
+            </div>
+
+            <div id="campaignsList">
+                <div class="alert alert-info">
+                    Cargando campañas...
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas generales -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line"></i> Estadísticas Generales</h2>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalCampanas">0</div>
+                    <div class="metric-label">Campañas Totales</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="campanasActivas">0</div>
+                    <div class="metric-label">Campañas Activas</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="emailsEnviados">0</div>
+                    <div class="metric-label">Emails Enviados</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="tasaExito">0%</div>
+                    <div class="metric-label">Tasa de Vulnerabilidad</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let accessToken = localStorage.getItem('accessToken');
+
+        // Templates de emails
+        const templates = {
+            banco_falso: {
+                asunto: '🔒 Verificación urgente de tu cuenta bancaria',
+                contenido: `
+                    <p><strong>De:</strong> seguridad@banco-nacional.com</p>
+                    <p><strong>Asunto:</strong> Verificación urgente de tu cuenta bancaria</p>
+                    <hr>
+                    <p>Estimado cliente,</p>
+                    <p>Hemos detectado actividad sospechosa en su cuenta. Por seguridad, debe verificar su identidad inmediatamente.</p>
+                    <p><strong style="color: #ff6b6b;">⚠️ Su cuenta será suspendida en 24 horas si no verifica.</strong></p>
+                    <p><a href="#" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">VERIFICAR AHORA</a></p>
+                `
+            },
+            rrhh_documento: {
+                asunto: 'Documento importante de Recursos Humanos',
+                contenido: `
+                    <p><strong>De:</strong> rrhh@empresa.com</p>
+                    <p><strong>Asunto:</strong> Documento importante de Recursos Humanos</p>
+                    <hr>
+                    <p>Hola,</p>
+                    <p>Tienes un documento importante pendiente de revisión en el sistema de RRHH.</p>
+                    <p>Plazo: <strong>Antes del viernes</strong></p>
+                    <p><a href="#" style="background: #28a745; color: white; padding: 8px 16px; text-decoration: none;">Ver Documento</a></p>
+                `
+            },
+            ti_actualizacion: {
+                asunto: 'Actualización crítica de seguridad - Acción requerida',
+                contenido: `
+                    <p><strong>De:</strong> ti-seguridad@empresa.com</p>
+                    <p><strong>Asunto:</strong> Actualización crítica de seguridad</p>
+                    <hr>
+                    <p>URGENTE: Se requiere actualización inmediata del sistema.</p>
+                    <p>⚠️ <strong>Vulnerabilidad crítica detectada</strong></p>
+                    <p>Haz clic para instalar la actualización de seguridad:</p>
+                    <p><a href="#" style="background: #dc3545; color: white; padding: 10px 20px; text-decoration: none;">ACTUALIZAR SISTEMA</a></p>
+                `
+            }
+        };
+
+        // Mostrar preview del template
+        function mostrarPreview() {
+            const template = document.getElementById('template_usado').value;
+            const preview = document.getElementById('templatePreview');
+            const content = document.getElementById('previewContent');
+
+            if (template && templates[template]) {
+                content.innerHTML = templates[template].contenido;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        // Crear nueva campaña
+        document.getElementById('campaignForm').onsubmit = async function(e) {
+            e.preventDefault();
+
+            if (!accessToken) {
+                alert('Debes estar autenticado para crear campañas');
+                return;
+            }
+
+            const formData = {
+                nombre_campana: document.getElementById('nombre_campana').value,
+                descripcion: document.getElementById('descripcion').value,
+                tipo_ataque: document.getElementById('tipo_ataque').value,
+                template_usado: document.getElementById('template_usado').value,
+                objetivo_simulacion: document.getElementById('objetivo_simulacion').value,
+                fecha_inicio: document.getElementById('fecha_inicio').value,
+                destinatarios: [1, 2, 3] // TODO: Seleccionar empleados reales
+            };
+
+            try {
+                const response = await fetch('/api/phishing/campana', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Campaña creada exitosamente!');
+                    this.reset();
+                    document.getElementById('templatePreview').style.display = 'none';
+                    cargarCampanas();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+
+            } catch (error) {
+                alert('Error de conexión: ' + error.message);
+            }
+        };
+
+        // Cargar campañas existentes
+        async function cargarCampanas() {
+            if (!accessToken) return;
+
+            try {
+                const response = await fetch('/api/phishing/campanas', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    mostrarCampanas(result.campanas);
+                    actualizarEstadisticas(result.campanas);
+                } else {
+                    document.getElementById('campaignsList').innerHTML = `
+                        <div class="alert alert-warning">Error cargando campañas: ${result.message}</div>
+                    `;
+                }
+
+            } catch (error) {
+                document.getElementById('campaignsList').innerHTML = `
+                    <div class="alert alert-warning">Error de conexión: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Mostrar campañas en la interfaz
+        function mostrarCampanas(campanas) {
+            const container = document.getElementById('campaignsList');
+            
+            if (campanas.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No hay campañas creadas</div>';
+                return;
+            }
+
+            container.innerHTML = campanas.map(campana => `
+                <div class="campaign-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <h4>${campana.nombre_campana}</h4>
+                            <span class="campaign-status status-${campana.estado}">${campana.estado.toUpperCase()}</span>
+                        </div>
+                        <div>
+                            ${campana.estado === 'borrador' ? 
+                                `<button onclick="iniciarCampana(${campana.id_simulacion})" class="btn-phishing">
+                                    <i class="fas fa-play"></i> Iniciar
+                                </button>` : ''
+                            }
+                            <button onclick="verEstadisticas(${campana.id_simulacion})" class="btn-secondary">
+                                <i class="fas fa-chart-bar"></i> Ver Stats
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">${campana.total_destinatarios}</div>
+                            <div class="metric-label">Destinatarios</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${campana.emails_enviados}</div>
+                            <div class="metric-label">Emails Enviados</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${campana.clicks_recibidos}</div>
+                            <div class="metric-label">Clicks</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${campana.tasa_exito || 0}%</div>
+                            <div class="metric-label">Tasa Éxito</div>
+                        </div>
+                    </div>
+
+                    <p style="margin-top: 1rem; color: var(--text-secondary);">
+                        <i class="fas fa-envelope"></i> ${campana.template_usado} | 
+                        <i class="fas fa-calendar"></i> ${new Date(campana.fecha_creacion).toLocaleDateString()}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        // Iniciar campaña
+        async function iniciarCampana(id) {
+            if (!confirm('¿Estás seguro de iniciar esta campaña? Se enviarán emails de phishing a los destinatarios.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/phishing/campana/${id}/iniciar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Campaña iniciada exitosamente!');
+                    cargarCampanas();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Ver estadísticas detalladas
+        async function verEstadisticas(id) {
+            try {
+                const response = await fetch(`/api/phishing/campana/${id}/estadisticas`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.estadisticas;
+                    alert(`📊 Estadísticas Detalladas:
+                    
+• Total destinatarios: ${stats.total_destinatarios}
+• Emails enviados: ${stats.emails_enviados}
+• Emails abiertos: ${stats.emails_abiertos}
+• Clicks recibidos: ${stats.clicks_recibidos}
+• Credenciales ingresadas: ${stats.credenciales_ingresadas}
+• Phishing reportado: ${stats.phishing_reportado}
+
+📈 Tasas:
+• Tasa apertura: ${stats.tasa_apertura}%
+• Tasa click: ${stats.tasa_click}%
+• Tasa vulnerabilidad: ${stats.tasa_vulnerabilidad}%
+• Tasa reporte: ${stats.tasa_reporte}%`);
+                }
+
+            } catch (error) {
+                alert('Error obteniendo estadísticas: ' + error.message);
+            }
+        }
+
+        // Actualizar estadísticas generales
+        function actualizarEstadisticas(campanas) {
+            const total = campanas.length;
+            const activas = campanas.filter(c => c.estado === 'activa').length;
+            const emailsTotal = campanas.reduce((sum, c) => sum + c.emails_enviados, 0);
+            const tasaPromedio = campanas.length > 0 ? 
+                (campanas.reduce((sum, c) => sum + (parseFloat(c.tasa_exito) || 0), 0) / campanas.length).toFixed(1) : 0;
+
+            document.getElementById('totalCampanas').textContent = total;
+            document.getElementById('campanasActivas').textContent = activas;
+            document.getElementById('emailsEnviados').textContent = emailsTotal;
+            document.getElementById('tasaExito').textContent = tasaPromedio + '%';
+        }
+
+        // Cargar campañas al iniciar
+        window.onload = function() {
+            // Configurar fecha de inicio por defecto (mañana)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(9, 0, 0, 0);
+            document.getElementById('fecha_inicio').value = tomorrow.toISOString().slice(0, 16);
+
+            cargarCampanas();
+        };
+    </script>
+</body>
+</html>
