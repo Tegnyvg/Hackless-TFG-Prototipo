@@ -736,8 +736,8 @@ La experiencia de desarrollar **Hackless** ha sido transformadora, consolidando 
 ### 🏢 **Soporte Comercial**
 Para consultas sobre implementación empresarial o servicios de desarrollo:
 - **Email Comercial:** veronicaandrea.garcia@gmail.com
-- **Teléfono:** +54 9 11 XXXX-XXXX
-- **WhatsApp Business:** [Link directo](https://wa.me/549XXXXXXXXX)
+- **Teléfono:** +54 9 2984746466
+- **WhatsApp Business:** [Link directo](https://wa.me/5492984746466)
 
 ### 🤝 **Colaboraciones Académicas**
 ¿Eres estudiante o docente interesado en colaborar? ¡Contáctanos!
